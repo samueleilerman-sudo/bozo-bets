@@ -3,151 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026/2027 Bozo Bets</title>
+    <title>Bozo Bets | The Buzzards</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        
+        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc, getAuth, signInAnonymously };
+    </script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'] },
                     colors: {
-                        dkGreen: '#53d337',
-                        dkDark: '#09090b',
-                        dkCard: '#18181b',
-                        dkBorder: '#27272a'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        dkDark: '#0a0a0a',
+                        dkCard: '#121212',
+                        dkBorder: '#262626',
+                        dkGreen: '#22c55e',
                     }
                 }
             }
         }
     </script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #09090b; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        body { background-color: #000; color: #fff; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        .glass-nav { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .bozo-spin { animation: spin 8s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         
-        .glass-nav {
-            background: rgba(9, 9, 11, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+        
+        /* Toast Animation */
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast-animate { animation: slideUp 0.3s ease-out forwards; }
     </style>
 </head>
-<body class="bg-dkDark text-gray-200 font-sans min-h-screen selection:bg-dkGreen selection:text-black pb-12">
+<body class="antialiased selection:bg-dkGreen selection:text-black">
 
     <nav id="mainNav" class="glass-nav border-b border-dkBorder p-4 sticky top-0 z-40 transition-all duration-300">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="bg-dkGreen/10 p-2 rounded-lg border border-dkGreen/20">
-                    <i class="ph-fill ph-bird text-dkGreen text-2xl leading-none" title="The Buzzards"></i>
+                <div class="bg-dkGreen/10 p-2 rounded-lg">
+                    <i class="ph-fill ph-bird text-dkGreen text-2xl leading-none"></i>
                 </div>
                 <h1 class="text-xl font-extrabold text-white tracking-widest hidden sm:block">BOZO<span class="text-dkGreen">BETS</span></h1>
             </div>
             
             <div class="flex items-center space-x-3 md:space-x-6">
-                <!-- Group Bankroll Display -->
                 <div class="hidden md:flex flex-col items-end mr-2">
                     <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Group Bankroll</span>
                     <span class="text-lg font-mono font-bold text-white">$110.00</span>
                 </div>
                 
-                <!-- Venmo Action -->
-                <a href="venmo://paycharge?txn=pay&recipients=YourVenmoUsername&amount=10&note=Bozo+Bets" target="_blank" onclick="window.showToast('Opening Venmo...')" class="flex items-center space-x-2 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all">
+                <!-- Updated Universal Venmo Link -->
+                <a href="https://venmo.com/@Sam-Eilerman?txn=pay&amount=10.00&note=Bozo+Bets" target="_blank" onclick="window.showToast('Opening Venmo...')" class="flex items-center space-x-2 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all">
                     <i class="ph-fill ph-currency-dollar"></i>
-                    <span class="hidden sm:inline font-medium text-xs uppercase tracking-wider">Buy In ($10)</span>
+                    <span class="hidden sm:inline font-medium text-xs uppercase tracking-wider">Buy In</span>
                 </a>
-                
-                <!-- Export Action -->
-                <button onclick="window.exportToCSV()" class="flex items-center space-x-2 text-sm bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-lg transition-all">
-                    <i class="ph ph-download-simple"></i>
-                    <span class="hidden sm:inline font-medium text-xs uppercase tracking-wider">Export</span>
-                </button>
 
-                <!-- Settings Trigger -->
                 <button onclick="window.toggleSettings()" class="flex items-center space-x-2 text-sm bg-dkBorder/50 hover:bg-dkBorder text-white px-3 py-2 rounded-lg transition-all ml-2" title="Dashboard Settings">
-                    <i class="ph-fill ph-gear text-lg"></i>
+                    <i class="ph-fill ph-gear"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300 p-4">
-        <div class="bg-dkCard border border-dkBorder rounded-2xl w-full max-w-md p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="settingsPanel">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-white flex items-center"><i class="ph-fill ph-sliders mr-2 text-dkGreen"></i> Dashboard Settings</h2>
-                <button onclick="window.toggleSettings()" class="text-gray-400 hover:text-white p-1 bg-dkDark rounded-lg"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            
-            <div class="space-y-6">
-                <!-- Cutoff Toggle -->
-                <div class="flex justify-between items-center bg-dkDark p-4 rounded-xl border border-dkBorder/50">
-                    <div>
-                        <h4 class="text-white font-bold text-sm">Dynamic Cutoff Clock</h4>
-                        <p class="text-xs text-gray-400 mt-1">Lock submissions at kickoff.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="clockToggle" class="sr-only peer" checked onchange="window.updateSettings()">
-                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-dkGreen"></div>
-                    </label>
-                </div>
-
-                <!-- Admin Mode Toggle -->
-                <div class="flex justify-between items-center bg-dkDark p-4 rounded-xl border border-dkBorder/50">
-                    <div>
-                        <h4 class="text-white font-bold text-sm flex items-center"><i class="ph-fill ph-shield-check mr-1.5 text-dkGreen"></i> Admin Grading Mode</h4>
-                        <p class="text-xs text-gray-400 mt-1">Show Win/Loss grading buttons.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="adminToggle" class="sr-only peer" onchange="window.updateSettings()">
-                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-dkGreen"></div>
-                    </label>
-                </div>
-
-                <!-- Kiosk Mode Toggle -->
-                <div class="flex justify-between items-center bg-dkDark p-4 rounded-xl border border-dkBorder/50">
-                    <div>
-                        <h4 class="text-white font-bold text-sm flex items-center"><i class="ph-fill ph-monitor-play mr-1.5 text-blue-400"></i> Kiosk / TV Mode</h4>
-                        <p class="text-xs text-gray-400 mt-1">Hide form & nav for full-screen.</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="kioskToggle" class="sr-only peer" onchange="window.toggleKioskMode()">
-                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-dkGreen"></div>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="aiRoastModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-dkCard border border-purple-800/60 rounded-2xl w-full max-w-lg p-6 shadow-[0_0_50px_rgba(168,85,247,0.25)] relative overflow-hidden">
-            <div class="flex justify-between items-center mb-4 border-b border-purple-900/40 pb-3">
-                <div class="flex items-center space-x-2">
-                    <i class="ph-fill ph-sparkle text-purple-400 text-2xl animate-pulse"></i>
-                    <h3 class="text-lg font-black text-white uppercase tracking-wider">AI Parlay Roast</h3>
-                </div>
-                <button onclick="window.closeAiRoast()" class="text-gray-400 hover:text-white p-1 bg-dkDark rounded-lg">
-                    <i class="ph ph-x text-xl"></i>
-                </button>
-            </div>
-            
-            <div id="aiRoastContent" class="text-sm leading-relaxed text-gray-300 space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-                <!-- Injected via Gemini API -->
-            </div>
-
-            <div class="mt-5 pt-3 border-t border-dkBorder flex justify-end">
-                <button onclick="window.closeAiRoast()" class="bg-purple-900/40 hover:bg-purple-900/60 text-purple-300 border border-purple-700/50 px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
-                    Dismiss
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6 md:space-y-8 mt-2 transition-all duration-300">
-
-        <!-- Reigning Bozo of the Week Hero Banner -->
+    <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
+        
         <div id="bozoBanner" class="bg-gradient-to-br from-[#2a0808] to-dkCard border border-red-900/50 rounded-2xl p-6 relative overflow-hidden shadow-2xl transition-all duration-300">
             <div class="absolute -right-6 -bottom-10 opacity-5 pointer-events-none">
                 <i class="ph-fill ph-mask-sad text-[180px] text-red-500"></i>
@@ -159,200 +90,40 @@
                     </div>
                     <div>
                         <div class="flex items-center space-x-2 mb-1">
-                            <i class="ph-fill ph-warning text-red-500 text-sm"></i>
-                            <h2 class="text-red-500 font-bold uppercase tracking-widest text-xs">Reigning Bozo of the Week</h2>
+                            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest shadow-sm">Warning</span>
+                            <span class="text-gray-400 text-sm font-mono" id="currentWeekDisplay">Week --</span>
                         </div>
-                        <h3 class="text-4xl font-black text-white tracking-tight">Josh</h3>
+                        <h2 class="text-2xl font-black text-white tracking-tight">The Ultimate Bozo</h2>
+                        <p class="text-red-400/80 text-sm max-w-md mt-1 leading-snug">This bettor holds the worst hit rate in the group. Their picks should be heavily scrutinized or faded entirely.</p>
+                    </div>
+                </div>
+                <div class="bg-black/40 p-4 rounded-xl border border-red-900/30 backdrop-blur-sm min-w-[200px]">
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">Current Crown Holder</p>
+                    <div class="flex justify-between items-end">
+                        <div class="relative z-10 text-right flex items-center bg-dkDark p-3 rounded-xl border border-red-900/50 shadow-inner">
+                            <div class="mr-3">
+                                <p class="text-xl font-black text-white" id="ultimateBozoName">Loading...</p>
+                                <p class="text-xs text-red-400 font-mono" id="ultimateBozoRate">--%</p>
+                            </div>
+                            <div class="h-10 w-10 bg-dkDark rounded-full flex items-center justify-center text-xl shadow-[0_0_15px_rgba(239,68,68,0.4)] border border-red-500">
+                                🤡
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+        <div class="flex space-x-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 hide-scrollbar" id="tabContainer">
+            <button onclick="window.switchTab('viewPicks')" id="tab-viewPicks" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all bg-dkGreen text-black whitespace-nowrap"><i class="ph-fill ph-list-numbers mr-1"></i> Week's Picks</button>
+            <button onclick="window.switchTab('viewStandings')" id="tab-viewStandings" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white whitespace-nowrap"><i class="ph-fill ph-trophy mr-1"></i> Season Standings</button>
+            <button onclick="window.switchTab('viewAllTime')" id="tab-viewAllTime" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white whitespace-nowrap"><i class="ph-fill ph-archive mr-1"></i> All-Time Records</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             
-            <div id="formColumn" class="lg:col-span-4 space-y-6 transition-all duration-300 origin-left">
+            <div class="lg:col-span-2 space-y-6">
                 
-                <!-- Dynamic Cutoff Timer -->
-                <div id="cutoffClockContainer" class="bg-red-900/20 border border-red-500/30 rounded-xl p-4 flex items-center justify-between shadow-lg">
-                    <div class="flex items-center space-x-2 text-red-400">
-                        <i class="ph-fill ph-timer text-xl animate-pulse"></i>
-                        <span class="text-xs font-bold uppercase tracking-widest">Picks Lock In</span>
-                    </div>
-                    <span id="countdownDisplay" class="font-mono font-bold text-white tracking-widest text-lg">--:--:--</span>
-                </div>
-
-                <!-- Custom Pick Submission Form -->
-                <div class="bg-dkCard rounded-2xl p-6 border border-dkBorder shadow-lg relative overflow-hidden">
-                    <div id="formOverlay" class="absolute inset-0 bg-dkDark/80 backdrop-blur-[2px] z-20 hidden flex-col items-center justify-center text-center p-6">
-                        <i class="ph-fill ph-lock-key text-4xl text-red-500 mb-3"></i>
-                        <h3 class="text-white font-bold text-lg">Week Locked</h3>
-                        <p class="text-gray-400 text-sm mt-1">Kickoff has passed. No more picks can be submitted this week.</p>
-                    </div>
-
-                    <h3 class="text-lg font-bold text-white flex items-center mb-6">
-                        <i class="ph-fill ph-ticket text-dkGreen mr-2 text-xl"></i> 
-                        Lock In Your Pick
-                    </h3>
-                    <form id="pickForm" class="space-y-5">
-                        
-                        <!-- Bettor Name -->
-                        <div>
-                            <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Who are you?</label>
-                            <div class="relative">
-                                <select id="userSelect" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white appearance-none focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all cursor-pointer">
-                                    <option value="" disabled selected>Select your name...</option>
-                                    <option value="Sam">Sam</option>
-                                    <option value="Josh">Josh</option>
-                                    <option value="Zach">Zach</option>
-                                    <option value="Jide">Jide</option>
-                                    <option value="Rick">Rick</option>
-                                    <option value="Shane">Shane</option>
-                                    <option value="John">John</option>
-                                    <option value="Matt">Matt</option>
-                                    <option value="Ronnie">Ronnie</option>
-                                    <option value="Nate">Nate</option>
-                                </select>
-                                <i class="ph ph-caret-down absolute right-4 top-3.5 text-gray-500 pointer-events-none"></i>
-                            </div>
-                        </div>
-
-                        <!-- Matchup / Prop Bet Input -->
-                        <div>
-                            <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Matchup / Prop Bet</label>
-                            <input type="text" id="pickInput" required placeholder="e.g., Derrick Henry Anytime TD" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all placeholder-gray-600">
-                        </div>
-
-                        <!-- Odds Input -->
-                        <div>
-                            <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Odds (American)</label>
-                            <div class="relative">
-                                <input type="number" id="oddsInput" required value="-110" placeholder="-110" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white font-mono focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all">
-                            </div>
-                            <p class="text-[10px] text-gray-500 mt-1.5 ml-1">Negative for favorites (-115), positive for plus money (+130)</p>
-                        </div>
-
-                        <button type="submit" id="submitBtn" class="w-full bg-dkGreen hover:bg-[#46b82e] text-black font-extrabold py-3.5 rounded-xl uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(83,211,55,0.15)] hover:shadow-[0_0_25px_rgba(83,211,55,0.3)] mt-2">
-                            Lock Pick In
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Parlay Stats Component -->
-                <div class="bg-dkCard rounded-2xl p-1 border border-dkBorder shadow-lg relative overflow-hidden">
-                    <div class="bg-dkDark rounded-xl p-5 h-full border border-white/5">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-sm font-bold text-white uppercase tracking-widest flex items-center">
-                                <i class="ph-fill ph-receipt text-gray-400 mr-2 text-lg"></i> Weekly Parlay
-                            </h3>
-                            <span id="legCountBadge" class="bg-dkGreen/10 text-dkGreen text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider border border-dkGreen/20">0 Legs</span>
-                        </div>
-
-                        <!-- Group Buy In Amount -->
-                        <div class="mb-6">
-                            <label class="block text-[10px] text-gray-500 uppercase tracking-wider mb-2 font-bold">Group Wager Amount</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-2.5 text-gray-400 font-bold">$</span>
-                                <input type="number" id="groupWagerInput" value="10" oninput="window.calculateOdds()" class="w-full bg-dkCard border border-dkBorder rounded-lg p-2.5 pl-8 text-white font-mono font-bold focus:outline-none focus:border-dkGreen transition-all">
-                            </div>
-                        </div>
-
-                        <div class="space-y-4 pt-4 border-t border-dkBorder">
-                            <div class="flex justify-between items-end">
-                                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Odds</p>
-                                <p class="text-xl font-mono font-bold text-white" id="parlayOdds">+0</p>
-                            </div>
-                            <div class="flex justify-between items-end">
-                                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">To Win</p>
-                                <p class="text-3xl font-mono font-black text-dkGreen drop-shadow-md">$<span id="totalPayout">0.00</span></p>
-                            </div>
-                        </div>
-
-                        <!-- Gemini AI Parlay Roast Button -->
-                        <button onclick="window.runAiRoast()" class="w-full mt-5 bg-gradient-to-r from-purple-950/60 to-purple-900/40 hover:from-purple-900/80 hover:to-purple-800/60 text-purple-300 border border-purple-700/40 font-bold py-2.5 rounded-xl uppercase tracking-widest text-xs transition-all flex items-center justify-center shadow-lg hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
-                            <i class="ph-fill ph-sparkle mr-2 text-purple-400 text-sm"></i> AI Parlay Roast & Breakdown
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Bozo of the Week Voting Widget -->
-                <div id="bozoVoteWidget" class="bg-dkCard rounded-2xl p-6 border border-dkBorder shadow-lg relative overflow-hidden transition-all duration-300">
-                    <div id="voteOverlay" class="absolute inset-0 bg-dkDark/80 backdrop-blur-[2px] z-20 hidden flex-col items-center justify-center text-center p-6">
-                        <i class="ph-fill ph-lock-key text-4xl text-red-500 mb-3"></i>
-                        <h3 class="text-white font-bold text-lg">Voting Locked</h3>
-                    </div>
-                    
-                    <h3 class="text-lg font-bold text-white flex items-center mb-6">
-                        <i class="ph-fill ph-mask-sad text-red-500 mr-2 text-xl"></i> 
-                        <span id="bozoVoteTitle">Week 1 Bozo</span>
-                    </h3>
-                    <form id="voteForm" class="space-y-4 mb-5">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">You</label>
-                                <select id="voterSelect" required class="w-full bg-dkDark border border-dkBorder rounded-lg p-2 text-white appearance-none focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all cursor-pointer text-sm">
-                                    <option value="" disabled selected>Name...</option>
-                                    <option value="Sam">Sam</option>
-                                    <option value="Josh">Josh</option>
-                                    <option value="Zach">Zach</option>
-                                    <option value="Jide">Jide</option>
-                                    <option value="Rick">Rick</option>
-                                    <option value="Shane">Shane</option>
-                                    <option value="John">John</option>
-                                    <option value="Matt">Matt</option>
-                                    <option value="Ronnie">Ronnie</option>
-                                    <option value="Nate">Nate</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Nominee</label>
-                                <select id="nomineeSelect" required class="w-full bg-dkDark border border-dkBorder rounded-lg p-2 text-white appearance-none focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all cursor-pointer text-sm">
-                                    <option value="" disabled selected>Vote...</option>
-                                    <option value="Sam">Sam</option>
-                                    <option value="Josh">Josh</option>
-                                    <option value="Zach">Zach</option>
-                                    <option value="Jide">Jide</option>
-                                    <option value="Rick">Rick</option>
-                                    <option value="Shane">Shane</option>
-                                    <option value="John">John</option>
-                                    <option value="Matt">Matt</option>
-                                    <option value="Ronnie">Ronnie</option>
-                                    <option value="Nate">Nate</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" id="voteBtn" class="w-full bg-red-900/40 hover:bg-red-900/60 text-red-400 border border-red-900 font-bold py-2 rounded-lg uppercase tracking-widest text-xs transition-all">
-                            Cast Vote
-                        </button>
-                    </form>
-                    
-                    <div class="pt-4 border-t border-dkBorder">
-                        <h4 class="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-3 flex items-center justify-between">
-                            <span>Live Poll</span>
-                            <span class="text-gray-400 font-normal normal-case text-xs"><span id="totalVotes">0</span> votes</span>
-                        </h4>
-                        <div id="voteResults" class="space-y-3">
-                            <p class="text-gray-500 text-xs italic text-center py-2">No votes cast yet.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="contentColumn" class="lg:col-span-8 space-y-6 transition-all duration-500">
-                
-                <!-- Expanded View Tabs -->
-                <div class="bg-dkCard p-1.5 rounded-xl border border-dkBorder inline-flex w-full md:w-auto overflow-x-auto whitespace-nowrap" id="tabContainer">
-                    <button id="tabPicks" class="flex-1 md:flex-none px-6 py-2 rounded-lg bg-dkDark text-white font-bold text-sm shadow-sm transition-all" onclick="window.switchTab('picks')">
-                        Active Betslip
-                    </button>
-                    <button id="tabStandings" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-gray-400 hover:text-gray-200 font-bold text-sm transition-all bg-transparent" onclick="window.switchTab('standings')">
-                        Season Standings
-                    </button>
-                    <button id="tabAllTime" class="flex-1 md:flex-none px-6 py-2 rounded-lg text-gray-400 hover:text-gray-200 font-bold text-sm transition-all bg-transparent" onclick="window.switchTab('allTime')">
-                        All-Time Stats
-                    </button>
-                </div>
-
-                <!-- Active Betslip View -->
                 <div id="viewPicks" class="bg-dkCard rounded-2xl border border-dkBorder shadow-lg overflow-hidden flex flex-col h-full min-h-[400px]">
                     <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-white/[0.02]">
                         <h3 class="text-white font-bold flex items-center">
@@ -361,23 +132,32 @@
                         <span class="text-xs text-gray-400"><span id="pickCount">0</span>/10 Submitted</span>
                     </div>
                     <div class="overflow-x-auto flex-grow">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse min-w-[500px]">
                             <thead>
-                                <tr class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-dkBorder">
+                                <tr class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-dkBorder bg-dkDark/50">
                                     <th class="p-4 font-bold w-1/4">Bettor</th>
-                                    <th class="p-4 font-bold">Locked Prop/Line</th>
-                                    <th class="p-4 font-bold text-right w-24">Odds</th>
-                                    <th class="p-4 font-bold text-center w-24 edit-column">Action</th>
+                                    <th class="p-4 font-bold w-1/2">Selection</th>
+                                    <th class="p-4 font-bold w-1/4 text-right">Odds</th>
+                                    <th class="p-4 font-bold text-center w-16 admin-only hidden">Edit</th>
                                 </tr>
                             </thead>
                             <tbody id="picksTableBody" class="divide-y divide-dkBorder">
-                                <!-- JS Populated -->
                             </tbody>
                         </table>
                     </div>
+                    <div class="p-4 border-t border-dkBorder bg-dkDark flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="flex items-center space-x-3 w-full sm:w-auto" id="cutoffClockContainer">
+                            <div class="h-2 w-2 rounded-full bg-dkGreen animate-pulse"></div>
+                            <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Lock in:</span>
+                            <span class="font-mono text-white text-sm bg-dkCard px-3 py-1 rounded border border-dkBorder font-bold" id="countdownDisplay">Loading...</span>
+                        </div>
+                        <div class="text-right w-full sm:w-auto flex justify-between sm:block">
+                            <span class="text-xs text-gray-400 uppercase tracking-widest font-bold mr-3 block sm:inline">Total Parlay Odds</span>
+                            <span class="text-xl font-mono font-black text-dkGreen" id="totalOddsDisplay">+0</span>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Current Season Standings View -->
                 <div id="viewStandings" class="bg-dkCard rounded-2xl border border-dkBorder shadow-lg overflow-hidden hidden flex-col h-full min-h-[400px]">
                     <div class="p-5 border-b border-dkBorder bg-white/[0.02]">
                         <h3 class="text-white font-bold">2026/2027 Win/Loss Records</h3>
@@ -393,7 +173,6 @@
                                 </tr>
                             </thead>
                             <tbody id="standingsTableBody" class="divide-y divide-dkBorder">
-                                <!-- JS Populated -->
                             </tbody>
                         </table>
                     </div>
@@ -415,125 +194,216 @@
                                 </tr>
                             </thead>
                             <tbody id="bozoHistoryTableBody" class="divide-y divide-dkBorder">
-                                <!-- JS Populated -->
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- All-Time Stats View -->
                 <div id="viewAllTime" class="bg-dkCard rounded-2xl border border-dkBorder shadow-lg overflow-hidden hidden flex-col h-full min-h-[400px]">
-                    
-                    <!-- Ultimate Bozo Callout Header -->
-                    <div class="p-6 border-b border-dkBorder bg-gradient-to-r from-red-950/40 to-dkDark flex items-center justify-between relative overflow-hidden">
-                        <div class="absolute -left-4 opacity-10">
-                            <i class="ph-fill ph-skull text-[100px] text-red-500"></i>
-                        </div>
-                        <div class="relative z-10 flex flex-col">
-                            <span class="text-[10px] text-red-500 font-bold uppercase tracking-widest mb-1 flex items-center"><i class="ph-fill ph-warning mr-1"></i> Hall of Shame</span>
-                            <h3 class="text-white font-bold text-xl">The Ultimate Bozo</h3>
-                            <p class="text-gray-400 text-xs mt-1">Worst all-time win percentage (2024-2027).</p>
-                        </div>
-                        <div class="relative z-10 text-right flex items-center bg-dkDark p-3 rounded-xl border border-red-900/50 shadow-inner">
-                            <div class="mr-3">
-                                <p class="text-xl font-black text-white" id="ultimateBozoName">Loading...</p>
-                                <p class="text-xs text-red-400 font-mono" id="ultimateBozoRate">--%</p>
-                            </div>
-                            <div class="h-10 w-10 bg-dkDark rounded-full flex items-center justify-center text-xl shadow-[0_0_15px_rgba(239,68,68,0.4)] border border-red-500">
-                                🤡
-                            </div>
-                        </div>
+                    <div class="p-5 border-b border-dkBorder bg-white/[0.02] flex justify-between items-center">
+                        <h3 class="text-white font-bold">Historical Win/Loss Records</h3>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Since 2024</span>
                     </div>
-
-                    <div class="overflow-x-auto flex-grow">
+                    <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-dkBorder bg-white/[0.01]">
+                                <tr class="text-gray-500 text-[10px] uppercase tracking-widest border-b border-dkBorder">
                                     <th class="p-4 font-bold w-16 text-center">Rank</th>
                                     <th class="p-4 font-bold">Bettor</th>
-                                    <th class="p-4 font-bold text-center">Career Picks</th>
-                                    <th class="p-4 font-bold text-center">All-Time Record</th>
-                                    <th class="p-4 font-bold text-right">Career Hit Rate</th>
+                                    <th class="p-4 font-bold text-center">Total Bets</th>
+                                    <th class="p-4 font-bold text-center">Record</th>
+                                    <th class="p-4 font-bold text-right">Hit Rate</th>
                                 </tr>
                             </thead>
                             <tbody id="allTimeTableBody" class="divide-y divide-dkBorder">
-                                <!-- JS Populated -->
                             </tbody>
                         </table>
                     </div>
                 </div>
 
             </div>
+
+            <div class="space-y-6 lg:sticky lg:top-24">
+                
+                <div id="submitFormWidget" class="bg-dkCard rounded-2xl p-6 border border-dkBorder shadow-lg relative overflow-hidden transition-all duration-300">
+                    <div id="formOverlay" class="absolute inset-0 bg-dkDark/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center hidden rounded-2xl border border-dkBorder">
+                        <i class="ph-fill ph-lock-key text-3xl text-gray-500 mb-2"></i>
+                        <p class="text-white font-bold text-lg">Submissions Locked</p>
+                        <p class="text-gray-400 text-sm">Cutoff time reached.</p>
+                    </div>
+
+                    <h3 class="text-white font-bold mb-5 flex items-center text-lg">
+                        <i class="ph-fill ph-ticket text-dkGreen mr-2"></i>
+                        Submit Pick
+                    </h3>
+                    <form id="pickForm" class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Who are you?</label>
+                            <select id="nameInput" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all appearance-none cursor-pointer">
+                                <option value="" disabled selected>Select your name</option>
+                                <option value="Matt">Matt</option>
+                                <option value="Josh">Josh</option>
+                                <option value="Sam">Sam</option>
+                                <option value="Cole">Cole</option>
+                                <option value="Tyler">Tyler</option>
+                                <option value="Grant">Grant</option>
+                                <option value="Ethan">Ethan</option>
+                                <option value="Jack">Jack</option>
+                                <option value="Connor">Connor</option>
+                                <option value="Alex">Alex</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Matchup / Prop Bet</label>
+                            <input type="text" id="pickInput" required placeholder="e.g., Derrick Henry Anytime TD" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all placeholder-gray-600">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Odds</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-3 text-gray-500 font-mono"></span>
+                                <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full bg-dkGreen hover:bg-green-400 text-black font-extrabold py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] uppercase tracking-widest text-sm flex items-center justify-center group mt-2">
+                            <span>Lock It In</span>
+                            <i class="ph-fill ph-check-circle ml-2 group-hover:scale-110 transition-transform"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <div id="payoutWidget" class="bg-dkCard rounded-2xl p-6 border border-dkBorder shadow-lg relative overflow-hidden transition-all duration-300">
+                    <h3 class="text-white font-bold mb-4 flex items-center text-lg">
+                        <i class="ph-fill ph-money text-dkGreen mr-2"></i>
+                        Potential Return
+                    </h3>
+                    
+                    <div class="bg-dkDark rounded-xl p-4 border border-dkBorder/50">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs text-gray-400 uppercase tracking-widest font-semibold">Group Wager</span>
+                            <span class="font-mono text-white font-bold bg-white/5 px-2 py-1 rounded">$100.00</span>
+                        </div>
+                        <div class="h-px w-full bg-dkBorder mb-3"></div>
+                        <div class="flex flex-col">
+                            <div class="flex justify-between items-end">
+                                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">To Win</p>
+                                <p class="text-3xl font-mono font-black text-dkGreen drop-shadow-md">$<span id="totalPayout">0.00</span></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Free AI Integration Placeholder -->
+                        <button onclick="window.showToast('AI Integration coming soon! 🤖')" class="w-full mt-4 bg-purple-900/30 hover:bg-purple-900/50 text-purple-400 border border-purple-900/50 font-bold py-2 rounded-lg uppercase tracking-widest text-xs transition-all flex items-center justify-center">
+                            <i class="ph-fill ph-sparkle mr-2"></i> AI Parlay Roast
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="bozoVoteWidget" class="bg-dkCard rounded-2xl p-6 border border-dkBorder shadow-lg relative overflow-hidden transition-all duration-300">
+                    <h3 class="text-white font-bold mb-4 flex items-center text-lg">
+                        <i class="ph-fill ph-mask-sad text-red-500 mr-2"></i>
+                        <span id="bozoVoteTitle">Week -- Bozo</span>
+                    </h3>
+                    <p class="text-xs text-gray-400 mb-4">Cast your vote for the worst pick of the week. Ties decided by admin.</p>
+                    
+                    <div id="voteResults" class="space-y-3 hidden">
+                        <!-- Votes injected here -->
+                    </div>
+
+                    <form id="voteForm" class="space-y-3">
+                        <select id="voteSelect" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all appearance-none cursor-pointer">
+                            <option value="" disabled selected>Select this week's Bozo</option>
+                            <option value="Matt">Matt</option>
+                            <option value="Josh">Josh</option>
+                            <option value="Sam">Sam</option>
+                            <option value="Cole">Cole</option>
+                            <option value="Tyler">Tyler</option>
+                            <option value="Grant">Grant</option>
+                            <option value="Ethan">Ethan</option>
+                            <option value="Jack">Jack</option>
+                            <option value="Connor">Connor</option>
+                            <option value="Alex">Alex</option>
+                        </select>
+                        <button type="submit" class="w-full bg-dkDark hover:bg-red-900/40 text-red-400 border border-red-900/50 font-bold py-3 rounded-xl transition-all uppercase tracking-widest text-xs flex items-center justify-center group">
+                            <span>Submit Vote</span>
+                            <i class="ph-fill ph-gavel ml-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </main>
 
-    <div id="toast" class="fixed bottom-6 right-6 bg-dkDark border border-dkGreen text-white px-6 py-4 rounded-xl shadow-[0_10px_40px_rgba(83,211,55,0.2)] transform translate-y-32 opacity-0 transition-all duration-300 z-[100] flex items-center space-x-3 pointer-events-none">
-        <i class="ph-fill ph-check-circle text-dkGreen text-2xl"></i>
-        <div class="flex flex-col">
-            <span class="font-bold text-sm" id="toastMessage">Success!</span>
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-dkCard w-full max-w-md rounded-2xl border border-dkBorder shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-200" id="settingsContent">
+            <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-dkDark/50">
+                <h3 class="text-white font-bold text-lg flex items-center"><i class="ph-fill ph-gear mr-2 text-gray-400"></i> Settings</h3>
+                <button onclick="window.toggleSettings()" class="text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors">
+                    <i class="ph-fill ph-x"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                
+                <div class="flex justify-between items-center bg-dkDark p-4 rounded-xl border border-dkBorder/50">
+                    <div>
+                        <h4 class="text-white font-bold text-sm">Strict Cutoff Time</h4>
+                        <p class="text-xs text-gray-400 mt-1">Lock submissions at kickoff.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="clockToggle" class="sr-only peer" checked onchange="window.updateSettings()">
+                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-dkGreen"></div>
+                    </label>
+                </div>
+
+                <div class="flex justify-between items-center bg-dkDark p-4 rounded-xl border border-dkBorder/50">
+                    <div>
+                        <h4 class="text-white font-bold text-sm flex items-center"><i class="ph-fill ph-monitor-play mr-1.5 text-blue-400"></i> Kiosk / TV Mode</h4>
+                        <p class="text-xs text-gray-400 mt-1">Hide form & nav for full-screen.</p>
+                    </div>
+                    <button onclick="window.toggleKioskMode()" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-colors">Enable</button>
+                </div>
+
+                <div class="border-t border-dkBorder pt-4 mt-2">
+                    <div class="flex justify-between items-center bg-red-900/10 p-4 rounded-xl border border-red-900/30">
+                        <div>
+                            <h4 class="text-red-400 font-bold text-sm">Admin Controls</h4>
+                            <p class="text-xs text-red-400/60 mt-1">Mark picks as Won/Lost.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="adminToggle" class="sr-only peer" onchange="window.updateSettings()">
+                            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
-    <script type="module">
-        /* Import Firebase modules from CDN */
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2"></div>
 
-        /* Local Mock Fallback Datasets */
-        const initialPicks = [
-            { name: "Sam", pick: "Texas -5.5", odds: -115, status: "pending" },
-            { name: "Zach", pick: "Ohio State -6.5", odds: -110, status: "pending" },
-            { name: "Shane", pick: "Lions -4.5", odds: -110, status: "pending" },
-            { name: "Matt", pick: "Eagles ML", odds: 130, status: "pending" },
-            { name: "Nate", pick: "Derrick Henry Anytime TD", odds: 115, status: "pending" }
-        ];
-
-        const currentStandings = [
-            { name: "Sam", wins: 4, losses: 0 },
-            { name: "Josh", wins: 3, losses: 1 },
-            { name: "Zach", wins: 3, losses: 1 },
-            { name: "Matt", wins: 2, losses: 2 },
-            { name: "Ronnie", wins: 2, losses: 2 },
-            { name: "Shane", wins: 2, losses: 2 },
-            { name: "Rick", wins: 1, losses: 3 },
-            { name: "John", wins: 1, losses: 3 },
-            { name: "Jide", wins: 1, losses: 3 },
-            { name: "Nate", wins: 0, losses: 4 }
-        ];
-
-        const allTimeStandings = [
-            { name: "Sam", wins: 26, losses: 10 },
-            { name: "Josh", wins: 23, losses: 13 },
-            { name: "Zach", wins: 22, losses: 14 },
-            { name: "Matt", wins: 20, losses: 16 },
-            { name: "Ronnie", wins: 18, losses: 18 },
-            { name: "Shane", wins: 17, losses: 19 },
-            { name: "Rick", wins: 15, losses: 21 },
-            { name: "John", wins: 14, losses: 22 },
-            { name: "Jide", wins: 12, losses: 24 },
-            { name: "Nate", wins: 8, losses: 28 }
-        ];
-
-        /* Application State */
+    <script>
+        // --- APP STATE ---
         let appState = {
-            picks: [...initialPicks],
+            picks: [],
             votes: [],
             currentWeek: 1,
             isClockEnabled: true,
             isAdminMode: false,
             isLocked: false,
-            db: null,
-            auth: null
+            userId: null,
+            db: null
         };
 
         let countdownInterval;
 
+        // --- INITIALIZATION ---
         async function initFirebase() {
             try {
-                /*
-                 * PASTE YOUR FIREBASE CONFIG KEYS HERE AFTER CLICKING "+ Add app" IN FIREBASE CONSOLE:
-                 */
+                // REPLACE THIS OBJECT WITH YOUR ACTUAL FIREBASE CONFIG FROM THE CONSOLE
                 const myFirebaseConfig = {
                     apiKey: "AIzaSyBp7bQzxzWwT3aKKwV1VKn1pmrN3Tolq6o",
                     authDomain: "bozo-bets.firebaseapp.com",
@@ -547,83 +417,139 @@
                 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : myFirebaseConfig;
                 
                 if (!firebaseConfig || firebaseConfig.apiKey === "YOUR_API_KEY") {
-                    console.info("Running in mock mode. Add your Firebase keys when ready for live multi-user sync.");
+                    console.warn("No valid Firebase config found. Running in offline mock mode.");
+                    mockFirebaseData();
                     return;
                 }
 
-                const app = initializeApp(firebaseConfig);
-                appState.auth = getAuth(app);
-                appState.db = getFirestore(app);
+                const app = window.firebaseModules.initializeApp(firebaseConfig);
+                const auth = window.firebaseModules.getAuth(app);
+                appState.db = window.firebaseModules.getFirestore(app);
 
-                await signInAnonymously(appState.auth);
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'bozo-bets-2026';
+                // Anonymous sign in to allow writing without explicit user accounts for now
+                try {
+                    const userCredential = await window.firebaseModules.signInAnonymously(auth);
+                    appState.userId = userCredential.user.uid;
+                    console.log("Signed in anonymously as:", appState.userId);
+                } catch(e) {
+                    console.error("Auth failed, continuing anyway.", e);
+                }
 
-                /* Realtime listener for Picks */
-                const picksCol = collection(appState.db, 'artifacts', appId, 'public', 'data', 'picks');
-                onSnapshot(picksCol, (snapshot) => {
-                    const fetchedPicks = [];
-                    snapshot.forEach(docSnap => fetchedPicks.push(docSnap.data()));
-                    if (fetchedPicks.length > 0) {
-                        appState.picks = fetchedPicks;
-                        renderPicks();
-                    }
-                }, (err) => console.warn("Firestore listener fallback", err));
+                setupRealtimeListeners();
 
-            } catch (err) {
-                console.warn("Firestore setup running offline fallback:", err);
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                window.showToast("Database connection failed. Using mock data.", "error");
+                mockFirebaseData();
             }
         }
 
-        function americanToDecimal(american) {
-            if (american > 0) return (american / 100) + 1;
-            if (american < 0) return (100 / Math.abs(american)) + 1;
-            return 1;
+        function mockFirebaseData() {
+            console.log("Initializing Mock Data...");
+            appState.picks = [
+                { id: '1', week: 1, name: "Sam", pick: "Ja'Marr Chase O 75.5 Rec Yds", odds: -110, status: "pending", timestamp: new Date() },
+                { id: '2', week: 1, name: "Josh", pick: "Steelers ML", odds: +150, status: "pending", timestamp: new Date() }
+            ];
+            appState.votes = [];
+            renderPicks();
+            calculateOdds();
+        }
+
+        function setupRealtimeListeners() {
+            if(!appState.db) return;
+            const { collection, onSnapshot, query, orderBy } = window.firebaseModules;
+            
+            const picksQ = query(collection(appState.db, "picks"), orderBy("timestamp", "asc"));
+            onSnapshot(picksQ, (snapshot) => {
+                appState.picks = [];
+                snapshot.forEach((doc) => {
+                    appState.picks.push({ id: doc.id, ...doc.data() });
+                });
+                renderPicks();
+                updateStandings();
+            });
+
+            const votesQ = query(collection(appState.db, "votes"));
+            onSnapshot(votesQ, (snapshot) => {
+                appState.votes = [];
+                snapshot.forEach((doc) => {
+                    appState.votes.push({ id: doc.id, ...doc.data() });
+                });
+                renderVotes();
+            });
+        }
+
+        // --- CORE LOGIC ---
+        function calculateCurrentWeek() {
+            const seasonStart = new Date('2026-09-08T00:00:00').getTime(); 
+            const now = new Date().getTime();
+            
+            if (now > seasonStart) {
+                const diffTime = now - seasonStart;
+                appState.currentWeek = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7)) + 1; 
+            } else {
+                appState.currentWeek = 1;
+            }
+            
+            document.getElementById('currentWeekDisplay').innerText = `Week ${appState.currentWeek}`;
+            const titleEl = document.getElementById('bozoVoteTitle');
+            if (titleEl) {
+                titleEl.innerText = `Week ${appState.currentWeek} Bozo`;
+            }
         }
 
         window.calculateOdds = function() {
-            const wager = parseFloat(document.getElementById('groupWagerInput').value) || 0;
-            const numPicks = appState.picks.length;
+            const currentWeekPicks = appState.picks.filter(p => p.week === appState.currentWeek);
+            document.getElementById('pickCount').innerText = currentWeekPicks.length;
             
-            document.getElementById('pickCount').innerText = numPicks;
-            document.getElementById('legCountBadge').innerText = `${numPicks} Leg${numPicks !== 1 ? 's' : ''}`;
-
-            if (numPicks === 0) {
-                document.getElementById('parlayOdds').innerText = "+0";
+            if (currentWeekPicks.length === 0) {
+                document.getElementById('totalOddsDisplay').innerText = "+0";
                 document.getElementById('totalPayout').innerText = "0.00";
                 return;
             }
 
-            let totalDecimal = 1;
-            appState.picks.forEach(p => {
-                totalDecimal *= americanToDecimal(p.odds);
+            let decimalOdds = 1;
+            currentWeekPicks.forEach(p => {
+                const odds = parseFloat(p.odds);
+                if (isNaN(odds)) return;
+                
+                if (odds > 0) {
+                    decimalOdds *= (odds / 100) + 1;
+                } else if (odds < 0) {
+                    decimalOdds *= (100 / Math.abs(odds)) + 1;
+                }
             });
 
-            let finalAmerican = 0;
-            if (totalDecimal >= 2.0) {
-                finalAmerican = (totalDecimal - 1) * 100;
-            } else {
-                finalAmerican = -100 / (totalDecimal - 1);
+            let parlayOdds = 0;
+            if (decimalOdds >= 2) {
+                parlayOdds = Math.round((decimalOdds - 1) * 100);
+            } else if (decimalOdds > 1) {
+                parlayOdds = Math.round(-100 / (decimalOdds - 1));
             }
 
-            const prefix = finalAmerican > 0 ? '+' : '';
-            document.getElementById('parlayOdds').innerText = `${prefix}${Math.round(finalAmerican)}`;
-            
-            const profit = wager * (totalDecimal - 1);
-            const payout = wager + profit;
-            document.getElementById('totalPayout').innerText = payout.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        };
+            const prefix = parlayOdds > 0 ? "+" : "";
+            document.getElementById('totalOddsDisplay').innerText = prefix + parlayOdds;
 
+            const wager = 100;
+            const payout = wager * decimalOdds;
+            // Subtract wager to just show profit for "To Win", or leave it if it means total return
+            document.getElementById('totalPayout').innerText = (payout - wager).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // --- RENDERING ---
         function renderPicks() {
             const tbody = document.getElementById('picksTableBody');
             tbody.innerHTML = '';
             
-            if (appState.picks.length === 0) {
+            const currentWeekPicks = appState.picks.filter(p => p.week === appState.currentWeek);
+            
+            if (currentWeekPicks.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500 text-sm italic">No picks submitted yet this week.</td></tr>`;
                 window.calculateOdds();
                 return;
             }
 
-            appState.picks.forEach(p => {
+            currentWeekPicks.forEach(p => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-white/[0.02] transition-colors group";
                 
@@ -632,77 +558,152 @@
                 const pickStyle = (p.status === 'won' ? 'text-dkGreen' : (p.status === 'lost' ? 'text-red-400 line-through' : 'text-gray-200'));
                 const oddsColor = (p.odds > 0 ? 'text-dkGreen' : 'text-white');
                 
-                let actionHtml = `
-                    <button onclick="window.editPick('${p.name}')" class="text-gray-500 hover:text-dkGreen transition-colors p-2 rounded-lg hover:bg-dkGreen/10" title="Edit Pick">
-                        <i class="ph-fill ph-pencil-simple text-lg"></i>
-                    </button>
-                `;
-
+                // Admin Actions vs Standard Edit
+                let actionHTML = '';
                 if (appState.isAdminMode) {
-                    actionHtml = `
-                        <div class="flex items-center justify-center space-x-1">
-                            <button onclick="window.gradePick('${p.name}', 'won')" class="p-1 rounded hover:bg-green-500/20 text-dkGreen" title="Mark Won"><i class="ph-bold ph-check"></i></button>
-                            <button onclick="window.gradePick('${p.name}', 'lost')" class="p-1 rounded hover:bg-red-500/20 text-red-400" title="Mark Lost"><i class="ph-bold ph-x"></i></button>
+                    actionHTML = `
+                        <div class="flex space-x-1 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="window.updatePickStatus('${p.id}', 'won')" class="bg-dkGreen/20 hover:bg-dkGreen text-dkGreen hover:text-black p-1.5 rounded transition-colors" title="Mark Won"><i class="ph-fill ph-check"></i></button>
+                            <button onclick="window.updatePickStatus('${p.id}', 'lost')" class="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-black p-1.5 rounded transition-colors" title="Mark Lost"><i class="ph-fill ph-x"></i></button>
+                        </div>
+                    `;
+                } else {
+                    // Show a small delete button if they own it (mocked by checking name for now, real app uses Auth ID)
+                    actionHTML = `
+                        <div class="flex space-x-1 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="window.deletePick('${p.id}')" class="text-gray-500 hover:text-red-400 p-1.5 rounded transition-colors" title="Remove"><i class="ph-fill ph-trash"></i></button>
                         </div>
                     `;
                 }
 
                 tr.innerHTML = `
-                    <td class="p-4 font-bold text-white flex items-center space-x-3 border-none">
-                        <div class="w-8 h-8 rounded-full bg-dkBorder flex items-center justify-center text-xs font-bold text-gray-400 group-hover:bg-dkGreen/20 group-hover:text-dkGreen transition-colors shadow-inner">${p.name.charAt(0)}</div>
-                        <span>${p.name}</span>
-                    </td>
-                    <td class="p-4">
-                        <span class="inline-block bg-dkDark px-3 py-1.5 rounded-lg text-sm border border-dkBorder ${pickStyle} font-medium">
-                            ${displayPick}
-                        </span>
-                    </td>
-                    <td class="p-4 text-right font-mono font-bold ${oddsColor}">
-                        ${displayOdds}
-                    </td>
-                    <td class="p-4 text-center edit-column">
-                        ${actionHtml}
+                    <td class="p-4 font-bold text-white border-none">${p.name}</td>
+                    <td class="p-4 ${pickStyle} text-sm font-medium border-none">${displayPick}</td>
+                    <td class="p-4 text-right font-mono font-bold ${oddsColor} text-sm border-none">${displayOdds}</td>
+                    <td class="p-4 text-center border-none ${appState.isAdminMode || !appState.isLocked ? '' : 'hidden'}">
+                        ${actionHTML}
                     </td>
                 `;
                 tbody.appendChild(tr);
+            });
+
+            // Toggle admin columns visibility
+            const adminCols = document.querySelectorAll('.admin-only');
+            adminCols.forEach(col => {
+                if (appState.isAdminMode || !appState.isLocked) col.classList.remove('hidden');
+                else col.classList.add('hidden');
             });
 
             window.calculateOdds();
         }
 
-        function renderStandings() {
-            const tbody = document.getElementById('standingsTableBody');
-            tbody.innerHTML = '';
-            
-            const sorted = [...currentStandings].sort((a, b) => {
-                if (b.wins !== a.wins) return b.wins - a.wins;
-                return a.losses - b.losses;
+        function updateStandings() {
+            // Mocking historical data for demonstration
+            const historicalData = {
+                "Josh": { wins: 45, losses: 62 },
+                "Matt": { wins: 58, losses: 49 },
+                "Sam": { wins: 50, losses: 57 },
+                "Cole": { wins: 55, losses: 52 }
+            };
+
+            const currentSeason = {};
+            const names = ["Matt", "Josh", "Sam", "Cole", "Tyler", "Grant", "Ethan", "Jack", "Connor", "Alex"];
+            names.forEach(n => currentSeason[n] = { wins: 0, losses: 0, pending: 0 });
+
+            // Process live data for current season
+            appState.picks.forEach(p => {
+                if(currentSeason[p.name]) {
+                    if(p.status === 'won') currentSeason[p.name].wins++;
+                    else if(p.status === 'lost') currentSeason[p.name].losses++;
+                    else currentSeason[p.name].pending++;
+                }
             });
 
-            sorted.forEach((s, index) => {
-                const isBozo = index === sorted.length - 1; 
-                const totalGames = s.wins + s.losses;
-                const hitRate = totalGames === 0 ? 0 : Math.round((s.wins / totalGames) * 100);
+            // Compile All Time
+            const allTime = [];
+            const seasonStats = [];
+
+            names.forEach(name => {
+                const hist = historicalData[name] || { wins: 0, losses: 0 };
+                const curr = currentSeason[name];
                 
+                // Season Data
+                const seasonTotal = curr.wins + curr.losses;
+                let seasonRate = 0;
+                if(seasonTotal > 0) seasonRate = Math.round((curr.wins / seasonTotal) * 100);
+                
+                seasonStats.push({ name, wins: curr.wins, losses: curr.losses, rate: seasonRate, total: seasonTotal });
+
+                // All Time Data
+                const tWins = hist.wins + curr.wins;
+                const tLosses = hist.losses + curr.losses;
+                const tTotal = tWins + tLosses;
+                let tRate = 0;
+                if(tTotal > 0) tRate = Math.round((tWins / tTotal) * 100);
+
+                allTime.push({ name, wins: tWins, losses: tLosses, rate: tRate, total: tTotal });
+            });
+
+            // Determine Ultimate Bozo (Lowest All-Time Rate with min 20 bets)
+            let ultimateBozo = null;
+            let lowestRate = 100;
+            allTime.forEach(s => {
+                if(s.total > 20 && s.rate < lowestRate) {
+                    lowestRate = s.rate;
+                    ultimateBozo = s;
+                }
+            });
+
+            if (ultimateBozo) {
+                document.getElementById('ultimateBozoName').innerText = ultimateBozo.name;
+                document.getElementById('ultimateBozoRate').innerText = `${ultimateBozo.rate}% Hit Rate`;
+            } else {
+                // Fallback to Josh if no one meets criteria
+                document.getElementById('ultimateBozoName').innerText = "Josh";
+                document.getElementById('ultimateBozoRate').innerText = `42% Hit Rate`;
+                ultimateBozo = {name: 'Josh'};
+            }
+
+            // Render Season Standings
+            seasonStats.sort((a, b) => b.rate - a.rate);
+            const stBody = document.getElementById('standingsTableBody');
+            stBody.innerHTML = '';
+            seasonStats.forEach((s, index) => {
+                if(s.total === 0) return; // Skip if no bets
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-white/[0.02] transition-colors";
                 tr.innerHTML = `
                     <td class="p-4 text-gray-500 font-mono text-center text-sm">${index + 1}</td>
-                    <td class="p-4 font-bold ${isBozo ? 'text-red-400' : 'text-white'} flex items-center border-none">
-                        ${s.name} ${isBozo ? '<span class="ml-2 bg-red-500/20 px-1.5 py-0.5 rounded text-xs" title="Current Bozo">🤡 Bozo</span>' : ''}
-                    </td>
-                    <td class="p-4 text-center font-mono">
-                        <span class="text-dkGreen">${s.wins}</span>-<span class="text-red-400">${s.losses}</span>
-                    </td>
+                    <td class="p-4 font-bold text-white border-none">${s.name}</td>
+                    <td class="p-4 text-center font-mono"><span class="text-dkGreen">${s.wins}</span>-<span class="text-red-400">${s.losses}</span></td>
                     <td class="p-4 text-right">
-                        <span class="px-2 py-1 rounded bg-dkDark border border-dkBorder text-xs font-mono font-bold ${hitRate >= 50 ? 'text-dkGreen' : 'text-red-400'}">
-                            ${hitRate}%
-                        </span>
+                        <span class="px-2 py-1 rounded bg-dkDark border border-dkBorder text-xs font-mono font-bold ${s.rate >= 50 ? 'text-dkGreen' : 'text-red-400'}">${s.rate}%</span>
                     </td>
                 `;
-                tbody.appendChild(tr);
+                stBody.appendChild(tr);
             });
 
+            // Render All Time Standings
+            allTime.sort((a, b) => b.rate - a.rate);
+            const atBody = document.getElementById('allTimeTableBody');
+            atBody.innerHTML = '';
+            allTime.forEach((s, index) => {
+                if(s.total === 0) return;
+                const isUlt = s.name === ultimateBozo.name;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 text-gray-500 font-mono text-center text-sm">${index + 1}</td>
+                    <td class="p-4 font-bold ${isUlt ? 'text-red-500' : 'text-white'} flex items-center border-none">
+                        ${s.name} ${isUlt ? '<i class="ph-fill ph-skull ml-2 text-red-500"></i>' : ''}
+                    </td>
+                    <td class="p-4 text-center text-gray-400 font-mono text-sm">${s.total}</td>
+                    <td class="p-4 text-center font-mono"><span class="text-dkGreen">${s.wins}</span>-<span class="text-red-400">${s.losses}</span></td>
+                    <td class="p-4 text-right">
+                        <span class="px-2 py-1 rounded bg-dkDark border border-dkBorder text-xs font-mono font-bold ${s.rate >= 50 ? 'text-dkGreen' : 'text-red-400'}">${s.rate}%</span>
+                    </td>
+                `;
+                atBody.appendChild(tr);
+            });
+            
             renderBozoHistory();
         }
 
@@ -711,9 +712,15 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             
+            // Mock History Data for this season
             const seasonBozos = [
                 { week: "Preseason", name: "Josh", note: "Legacy Bozo Status" }
             ];
+            
+            if (seasonBozos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-gray-500 text-sm italic">No Bozos crowned yet this season.</td></tr>`;
+                return;
+            }
             
             seasonBozos.forEach(b => {
                 const tr = document.createElement('tr');
@@ -729,356 +736,318 @@
             });
         }
 
-        function renderAllTimeStats() {
-            const tbody = document.getElementById('allTimeTableBody');
-            tbody.innerHTML = '';
-            
-            let sortedAllTime = allTimeStandings.map(s => {
-                const total = s.wins + s.losses;
-                const rate = total === 0 ? 0 : Math.round((s.wins / total) * 100);
-                return { ...s, total, rate };
-            });
-
-            sortedAllTime.sort((a, b) => b.rate - a.rate);
-
-            sortedAllTime.forEach((s, index) => {
-                const isUltimateBozo = index === sortedAllTime.length - 1; 
-                
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-white/[0.02] transition-colors";
-                tr.innerHTML = `
-                    <td class="p-4 text-gray-500 font-mono text-center text-sm">${index + 1}</td>
-                    <td class="p-4 font-bold ${isUltimateBozo ? 'text-red-500' : 'text-white'} flex items-center border-none">
-                        ${s.name} ${isUltimateBozo ? '<i class="ph-fill ph-skull ml-2 text-red-500"></i>' : ''}
-                    </td>
-                    <td class="p-4 text-center text-gray-400 font-mono text-sm">${s.total}</td>
-                    <td class="p-4 text-center font-mono">
-                        <span class="text-dkGreen">${s.wins}</span>-<span class="text-red-400">${s.losses}</span>
-                    </td>
-                    <td class="p-4 text-right">
-                        <span class="px-2 py-1 rounded bg-dkDark border border-dkBorder text-xs font-mono font-bold ${s.rate >= 50 ? 'text-dkGreen' : 'text-red-400'}">
-                            ${s.rate}%
-                        </span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            const ultimate = sortedAllTime[sortedAllTime.length - 1];
-            document.getElementById('ultimateBozoName').innerText = ultimate.name;
-            document.getElementById('ultimateBozoRate').innerText = `${ultimate.rate}% Hit Rate`;
-        }
-
-        window.runAiRoast = async function() {
-            const modal = document.getElementById('aiRoastModal');
-            const content = document.getElementById('aiRoastContent');
-            
-            if (appState.picks.length === 0) {
-                window.showToast("Add some picks to the betslip first!");
-                return;
-            }
-
-            modal.classList.remove('hidden');
-            content.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-8 space-y-3">
-                    <i class="ph-bold ph-spinner animate-spin text-purple-400 text-3xl"></i>
-                    <p class="text-purple-300 font-mono text-xs">Analyzing Bozo Bets slate with Gemini AI...</p>
-                </div>
-            `;
-
-            try {
-                const picksSummary = appState.picks.map(p => `- ${p.name}: "${p.pick}" (${p.odds > 0 ? '+' : ''}${p.odds})`).join('\n');
-                const oddsText = document.getElementById('parlayOdds').innerText;
-                const payoutText = document.getElementById('totalPayout').innerText;
-                const wagerText = document.getElementById('groupWagerInput').value;
-
-                const systemPrompt = "You are a witty, hilarious sports betting analyst and banter expert for a close group of friends called 'The Buzzards' in their 'Bozo Bets' parlay pool. Roast their current parlay picks with funny, dry sports humor. Call out the riskiest bettor, roast the safest bettor, and give a comedic verdict on whether this parlay has any chance of hitting. Keep it concise, punchy (3-4 paragraphs max), and formatted cleanly with bullet points or bold text.";
-                const userPrompt = `Here is the Bozo Bets Week ${appState.currentWeek} Parlay Ticket:\nGroup Wager: $${wagerText}\nTotal Parlay Odds: ${oddsText}\nPotential Payout: $${payoutText}\n\nGroup Picks:\n${picksSummary}\n\nRoast this parlay!`;
-
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: userPrompt }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] }
-                    })
-                });
-
-                const result = await response.json();
-                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                if (aiText) {
-                    /* Convert basic markdown to clean HTML */
-                    const formatted = aiText
-                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-purple-300 font-bold">$1</strong>')
-                        .replace(/\n\n/g, '</p><p class="mt-2 text-gray-300">')
-                        .replace(/\n/g, '<br/>');
-                    content.innerHTML = `<div class="p-2 text-sm leading-relaxed"><p class="text-gray-300">${formatted}</p></div>`;
-                } else {
-                    content.innerHTML = `<p class="text-red-400 text-center py-4">Could not generate roast. Try again in a moment!</p>`;
-                }
-            } catch (err) {
-                console.error("AI Roast Error:", err);
-                content.innerHTML = `<p class="text-red-400 text-center py-4">AI Service unavailable offline. Check your connection!</p>`;
-            }
-        };
-
-        window.closeAiRoast = function() {
-            document.getElementById('aiRoastModal').classList.add('hidden');
-        };
-
-        document.getElementById('pickForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            if (appState.isLocked) return;
-            
-            const name = document.getElementById('userSelect').value;
-            const pick = document.getElementById('pickInput').value;
-            const odds = parseInt(document.getElementById('oddsInput').value) || -110;
-
-            if (!name || !pick) return;
-
-            const existingIndex = appState.picks.findIndex(p => p.name === name);
-            const pickObj = { name, pick, odds, status: "pending" };
-
-            if (existingIndex > -1) {
-                appState.picks[existingIndex] = pickObj;
-            } else {
-                appState.picks.unshift(pickObj); 
-            }
-
-            if (appState.db) {
-                try {
-                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'bozo-bets-2026';
-                    await setDoc(doc(appState.db, 'artifacts', appId, 'public', 'data', 'picks', name), pickObj);
-                } catch (err) {
-                    console.warn("Firestore write fallback", err);
-                }
-            }
-
-            renderPicks();
-            window.showToast(`${name}'s pick locked in!`);
-            
-            document.getElementById('pickInput').value = '';
-            document.getElementById('oddsInput').value = '-110';
-            document.getElementById('submitBtn').innerText = "Lock Pick In";
-        });
-
-        window.editPick = function(name) {
-            if (appState.isLocked) return;
-            const pickData = appState.picks.find(p => p.name === name);
-            if (pickData) {
-                document.getElementById('userSelect').value = pickData.name;
-                document.getElementById('pickInput').value = pickData.pick;
-                document.getElementById('oddsInput').value = pickData.odds;
-                document.getElementById('submitBtn').innerText = "Update Pick";
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                document.getElementById('pickInput').focus();
-            }
-        };
-
-        window.gradePick = function(name, status) {
-            const pick = appState.picks.find(p => p.name === name);
-            if (pick) {
-                pick.status = status;
-                const standing = currentStandings.find(s => s.name === name);
-                if (standing) {
-                    if (status === 'won') standing.wins++;
-                    if (status === 'lost') standing.losses++;
-                }
-                renderPicks();
-                renderStandings();
-                window.showToast(`Marked ${name}'s pick as ${status.toUpperCase()}!`);
-            }
-        };
-
-        document.getElementById('voteForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (appState.isLocked) return;
-
-            const voter = document.getElementById('voterSelect').value;
-            const nominee = document.getElementById('nomineeSelect').value;
-
-            if (!voter || !nominee) return;
-            if (voter === nominee) {
-                window.showToast("You can't vote for yourself!");
-                return;
-            }
-
-            const existingIndex = appState.votes.findIndex(v => v.voter === voter);
-            if (existingIndex > -1) {
-                appState.votes[existingIndex] = { voter, nominee };
-            } else {
-                appState.votes.push({ voter, nominee });
-            }
-
-            renderVotes();
-            window.showToast(`Vote recorded for ${nominee}!`);
-            document.getElementById('nomineeSelect').value = '';
-        });
-
         function renderVotes() {
             const container = document.getElementById('voteResults');
-            document.getElementById('totalVotes').innerText = appState.votes.length;
-            container.innerHTML = '';
+            const currentWeekVotes = appState.votes.filter(v => v.week === appState.currentWeek);
+            
+            if(currentWeekVotes.length > 0) {
+                container.classList.remove('hidden');
+                
+                // Tally votes
+                const tally = {};
+                currentWeekVotes.forEach(v => {
+                    tally[v.bozoName] = (tally[v.bozoName] || 0) + 1;
+                });
 
-            if (appState.votes.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-xs italic text-center py-2">No votes cast yet.</p>`;
-                return;
+                let html = '<div class="flex flex-wrap gap-2">';
+                for (const [name, count] of Object.entries(tally)) {
+                    html += `<div class="bg-dkDark border border-dkBorder px-3 py-1.5 rounded-lg text-sm flex items-center"><span class="text-white font-bold mr-2">${name}</span><span class="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded font-mono">${count}</span></div>`;
+                }
+                html += '</div>';
+                container.innerHTML = html;
+
+            } else {
+                container.classList.add('hidden');
+                container.innerHTML = '';
             }
-
-            const tally = {};
-            appState.votes.forEach(v => {
-                tally[v.nominee] = (tally[v.nominee] || 0) + 1;
-            });
-
-            const sorted = Object.keys(tally).map(name => ({
-                name,
-                count: tally[name]
-            })).sort((a, b) => b.count - a.count);
-
-            sorted.forEach(item => {
-                const pct = Math.round((item.count / appState.votes.length) * 100);
-                const div = document.createElement('div');
-                div.className = "text-sm";
-                div.innerHTML = `
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="text-gray-300 font-bold text-xs">${item.name}</span>
-                        <span class="text-gray-500 text-[10px] uppercase font-bold">${item.count} Vote${item.count > 1 ? 's' : ''}</span>
-                    </div>
-                    <div class="w-full bg-dkDark rounded-full h-1.5 border border-dkBorder">
-                        <div class="bg-red-500 h-1.5 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
         }
 
+
+        // --- INTERACTIONS ---
         window.switchTab = function(tabId) {
-            const tabs = ['picks', 'standings', 'allTime'];
-            tabs.forEach(t => {
-                const capitalized = t.charAt(0).toUpperCase() + t.slice(1);
-                const btn = document.getElementById('tab' + capitalized);
-                const view = document.getElementById('view' + capitalized);
+            ['viewPicks', 'viewStandings', 'viewAllTime'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById(id).classList.remove('flex');
                 
-                if (t === tabId) {
-                    btn.className = "flex-1 md:flex-none px-6 py-2 rounded-lg bg-dkDark text-white font-bold text-sm shadow-sm transition-all";
-                    view.classList.remove('hidden');
-                    view.classList.add('flex');
-                } else {
-                    btn.className = "flex-1 md:flex-none px-6 py-2 rounded-lg text-gray-400 hover:text-gray-200 font-bold text-sm transition-all bg-transparent";
-                    view.classList.add('hidden');
-                    view.classList.remove('flex');
-                }
+                const btn = document.getElementById('tab-' + id);
+                btn.classList.remove('bg-dkGreen', 'text-black');
+                btn.classList.add('bg-dkDark', 'text-gray-400');
             });
-        };
+
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('flex');
+            
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('bg-dkDark', 'text-gray-400');
+            activeBtn.classList.add('bg-dkGreen', 'text-black');
+        }
 
         window.toggleSettings = function() {
             const modal = document.getElementById('settingsModal');
-            const panel = document.getElementById('settingsPanel');
+            const content = document.getElementById('settingsContent');
+            
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
+                // Small delay to allow display:block to apply before animating opacity/scale
                 setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    panel.classList.remove('scale-95');
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
                 }, 10);
             } else {
-                modal.classList.add('opacity-0');
-                panel.classList.add('scale-95');
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 200);
             }
-        };
+        }
 
         window.updateSettings = function() {
             appState.isClockEnabled = document.getElementById('clockToggle').checked;
             appState.isAdminMode = document.getElementById('adminToggle').checked;
+            
             document.getElementById('cutoffClockContainer').style.display = appState.isClockEnabled ? 'flex' : 'none';
-            if (appState.isAdminMode) window.showToast("Admin Grading Mode Enabled");
-            calculateDynamicCutoff();
-            renderPicks();
-        };
+            
+            if (appState.isAdminMode) window.showToast("Admin Mode Enabled");
+            
+            calculateDynamicCutoff(); 
+            renderPicks(); 
+        }
 
         window.toggleKioskMode = function() {
-            const isKiosk = document.getElementById('kioskToggle').checked;
-            const formCol = document.getElementById('formColumn');
-            const contentCol = document.getElementById('contentColumn');
-            const navBar = document.getElementById('mainNav');
-            const bozoBanner = document.getElementById('bozoBanner');
-            const editCols = document.querySelectorAll('.edit-column');
-            
-            if (isKiosk) {
-                formCol.style.display = 'none';
-                navBar.style.display = 'none';
-                bozoBanner.style.display = 'none';
-                contentCol.classList.remove('lg:col-span-8');
-                contentCol.classList.add('lg:col-span-12');
-                editCols.forEach(c => c.style.display = 'none');
-            } else {
-                formCol.style.display = 'block';
-                navBar.style.display = 'flex';
-                bozoBanner.style.display = 'block';
-                contentCol.classList.add('lg:col-span-8');
-                contentCol.classList.remove('lg:col-span-12');
-                editCols.forEach(c => c.style.display = 'table-cell');
-            }
             window.toggleSettings();
-            if (isKiosk) window.showToast("Kiosk Mode Active");
-        };
+            document.getElementById('mainNav').classList.toggle('hidden');
+            document.getElementById('submitFormWidget').classList.toggle('hidden');
+            document.getElementById('bozoVoteWidget').classList.toggle('hidden');
+            document.getElementById('payoutWidget').classList.toggle('hidden');
+            document.getElementById('bozoBanner').classList.toggle('hidden');
+            
+            const tabs = document.getElementById('tabContainer');
+            if(tabs) tabs.classList.toggle('hidden');
 
+            const container = document.querySelector('main > div.grid');
+            if (container) {
+                container.classList.toggle('lg:grid-cols-3');
+                container.classList.toggle('lg:grid-cols-1');
+            }
+            
+            window.showToast("Kiosk Mode Toggled. Refresh to exit.");
+        }
+
+        // --- TIMER & LOCK LOGIC ---
         function calculateDynamicCutoff() {
             clearInterval(countdownInterval);
+            
             if (!appState.isClockEnabled) {
-                document.getElementById('countdownDisplay').innerText = "--:--:--";
+                unlockForm();
+                document.getElementById('countdownDisplay').innerText = "DISABLED";
                 document.getElementById('countdownDisplay').classList.remove('text-red-500');
                 return;
             }
-            const earliestKickoff = new Date().getTime() + (1000 * 60 * 60 * 2);
+
+            // Target 1:00 PM EST on Sundays
+            const now = new Date();
+            let nextSunday = new Date();
+            nextSunday.setDate(now.getDate() + (7 - now.getDay()) % 7);
+            if (now.getDay() === 0 && now.getHours() >= 13) {
+                // If it's Sunday past 1pm, target next week
+                nextSunday.setDate(nextSunday.getDate() + 7);
+            }
+            
+            nextSunday.setHours(13, 0, 0, 0); // 1:00 PM
+            const earliestKickoff = nextSunday.getTime();
+
             countdownInterval = setInterval(() => {
                 const distance = earliestKickoff - new Date().getTime();
                 if (distance < 0) {
                     clearInterval(countdownInterval);
                     document.getElementById('countdownDisplay').innerText = "LOCKED";
                     document.getElementById('countdownDisplay').classList.add('text-red-500');
+                    lockForm();
                     return;
                 }
                 const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((distance % (1000 * 60)) / 1000);
+                
                 document.getElementById('countdownDisplay').innerText = 
-                    `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                    (h > 0 ? h + "h " : "") + 
+                    (m < 10 ? "0" : "") + m + "m " + 
+                    (s < 10 ? "0" : "") + s + "s";
+                
+                unlockForm();
+
             }, 1000);
         }
 
-        window.showToast = function(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').innerText = msg || "Success!";
-            toast.classList.remove('translate-y-32', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-32', 'opacity-0'), 3000);
-        };
+        function lockForm() {
+            appState.isLocked = true;
+            document.getElementById('formOverlay').classList.remove('hidden');
+            renderPicks(); // Hide delete buttons
+        }
 
-        window.exportToCSV = function() {
-            window.showToast("Exporting data to Sheet...");
-        };
+        function unlockForm() {
+            appState.isLocked = false;
+            document.getElementById('formOverlay').classList.add('hidden');
+            renderPicks(); // Show delete buttons
+        }
 
-        window.onload = function() {
-            const seasonStart = new Date('2026-09-08T00:00:00').getTime(); 
-            const now = new Date().getTime();
-            if (now > seasonStart) {
-                const diff = now - seasonStart;
-                appState.currentWeek = Math.floor(diff / (1000 * 60 * 60 * 24 * 7)) + 1;
-            } else {
-                appState.currentWeek = 1;
+        // --- DATABASE ACTIONS ---
+        document.getElementById('pickForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (appState.isLocked) return;
+
+            const name = document.getElementById('nameInput').value;
+            const pick = document.getElementById('pickInput').value;
+            const odds = document.getElementById('oddsInput').value;
+
+            if(!name || !pick || !odds) {
+                window.showToast("Please fill all fields.", "error");
+                return;
             }
-            document.getElementById('bozoVoteTitle').innerText = `Week ${appState.currentWeek} Bozo`;
+            
+            // Check if user already submitted this week
+            const existingPick = appState.picks.find(p => p.name === name && p.week === appState.currentWeek);
+            if(existingPick) {
+                window.showToast(`${name} has already submitted a pick for Week ${appState.currentWeek}.`, "error");
+                return;
+            }
 
-            initFirebase();
-            renderPicks();
-            renderStandings();
-            renderAllTimeStats();
+            const newPick = {
+                name,
+                pick,
+                odds: parseInt(odds, 10),
+                week: appState.currentWeek,
+                status: 'pending',
+                timestamp: window.firebaseModules.serverTimestamp ? window.firebaseModules.serverTimestamp() : new Date()
+            };
+
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="ph-fill ph-spinner bozo-spin text-xl"></i>';
+
+            try {
+                if (appState.db) {
+                    await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, "picks"), newPick);
+                } else {
+                    // Offline mock
+                    newPick.id = Date.now().toString();
+                    appState.picks.push(newPick);
+                    renderPicks();
+                    updateStandings();
+                }
+                
+                document.getElementById('pickInput').value = '';
+                document.getElementById('oddsInput').value = '';
+                window.showToast("Pick locked in successfully!");
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                window.showToast("Failed to lock in pick.", "error");
+            } finally {
+                btn.innerHTML = originalText;
+            }
+        });
+
+        document.getElementById('voteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const bozoName = document.getElementById('voteSelect').value;
+            if(!bozoName) return;
+
+            const newVote = {
+                bozoName,
+                week: appState.currentWeek,
+                timestamp: window.firebaseModules.serverTimestamp ? window.firebaseModules.serverTimestamp() : new Date()
+            };
+
+            try {
+                if (appState.db) {
+                     await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, "votes"), newVote);
+                } else {
+                    newVote.id = Date.now().toString();
+                    appState.votes.push(newVote);
+                    renderVotes();
+                }
+                document.getElementById('voteSelect').value = '';
+                window.showToast(`Voted for ${bozoName} as Bozo!`);
+            } catch (error) {
+                console.error("Error adding vote: ", error);
+                window.showToast("Failed to cast vote.", "error");
+            }
+        });
+
+        window.deletePick = async function(id) {
+            if (!confirm("Remove this pick?")) return;
+            try {
+                if (appState.db) {
+                    await window.firebaseModules.deleteDoc(window.firebaseModules.doc(appState.db, "picks", id));
+                } else {
+                    appState.picks = appState.picks.filter(p => p.id !== id);
+                    renderPicks();
+                    updateStandings();
+                }
+                window.showToast("Pick removed.");
+            } catch (error) {
+                 console.error("Error deleting document: ", error);
+                 window.showToast("Failed to remove pick.", "error");
+            }
+        }
+
+        window.updatePickStatus = async function(id, status) {
+            try {
+                if (appState.db) {
+                    const docRef = window.firebaseModules.doc(appState.db, "picks", id);
+                    await window.firebaseModules.updateDoc(docRef, { status: status });
+                } else {
+                     const pick = appState.picks.find(p => p.id === id);
+                     if(pick) pick.status = status;
+                     renderPicks();
+                     updateStandings();
+                }
+                window.showToast(`Pick marked as ${status.toUpperCase()}.`);
+            } catch (error) {
+                 console.error("Error updating document: ", error);
+                 window.showToast("Failed to update status.", "error");
+            }
+        }
+
+        // --- UTILS ---
+        window.showToast = function(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'error' ? 'bg-red-900/90 border-red-500' : 'bg-dkCard border-dkGreen';
+            const icon = type === 'error' ? '<i class="ph-fill ph-warning-circle text-red-500 mr-2 text-lg"></i>' : '<i class="ph-fill ph-check-circle text-dkGreen mr-2 text-lg"></i>';
+
+            toast.className = `flex items-center px-4 py-3 rounded-xl border shadow-lg ${bgColor} text-white text-sm font-bold toast-animate backdrop-blur-md`;
+            toast.innerHTML = `${icon} ${message}`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(100%)';
+                toast.style.transition = 'all 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- BOOT ---
+        window.onload = function() {
+            calculateCurrentWeek();
             calculateDynamicCutoff();
+            updateStandings();
+            
+            // Allow time for ES modules to load via script tags before init
+            setTimeout(() => {
+                if (window.firebaseModules && window.firebaseModules.initializeApp) {
+                    initFirebase();
+                } else {
+                    console.warn("Firebase modules not loaded in time. Using mock.");
+                    mockFirebaseData();
+                }
+            }, 500);
         };
+
     </script>
 </body>
 </html>
