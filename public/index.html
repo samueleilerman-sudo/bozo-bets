@@ -10,10 +10,10 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         
-        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc, getAuth, signInAnonymously };
+        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, getAuth, signInAnonymously };
     </script>
 
     <script>
@@ -55,7 +55,8 @@
                 <div class="bg-dkGreen/10 p-2 rounded-lg">
                     <i class="ph-fill ph-bird text-dkGreen text-2xl leading-none"></i>
                 </div>
-                <h1 class="text-xl font-extrabold text-white tracking-widest hidden sm:block">BOZO<span class="text-dkGreen">BETS</span></h1>
+                <!-- Fixed Mobile Visibility for Logo -->
+                <h1 class="text-xl font-extrabold text-white tracking-widest">BOZO<span class="text-dkGreen">BETS</span></h1>
             </div>
             
             <div class="flex items-center space-x-3 md:space-x-6">
@@ -64,8 +65,8 @@
                     <span class="text-lg font-mono font-bold text-white">$110.00</span>
                 </div>
                 
-                <!-- Updated Universal Venmo Link -->
-                <a href="https://venmo.com/@Sam-Eilerman?txn=pay&amount=10.00&note=Bozo+Bets" target="_blank" onclick="window.showToast('Opening Venmo...')" class="flex items-center space-x-2 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all">
+                <!-- Universal Venmo Link -->
+                <a href="https://venmo.com/Sam-Eilerman?txn=pay&amount=10.00&note=Bozo+Bets" target="_blank" onclick="window.showToast('Opening Venmo...')" class="flex items-center space-x-2 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all">
                     <i class="ph-fill ph-currency-dollar"></i>
                     <span class="hidden sm:inline font-medium text-xs uppercase tracking-wider">Buy In</span>
                 </a>
@@ -114,14 +115,13 @@
             </div>
         </div>
 
-        <div class="flex space-x-2 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 hide-scrollbar" id="tabContainer">
-            <button onclick="window.switchTab('viewPicks')" id="tab-viewPicks" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all bg-dkGreen text-black whitespace-nowrap"><i class="ph-fill ph-list-numbers mr-1"></i> Week's Picks</button>
-            <button onclick="window.switchTab('viewStandings')" id="tab-viewStandings" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white whitespace-nowrap"><i class="ph-fill ph-trophy mr-1"></i> Season Standings</button>
-            <button onclick="window.switchTab('viewAllTime')" id="tab-viewAllTime" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white whitespace-nowrap"><i class="ph-fill ph-archive mr-1"></i> All-Time Records</button>
+        <div class="grid grid-cols-3 gap-2 w-full pb-2" id="tabContainer">
+            <button onclick="window.switchTab('viewPicks')" id="tab-viewPicks" class="tab-btn p-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all bg-dkGreen text-black flex flex-col lg:flex-row items-center justify-center text-center leading-tight"><i class="ph-fill ph-list-numbers lg:mr-1 mb-1 lg:mb-0 text-lg"></i> <span>Week's Picks</span></button>
+            <button onclick="window.switchTab('viewStandings')" id="tab-viewStandings" class="tab-btn p-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white flex flex-col lg:flex-row items-center justify-center text-center leading-tight"><i class="ph-fill ph-trophy lg:mr-1 mb-1 lg:mb-0 text-lg"></i> <span>Season Standings</span></button>
+            <button onclick="window.switchTab('viewAllTime')" id="tab-viewAllTime" class="tab-btn p-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white flex flex-col lg:flex-row items-center justify-center text-center leading-tight"><i class="ph-fill ph-archive lg:mr-1 mb-1 lg:mb-0 text-lg"></i> <span>All-Time Records</span></button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            
             <div class="lg:col-span-2 space-y-6">
                 
                 <div id="viewPicks" class="bg-dkCard rounded-2xl border border-dkBorder shadow-lg overflow-hidden flex flex-col h-full min-h-[400px]">
@@ -129,7 +129,7 @@
                         <h3 class="text-white font-bold flex items-center">
                             Group Selections
                         </h3>
-                        <span class="text-xs text-gray-400"><span id="pickCount">0</span>/10 Submitted</span>
+                        <span class="text-xs text-gray-400"><span id="pickCount">0</span> Submitted</span>
                     </div>
                     <div class="overflow-x-auto flex-grow">
                         <table class="w-full text-left border-collapse min-w-[500px]">
@@ -151,9 +151,10 @@
                             <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Lock in:</span>
                             <span class="font-mono text-white text-sm bg-dkCard px-3 py-1 rounded border border-dkBorder font-bold" id="countdownDisplay">Loading...</span>
                         </div>
-                        <div class="text-right w-full sm:w-auto flex justify-between sm:block">
+                        <div class="text-right w-full sm:w-auto flex justify-between sm:block items-center">
                             <span class="text-xs text-gray-400 uppercase tracking-widest font-bold mr-3 block sm:inline">Total Parlay Odds</span>
-                            <span class="text-xl font-mono font-black text-dkGreen" id="totalOddsDisplay">+0</span>
+                            <!-- Editable Total Odds Input -->
+                            <input type="text" id="totalOddsDisplay" value="+0" class="text-xl font-mono font-black text-dkGreen bg-transparent text-right w-24 border-b border-transparent hover:border-dkBorder focus:border-dkGreen focus:outline-none transition-colors cursor-text" title="Click to manually override total odds">
                         </div>
                     </div>
                 </div>
@@ -177,7 +178,6 @@
                         </table>
                     </div>
                     
-                    <!-- Bozo History Section -->
                     <div class="p-5 border-t border-dkBorder bg-white/[0.02] mt-auto">
                         <h3 class="text-white font-bold flex items-center">
                             <i class="ph-fill ph-mask-sad text-red-500 mr-2 text-xl"></i>
@@ -204,6 +204,18 @@
                         <h3 class="text-white font-bold">Historical Win/Loss Records</h3>
                         <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Since 2024</span>
                     </div>
+
+                    <div class="bg-dkDark/40 p-4 border-b border-dkBorder flex flex-col sm:flex-row gap-3">
+                        <a href="./2025_2026 Bozo Bets_2.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2 px-3 rounded-lg transition-colors flex-1 shadow-sm" title="Download 2025/2026 Data">
+                            <i class="ph-fill ph-table text-lg"></i>
+                            <span class="truncate">2025_2026 Bozo Bets_2.xlsx</span>
+                        </a>
+                        <a href="./2024_2025 Bozo Bets_2.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2 px-3 rounded-lg transition-colors flex-1 shadow-sm" title="Download 2024/2025 Data">
+                            <i class="ph-fill ph-table text-lg"></i>
+                            <span class="truncate">2024_2025 Bozo Bets_2.xlsx</span>
+                        </a>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -232,25 +244,28 @@
                         <p class="text-gray-400 text-sm">Cutoff time reached.</p>
                     </div>
 
-                    <h3 class="text-white font-bold mb-5 flex items-center text-lg">
-                        <i class="ph-fill ph-ticket text-dkGreen mr-2"></i>
-                        Submit Pick
+                    <h3 class="text-white font-bold mb-5 flex items-center text-lg justify-between">
+                        <span class="flex items-center"><i class="ph-fill ph-ticket text-dkGreen mr-2"></i> Submit Pick</span>
+                        <!-- DraftKings Integration Button -->
+                        <button onclick="window.fetchDraftKingsOdds()" class="text-[10px] text-blue-400 hover:text-white uppercase tracking-wider font-bold flex items-center bg-blue-500/20 px-2 py-1 rounded transition-colors border border-blue-500/30">
+                            <i class="ph-fill ph-lightning mr-1"></i> Live DK Odds
+                        </button>
                     </h3>
                     <form id="pickForm" class="space-y-4">
                         <div>
                             <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Who are you?</label>
                             <select id="nameInput" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all appearance-none cursor-pointer">
                                 <option value="" disabled selected>Select your name</option>
-                                <option value="Matt">Matt</option>
-                                <option value="Josh">Josh</option>
                                 <option value="Sam">Sam</option>
-                                <option value="Cole">Cole</option>
-                                <option value="Tyler">Tyler</option>
-                                <option value="Grant">Grant</option>
-                                <option value="Ethan">Ethan</option>
-                                <option value="Jack">Jack</option>
-                                <option value="Connor">Connor</option>
-                                <option value="Alex">Alex</option>
+                                <option value="Josh">Josh</option>
+                                <option value="Zach">Zach</option>
+                                <option value="Jide">Jide</option>
+                                <option value="Rick">Rick</option>
+                                <option value="Shane">Shane</option>
+                                <option value="John">John</option>
+                                <option value="Matt">Matt</option>
+                                <option value="Ronnie">Ronnie</option>
+                                <option value="Nate">Nate</option>
                             </select>
                         </div>
                         
@@ -261,10 +276,7 @@
 
                         <div>
                             <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Odds</label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-3 text-gray-500 font-mono"></span>
-                                <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600">
-                            </div>
+                            <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600">
                         </div>
 
                         <button type="submit" id="submitBtn" class="w-full bg-dkGreen hover:bg-green-400 text-black font-extrabold py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] uppercase tracking-widest text-sm flex items-center justify-center group mt-2">
@@ -314,16 +326,16 @@
                     <form id="voteForm" class="space-y-3">
                         <select id="voteSelect" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all appearance-none cursor-pointer">
                             <option value="" disabled selected>Select this week's Bozo</option>
-                            <option value="Matt">Matt</option>
-                            <option value="Josh">Josh</option>
                             <option value="Sam">Sam</option>
-                            <option value="Cole">Cole</option>
-                            <option value="Tyler">Tyler</option>
-                            <option value="Grant">Grant</option>
-                            <option value="Ethan">Ethan</option>
-                            <option value="Jack">Jack</option>
-                            <option value="Connor">Connor</option>
-                            <option value="Alex">Alex</option>
+                            <option value="Josh">Josh</option>
+                            <option value="Zach">Zach</option>
+                            <option value="Jide">Jide</option>
+                            <option value="Rick">Rick</option>
+                            <option value="Shane">Shane</option>
+                            <option value="John">John</option>
+                            <option value="Matt">Matt</option>
+                            <option value="Ronnie">Ronnie</option>
+                            <option value="Nate">Nate</option>
                         </select>
                         <button type="submit" class="w-full bg-dkDark hover:bg-red-900/40 text-red-400 border border-red-900/50 font-bold py-3 rounded-xl transition-all uppercase tracking-widest text-xs flex items-center justify-center group">
                             <span>Submit Vote</span>
@@ -335,7 +347,6 @@
         </div>
     </main>
 
-    <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-dkCard w-full max-w-md rounded-2xl border border-dkBorder shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-200" id="settingsContent">
             <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-dkDark/50">
@@ -382,7 +393,6 @@
         </div>
     </div>
 
-    <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2"></div>
 
     <script>
@@ -395,7 +405,8 @@
             isAdminMode: false,
             isLocked: false,
             userId: null,
-            db: null
+            db: null,
+            hasManualOdds: false 
         };
 
         let countdownInterval;
@@ -403,7 +414,6 @@
         // --- INITIALIZATION ---
         async function initFirebase() {
             try {
-                // REPLACE THIS OBJECT WITH YOUR ACTUAL FIREBASE CONFIG FROM THE CONSOLE
                 const myFirebaseConfig = {
                     apiKey: "AIzaSyBp7bQzxzWwT3aKKwV1VKn1pmrN3Tolq6o",
                     authDomain: "bozo-bets.firebaseapp.com",
@@ -426,11 +436,9 @@
                 const auth = window.firebaseModules.getAuth(app);
                 appState.db = window.firebaseModules.getFirestore(app);
 
-                // Anonymous sign in to allow writing without explicit user accounts for now
                 try {
                     const userCredential = await window.firebaseModules.signInAnonymously(auth);
                     appState.userId = userCredential.user.uid;
-                    console.log("Signed in anonymously as:", appState.userId);
                 } catch(e) {
                     console.error("Auth failed, continuing anyway.", e);
                 }
@@ -445,11 +453,7 @@
         }
 
         function mockFirebaseData() {
-            console.log("Initializing Mock Data...");
-            appState.picks = [
-                { id: '1', week: 1, name: "Sam", pick: "Ja'Marr Chase O 75.5 Rec Yds", odds: -110, status: "pending", timestamp: new Date() },
-                { id: '2', week: 1, name: "Josh", pick: "Steelers ML", odds: +150, status: "pending", timestamp: new Date() }
-            ];
+            appState.picks = [];
             appState.votes = [];
             renderPicks();
             calculateOdds();
@@ -479,7 +483,6 @@
             });
         }
 
-        // --- CORE LOGIC ---
         function calculateCurrentWeek() {
             const seasonStart = new Date('2026-09-08T00:00:00').getTime(); 
             const now = new Date().getTime();
@@ -503,8 +506,10 @@
             document.getElementById('pickCount').innerText = currentWeekPicks.length;
             
             if (currentWeekPicks.length === 0) {
-                document.getElementById('totalOddsDisplay').innerText = "+0";
-                document.getElementById('totalPayout').innerText = "0.00";
+                if(!appState.hasManualOdds) {
+                    document.getElementById('totalOddsDisplay').value = "+0";
+                    updatePayoutDisplay(0);
+                }
                 return;
             }
 
@@ -527,16 +532,54 @@
                 parlayOdds = Math.round(-100 / (decimalOdds - 1));
             }
 
-            const prefix = parlayOdds > 0 ? "+" : "";
-            document.getElementById('totalOddsDisplay').innerText = prefix + parlayOdds;
+            if (!appState.hasManualOdds) {
+                const prefix = parlayOdds > 0 ? "+" : "";
+                document.getElementById('totalOddsDisplay').value = prefix + parlayOdds;
+                updatePayoutDisplay(parlayOdds);
+            }
+        }
 
+        function updatePayoutDisplay(parlayOdds) {
+            if (parlayOdds === 0) {
+                document.getElementById('totalPayout').innerText = "0.00";
+                return;
+            }
+            
+            let decimalOdds = 1;
+            if (parlayOdds > 0) {
+                decimalOdds = (parlayOdds / 100) + 1;
+            } else if (parlayOdds < 0) {
+                decimalOdds = (100 / Math.abs(parlayOdds)) + 1;
+            }
+            
             const wager = 100;
             const payout = wager * decimalOdds;
-            // Subtract wager to just show profit for "To Win", or leave it if it means total return
             document.getElementById('totalPayout').innerText = (payout - wager).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // --- RENDERING ---
+        document.getElementById('totalOddsDisplay').addEventListener('input', (e) => {
+            const val = e.target.value;
+            if (val.trim() === '') {
+                appState.hasManualOdds = false;
+                window.calculateOdds();
+            } else {
+                appState.hasManualOdds = true;
+                let numericOdds = parseInt(val.replace(/[^0-9\-+]/g, ''), 10);
+                if (!isNaN(numericOdds)) {
+                    updatePayoutDisplay(numericOdds);
+                }
+            }
+        });
+
+        window.fetchDraftKingsOdds = async function() {
+            window.showToast("Fetching live odds...", "success");
+            setTimeout(() => {
+                document.getElementById('pickInput').value = "Derrick Henry Anytime TD";
+                document.getElementById('oddsInput').value = "-130";
+                window.showToast("DraftKings lines loaded! (Mock Data)", "success");
+            }, 1000);
+        }
+
         function renderPicks() {
             const tbody = document.getElementById('picksTableBody');
             tbody.innerHTML = '';
@@ -558,7 +601,6 @@
                 const pickStyle = (p.status === 'won' ? 'text-dkGreen' : (p.status === 'lost' ? 'text-red-400 line-through' : 'text-gray-200'));
                 const oddsColor = (p.odds > 0 ? 'text-dkGreen' : 'text-white');
                 
-                // Admin Actions vs Standard Edit
                 let actionHTML = '';
                 if (appState.isAdminMode) {
                     actionHTML = `
@@ -568,7 +610,6 @@
                         </div>
                     `;
                 } else {
-                    // Show a small delete button if they own it (mocked by checking name for now, real app uses Auth ID)
                     actionHTML = `
                         <div class="flex space-x-1 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onclick="window.deletePick('${p.id}')" class="text-gray-500 hover:text-red-400 p-1.5 rounded transition-colors" title="Remove"><i class="ph-fill ph-trash"></i></button>
@@ -587,7 +628,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Toggle admin columns visibility
             const adminCols = document.querySelectorAll('.admin-only');
             adminCols.forEach(col => {
                 if (appState.isAdminMode || !appState.isLocked) col.classList.remove('hidden');
@@ -598,19 +638,23 @@
         }
 
         function updateStandings() {
-            // Mocking historical data for demonstration
             const historicalData = {
-                "Josh": { wins: 45, losses: 62 },
-                "Matt": { wins: 58, losses: 49 },
-                "Sam": { wins: 50, losses: 57 },
-                "Cole": { wins: 55, losses: 52 }
-            };
+                "Sam": { wins: 34, losses: 24 },
+                "Josh": { wins: 21, losses: 12 },
+                "Zach": { wins: 24, losses: 29 },
+                "Jide": { wins: 17, losses: 12 },
+                "Rick": { wins: 22, losses: 9 },
+                "Shane": { wins: 40, losses: 17 },
+                "John": { wins: 33, losses: 22 },
+                "Matt": { wins: 31, losses: 24 },
+                "Ronnie": { wins: 30, losses: 10 },
+                "Nate": { wins: 36, losses: 20 }
+            }; 
 
             const currentSeason = {};
-            const names = ["Matt", "Josh", "Sam", "Cole", "Tyler", "Grant", "Ethan", "Jack", "Connor", "Alex"];
+            const names = ["Sam", "Josh", "Zach", "Jide", "Rick", "Shane", "John", "Matt", "Ronnie", "Nate"];
             names.forEach(n => currentSeason[n] = { wins: 0, losses: 0, pending: 0 });
 
-            // Process live data for current season
             appState.picks.forEach(p => {
                 if(currentSeason[p.name]) {
                     if(p.status === 'won') currentSeason[p.name].wins++;
@@ -619,7 +663,6 @@
                 }
             });
 
-            // Compile All Time
             const allTime = [];
             const seasonStats = [];
 
@@ -627,28 +670,23 @@
                 const hist = historicalData[name] || { wins: 0, losses: 0 };
                 const curr = currentSeason[name];
                 
-                // Season Data
                 const seasonTotal = curr.wins + curr.losses;
                 let seasonRate = 0;
                 if(seasonTotal > 0) seasonRate = Math.round((curr.wins / seasonTotal) * 100);
-                
                 seasonStats.push({ name, wins: curr.wins, losses: curr.losses, rate: seasonRate, total: seasonTotal });
 
-                // All Time Data
                 const tWins = hist.wins + curr.wins;
                 const tLosses = hist.losses + curr.losses;
                 const tTotal = tWins + tLosses;
                 let tRate = 0;
                 if(tTotal > 0) tRate = Math.round((tWins / tTotal) * 100);
-
                 allTime.push({ name, wins: tWins, losses: tLosses, rate: tRate, total: tTotal });
             });
 
-            // Determine Ultimate Bozo (Lowest All-Time Rate with min 20 bets)
             let ultimateBozo = null;
             let lowestRate = 100;
             allTime.forEach(s => {
-                if(s.total > 20 && s.rate < lowestRate) {
+                if(s.total > 5 && s.rate < lowestRate) {
                     lowestRate = s.rate;
                     ultimateBozo = s;
                 }
@@ -658,18 +696,16 @@
                 document.getElementById('ultimateBozoName').innerText = ultimateBozo.name;
                 document.getElementById('ultimateBozoRate').innerText = `${ultimateBozo.rate}% Hit Rate`;
             } else {
-                // Fallback to Josh if no one meets criteria
-                document.getElementById('ultimateBozoName').innerText = "Josh";
-                document.getElementById('ultimateBozoRate').innerText = `42% Hit Rate`;
-                ultimateBozo = {name: 'Josh'};
+                document.getElementById('ultimateBozoName').innerText = "TBD";
+                document.getElementById('ultimateBozoRate').innerText = `--% Hit Rate`;
+                ultimateBozo = {name: 'TBD'};
             }
 
-            // Render Season Standings
             seasonStats.sort((a, b) => b.rate - a.rate);
             const stBody = document.getElementById('standingsTableBody');
             stBody.innerHTML = '';
             seasonStats.forEach((s, index) => {
-                if(s.total === 0) return; // Skip if no bets
+                if(s.total === 0) return;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="p-4 text-gray-500 font-mono text-center text-sm">${index + 1}</td>
@@ -682,7 +718,6 @@
                 stBody.appendChild(tr);
             });
 
-            // Render All Time Standings
             allTime.sort((a, b) => b.rate - a.rate);
             const atBody = document.getElementById('allTimeTableBody');
             atBody.innerHTML = '';
@@ -712,10 +747,7 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             
-            // Mock History Data for this season
-            const seasonBozos = [
-                { week: "Preseason", name: "Josh", note: "Legacy Bozo Status" }
-            ];
+            const seasonBozos = [];
             
             if (seasonBozos.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-gray-500 text-sm italic">No Bozos crowned yet this season.</td></tr>`;
@@ -742,8 +774,6 @@
             
             if(currentWeekVotes.length > 0) {
                 container.classList.remove('hidden');
-                
-                // Tally votes
                 const tally = {};
                 currentWeekVotes.forEach(v => {
                     tally[v.bozoName] = (tally[v.bozoName] || 0) + 1;
@@ -762,8 +792,6 @@
             }
         }
 
-
-        // --- INTERACTIONS ---
         window.switchTab = function(tabId) {
             ['viewPicks', 'viewStandings', 'viewAllTime'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
@@ -788,7 +816,6 @@
             
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
-                // Small delay to allow display:block to apply before animating opacity/scale
                 setTimeout(() => {
                     content.classList.remove('scale-95', 'opacity-0');
                     content.classList.add('scale-100', 'opacity-100');
@@ -834,7 +861,6 @@
             window.showToast("Kiosk Mode Toggled. Refresh to exit.");
         }
 
-        // --- TIMER & LOCK LOGIC ---
         function calculateDynamicCutoff() {
             clearInterval(countdownInterval);
             
@@ -845,16 +871,14 @@
                 return;
             }
 
-            // Target 1:00 PM EST on Sundays
             const now = new Date();
             let nextSunday = new Date();
             nextSunday.setDate(now.getDate() + (7 - now.getDay()) % 7);
             if (now.getDay() === 0 && now.getHours() >= 13) {
-                // If it's Sunday past 1pm, target next week
                 nextSunday.setDate(nextSunday.getDate() + 7);
             }
             
-            nextSunday.setHours(13, 0, 0, 0); // 1:00 PM
+            nextSunday.setHours(13, 0, 0, 0);
             const earliestKickoff = nextSunday.getTime();
 
             countdownInterval = setInterval(() => {
@@ -883,16 +907,15 @@
         function lockForm() {
             appState.isLocked = true;
             document.getElementById('formOverlay').classList.remove('hidden');
-            renderPicks(); // Hide delete buttons
+            renderPicks(); 
         }
 
         function unlockForm() {
             appState.isLocked = false;
             document.getElementById('formOverlay').classList.add('hidden');
-            renderPicks(); // Show delete buttons
+            renderPicks(); 
         }
 
-        // --- DATABASE ACTIONS ---
         document.getElementById('pickForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (appState.isLocked) return;
@@ -906,7 +929,6 @@
                 return;
             }
             
-            // Check if user already submitted this week
             const existingPick = appState.picks.find(p => p.name === name && p.week === appState.currentWeek);
             if(existingPick) {
                 window.showToast(`${name} has already submitted a pick for Week ${appState.currentWeek}.`, "error");
@@ -930,7 +952,6 @@
                 if (appState.db) {
                     await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, "picks"), newPick);
                 } else {
-                    // Offline mock
                     newPick.id = Date.now().toString();
                     appState.picks.push(newPick);
                     renderPicks();
@@ -1010,7 +1031,6 @@
             }
         }
 
-        // --- UTILS ---
         window.showToast = function(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -1031,13 +1051,11 @@
             }, 3000);
         }
 
-        // --- BOOT ---
         window.onload = function() {
             calculateCurrentWeek();
             calculateDynamicCutoff();
             updateStandings();
             
-            // Allow time for ES modules to load via script tags before init
             setTimeout(() => {
                 if (window.firebaseModules && window.firebaseModules.initializeApp) {
                     initFirebase();
@@ -1047,7 +1065,6 @@
                 }
             }, 500);
         };
-
     </script>
 </body>
 </html>
