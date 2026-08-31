@@ -208,11 +208,11 @@
                     <div class="bg-dkDark/40 p-4 border-b border-dkBorder flex flex-col sm:flex-row gap-3">
                         <a href="./2025_2026_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2 px-3 rounded-lg transition-colors flex-1 shadow-sm" title="Download 2025/2026 Data">
                             <i class="ph-fill ph-table text-lg"></i>
-                            <span class="truncate">2025-2026 Bozo Bets</span>
+                            <span class="truncate">2025/2026 Bozo Bets</span>
                         </a>
                         <a href="./2024_2025_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2 px-3 rounded-lg transition-colors flex-1 shadow-sm" title="Download 2024/2025 Data">
                             <i class="ph-fill ph-table text-lg"></i>
-                            <span class="truncate">2024-2025 Bozo Bets</span>
+                            <span class="truncate">2024/2025 Bozo Bets</span>
                         </a>
                     </div>
 
@@ -406,7 +406,9 @@
             isLocked: false,
             userId: null,
             db: null,
-            hasManualOdds: false 
+            hasManualOdds: false,
+            bankroll: null,
+            customCutoff: null
         };
 
         let countdownInterval;
@@ -480,6 +482,27 @@
                     appState.votes.push({ id: doc.id, ...doc.data() });
                 });
                 renderVotes();
+            });
+
+            // Listen for Global Admin Settings
+            const configDoc = window.firebaseModules.doc(appState.db, "settings", "global");
+            onSnapshot(configDoc, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.bankroll !== undefined) {
+                        appState.bankroll = data.bankroll;
+                        const displayEl = document.getElementById('groupBankrollDisplay');
+                        if (displayEl) displayEl.innerText = data.bankroll ? `$${parseFloat(data.bankroll).toFixed(2)}` : 'TBD';
+                        const inputEl = document.getElementById('bankrollSetting');
+                        if (inputEl && document.activeElement !== inputEl) inputEl.value = data.bankroll || '';
+                    }
+                    if (data.cutoffTime !== undefined) {
+                        appState.customCutoff = data.cutoffTime;
+                        const cutoffEl = document.getElementById('cutoffSetting');
+                        if (cutoffEl && document.activeElement !== cutoffEl) cutoffEl.value = data.cutoffTime || '';
+                    }
+                    calculateDynamicCutoff(); // Recalculate if time changed
+                }
             });
         }
 
@@ -573,11 +596,55 @@
 
         window.fetchDraftKingsOdds = async function() {
             window.showToast("Fetching live odds...", "success");
-            setTimeout(() => {
-                document.getElementById('pickInput').value = "Derrick Henry Anytime TD";
-                document.getElementById('oddsInput').value = "-130";
-                window.showToast("DraftKings lines loaded! (Mock Data)", "success");
-            }, 1000);
+            
+            // 1. YOUR API KEY HERE
+            const apiKey = 'YOUR_ODDS_API_KEY'; 
+            
+            // 2. THE ENDPOINT: NFL, DraftKings only, Moneyline & Spreads, American odds format
+            const url = `https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds/?apiKey=${apiKey}&regions=us&markets=h2h,spreads&bookmakers=draftkings&oddsFormat=american`;
+
+            try {
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    window.showToast("No upcoming NFL odds found on DraftKings.", "error");
+                    return;
+                }
+
+                // 3. For the dashboard, we will just grab the very first available spread bet as an example to populate the fields.
+                // In a fully built app, you would populate a dropdown menu with all available `data` options.
+                const firstGame = data[0];
+                const dkBookmaker = firstGame.bookmakers.find(b => b.key === 'draftkings');
+                
+                if(dkBookmaker && dkBookmaker.markets.length > 0) {
+                     // Look for spread first, fallback to h2h
+                     let market = dkBookmaker.markets.find(m => m.key === 'spreads') || dkBookmaker.markets[0];
+                     let outcome = market.outcomes[0]; // Grab the first team
+
+                     // Format the bet name: "Team Name (Spread)"
+                     let pickString = outcome.name;
+                     if(outcome.point) {
+                         const pointStr = outcome.point > 0 ? `+${outcome.point}` : outcome.point;
+                         pickString += ` (${pointStr})`;
+                     }
+
+                     document.getElementById('pickInput').value = pickString;
+                     document.getElementById('oddsInput').value = outcome.price;
+                     window.showToast("DraftKings lines loaded!", "success");
+                } else {
+                     window.showToast("DraftKings lines not available for this game.", "error");
+                }
+
+            } catch (error) {
+                console.error("Odds fetch failed:", error);
+                window.showToast("Failed to fetch odds. Check console.", "error");
+            }
         }
 
         function renderPicks() {
@@ -835,10 +902,30 @@
             
             document.getElementById('cutoffClockContainer').style.display = appState.isClockEnabled ? 'flex' : 'none';
             
+            // Show/Hide extended admin controls
+            const extAdmin = document.getElementById('extendedAdminControls');
+            if (extAdmin) {
+                if (appState.isAdminMode) extAdmin.classList.remove('hidden');
+                else extAdmin.classList.add('hidden');
+            }
+            
             if (appState.isAdminMode) window.showToast("Admin Mode Enabled");
             
             calculateDynamicCutoff(); 
             renderPicks(); 
+        }
+
+        window.updateAdminSettings = async function() {
+            const br = document.getElementById('bankrollSetting').value;
+            const ct = document.getElementById('cutoffSetting').value;
+            if (appState.db) {
+                const configDoc = window.firebaseModules.doc(appState.db, "settings", "global");
+                await window.firebaseModules.setDoc(configDoc, {
+                    bankroll: br,
+                    cutoffTime: ct
+                }, { merge: true });
+                window.showToast("Admin settings saved.", "success");
+            }
         }
 
         window.toggleKioskMode = function() {
@@ -871,18 +958,22 @@
                 return;
             }
 
-            const now = new Date();
-            let nextSunday = new Date();
-            nextSunday.setDate(now.getDate() + (7 - now.getDay()) % 7);
-            if (now.getDay() === 0 && now.getHours() >= 13) {
-                nextSunday.setDate(nextSunday.getDate() + 7);
+            let targetTime;
+            if (appState.customCutoff) {
+                targetTime = new Date(appState.customCutoff).getTime();
+            } else {
+                const now = new Date();
+                let nextSunday = new Date();
+                nextSunday.setDate(now.getDate() + (7 - now.getDay()) % 7);
+                if (now.getDay() === 0 && now.getHours() >= 13) {
+                    nextSunday.setDate(nextSunday.getDate() + 7);
+                }
+                nextSunday.setHours(13, 0, 0, 0);
+                targetTime = nextSunday.getTime();
             }
-            
-            nextSunday.setHours(13, 0, 0, 0);
-            const earliestKickoff = nextSunday.getTime();
 
             countdownInterval = setInterval(() => {
-                const distance = earliestKickoff - new Date().getTime();
+                const distance = targetTime - new Date().getTime();
                 if (distance < 0) {
                     clearInterval(countdownInterval);
                     document.getElementById('countdownDisplay').innerText = "LOCKED";
