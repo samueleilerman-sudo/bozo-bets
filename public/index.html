@@ -915,6 +915,22 @@
             renderPicks(); 
         }
 
+        window.unlockAdmin = function() {
+            const pin = document.getElementById('adminPinInput').value;
+            
+            // YOUR PIN CODE HERE
+            if (pin === "2026") { 
+                document.getElementById('adminUnlockUI').classList.add('hidden');
+                document.getElementById('adminControlsUI').classList.remove('hidden');
+                document.getElementById('adminControlsUI').classList.add('flex');
+                window.showToast("Admin access granted.", "success");
+                document.getElementById('adminPinInput').value = ''; // clear it
+            } else {
+                window.showToast("Incorrect PIN.", "error");
+                document.getElementById('adminPinInput').value = '';
+            }
+        }
+
         window.updateAdminSettings = async function() {
             const br = document.getElementById('bankrollSetting').value;
             const ct = document.getElementById('cutoffSetting').value;
