@@ -49,6 +49,10 @@
         @keyframes bozoSpin { 100% { transform: rotate(360deg); } }
         .toast-animate { animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Force table text to wrap instead of causing horizontal scroll */
+        table { table-layout: fixed; width: 100%; }
+        td { word-wrap: break-word; white-space: normal; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans selection:bg-dkGreen selection:text-black">
@@ -69,8 +73,12 @@
                 </div>
                 
                 <div class="flex items-center space-x-3 ml-2 pl-3 border-l border-dkBorder">
-                    <a href="https://venmo.com/" target="_blank" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Venmo">
-                        <i class="ph-bold ph-currency-dollar mr-1 text-sm"></i> Venmo
+                    <!-- Native HTML Venmo Link with official SVG (No target="_blank" to prevent mobile crashes) -->
+                    <a href="https://venmo.com/" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Venmo Group">
+                        <svg viewBox="0 0 24 24" class="h-3 w-3 mr-1" fill="currentColor">
+                            <path d="M12.924 2.516c-1.059-.219-2.502-.284-4.104-.284-3.985 0-6.621 2.3-6.621 6.38 0 4.408 3.22 9.664 5.83 14.73l4.316-.001c-1.558-5.184-2.298-9.288-2.298-11.458 0-1.784.852-2.529 2.378-2.529 1.94 0 3.153 1.523 4.116 4.786l3.965-1.127C19.986 8.608 17.272 2.898 12.924 2.516z"/>
+                        </svg>
+                        Venmo
                     </a>
                     
                     <button onclick="window.toggleSettings()" class="flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-white h-9 w-9 rounded-lg transition-all" title="Dashboard Settings">
@@ -112,6 +120,7 @@
                             <span class="text-xs font-bold text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/5"><span id="pickCount" class="text-white">0</span> Submitted</span>
                         </div>
                         
+                        <!-- Fixed overflow-hidden to prevent horizontal scroll on long text -->
                         <div class="overflow-hidden w-full flex-grow">
                             <table class="w-full text-left border-collapse table-fixed">
                                 <thead>
@@ -159,26 +168,6 @@
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="p-5 border-t border-dkBorder bg-white/[0.01] mt-auto">
-                        <h3 class="text-white font-black text-lg tracking-tight flex items-center">
-                            <i class="ph-fill ph-mask-sad text-red-500 mr-2 text-xl"></i>
-                            Season Bozo History
-                        </h3>
-                    </div>
-                    <div class="overflow-x-auto pb-4">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="text-gray-400 text-[10px] uppercase tracking-widest border-b border-dkBorder bg-black/20">
-                                    <th class="p-4 font-bold w-24">Week</th>
-                                    <th class="p-4 font-bold">The Bozo</th>
-                                    <th class="p-4 font-bold text-right">Note</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bozoHistoryTableBody" class="divide-y divide-dkBorder/50">
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
                 <div id="viewAllTime" class="space-y-6 hidden h-full">
@@ -188,9 +177,7 @@
                         </div>
                         <div class="flex flex-col md:flex-row items-center justify-between relative z-10 gap-6">
                             <div class="flex items-center space-x-5 w-full md:w-auto">
-                                <div class="h-16 w-16 md:h-20 md:w-20 bg-dkDark rounded-full flex items-center justify-center text-3xl md:text-4xl shadow-[0_0_30px_rgba(239,68,68,0.4)] border-2 border-red-500 shrink-0">
-                                    🤡
-                                </div>
+                                <div class="h-16 w-16 md:h-20 md:w-20 bg-dkDark rounded-full flex items-center justify-center text-3xl md:text-4xl shadow-[0_0_30px_rgba(239,68,68,0.4)] border-2 border-red-500 shrink-0">🤡</div>
                                 <div>
                                     <div class="flex items-center space-x-2 mb-1">
                                         <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest shadow-sm">Warning</span>
@@ -218,18 +205,6 @@
                             <h3 class="text-white font-black text-lg tracking-tight">Historical Win/Loss Records</h3>
                             <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Since 2024</span>
                         </div>
-
-                        <div class="bg-black/40 p-4 border-b border-dkBorder flex flex-col sm:flex-row gap-3">
-                            <a href="./2025_2026_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2.5 px-3 rounded-xl transition-all flex-1 shadow-[0_0_10px_rgba(34,197,94,0.05)] hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]" title="Download 2025-2026 Data">
-                                <i class="ph-fill ph-file-xls text-lg"></i>
-                                <span class="truncate">2025/2026 Data</span>
-                            </a>
-                            <a href="./2024_2025_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2.5 px-3 rounded-xl transition-all flex-1 shadow-[0_0_10px_rgba(34,197,94,0.05)] hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]" title="Download 2024-2025 Data">
-                                <i class="ph-fill ph-file-xls text-lg"></i>
-                                <span class="truncate">2024/2025 Data</span>
-                            </a>
-                        </div>
-
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
@@ -247,7 +222,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="space-y-6 lg:sticky lg:top-28">
@@ -268,7 +242,10 @@
                         </span>
                         
                         <a href="https://sportsbook.draftkings.com/" target="_blank" class="group text-[12px] text-black font-black flex items-center bg-[#53d337] hover:bg-[#64e348] px-3 py-1.5 rounded-lg transition-all shadow-[0_0_15px_rgba(83,211,55,0.3)] hover:shadow-[0_0_20px_rgba(83,211,55,0.5)] font-dk tracking-wide leading-none">
-                            <i class="ph-fill ph-crown mr-1.5 text-black text-sm"></i> DraftKings
+                            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 mr-1" fill="currentColor">
+                               <path d="M3 18l3.35-10.74 3.75 6.04L12 3.5l1.9 9.8 3.75-6.04L21 18H3zm-1.5 2h21v2.5h-21V20z"/>
+                            </svg>
+                            DraftKings
                         </a>
                     </h3>
                     
@@ -277,7 +254,6 @@
                             <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Who are you?</label>
                             <select id="nameInput" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all appearance-none cursor-pointer shadow-inner">
                                 <option value="" disabled selected>Select your name</option>
-                                <option value="Sam">Sam</option><option value="Josh">Josh</option><option value="Zach">Zach</option><option value="Jide">Jide</option><option value="Rick">Rick</option><option value="Shane">Shane</option><option value="John">John</option><option value="Matt">Matt</option><option value="Ronnie">Ronnie</option><option value="Nate">Nate</option>
                             </select>
                         </div>
                         
@@ -316,10 +292,6 @@
                                 <p class="text-3xl font-mono font-black text-dkGreen drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" id="totalPayoutContainer">$<span id="totalPayout">0.00</span></p>
                             </div>
                         </div>
-                        
-                        <button onclick="window.showToast('AI Integration coming soon! 🤖')" class="w-full mt-5 bg-gradient-to-r from-purple-900/40 to-indigo-900/40 hover:from-purple-900/60 hover:to-indigo-900/60 text-purple-300 border border-purple-500/30 font-bold py-2.5 rounded-xl uppercase tracking-widest text-[10px] transition-all flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.1)]">
-                            <i class="ph-fill ph-sparkle mr-2"></i> AI Parlay Roast
-                        </button>
                     </div>
                 </div>
                 
@@ -328,7 +300,10 @@
                         <i class="ph-fill ph-mask-sad text-red-500 mr-2"></i>
                         <span id="bozoVoteTitle">Week -- Bozo</span>
                     </h3>
-                    <p class="text-[11px] text-gray-400 mb-4 leading-relaxed font-medium">Cast your vote for the worst pick of the week. Limit one vote per person.</p>
+                    <p class="text-[11px] text-gray-400 mb-4 leading-relaxed font-medium">
+                        Cast your vote for the worst pick of the week. Limit one vote per person.
+                        <span class="text-red-400 font-bold block mt-1">Voting closes Monday at 11:59 PM EST.</span>
+                    </p>
                     
                     <div id="voteResults" class="space-y-3 hidden mb-4 bg-black/30 p-3 rounded-xl border border-dkBorder"></div>
 
@@ -366,14 +341,6 @@
                         <input type="checkbox" id="clockToggle" class="sr-only peer" checked onchange="window.updateSettings()">
                         <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-dkGreen"></div>
                     </label>
-                </div>
-
-                <div class="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-dkBorder shadow-inner">
-                    <div>
-                        <h4 class="text-white font-bold text-sm flex items-center"><i class="ph-fill ph-monitor-play mr-1.5 text-blue-400"></i> Kiosk / TV Mode</h4>
-                        <p class="text-xs text-gray-400 mt-1">Hide form & nav for full-screen.</p>
-                    </div>
-                    <button onclick="window.toggleKioskMode()" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors shadow-sm">Enable</button>
                 </div>
 
                 <div class="border-t border-dkBorder pt-4 mt-4" id="adminSection">
@@ -416,12 +383,16 @@
                                     <input type="datetime-local" id="cutoffSetting" class="bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500 text-sm w-full">
                                     <button onclick="window.updateAdminSettings()" class="bg-dkDark border border-dkBorder hover:bg-dkBorder text-white px-4 rounded-lg transition-colors"><i class="ph-fill ph-floppy-disk text-lg"></i></button>
                                 </div>
-                                <p class="text-[10px] text-red-400/60 mt-2 font-medium">Leave cutoff blank to auto-lock at Saturday 12PM Eastern.</p>
+                            </div>
+                            
+                            <div class="pt-2">
+                                <button onclick="window.clearCurrentWeekVotes()" class="w-full bg-red-900/40 hover:bg-red-800 text-red-400 border border-red-500/30 font-bold py-2.5 rounded-lg uppercase tracking-widest text-[10px] transition-all flex items-center justify-center">
+                                    <i class="ph-fill ph-trash mr-2"></i> Clear This Week's Votes
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -454,6 +425,8 @@
     <div id="toastContainer" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
     <script>
+        const ALL_BETTORS = ["Sam", "Josh", "Zach", "Jide", "Rick", "Shane", "John", "Matt", "Ronnie", "Nate"];
+
         let appState = {
             picks: [],
             votes: [],
@@ -486,6 +459,16 @@
             "Ronnie": { wins: 30, losses: 10 },
             "Nate": { wins: 36, losses: 20 }
         };
+        
+        window.formatOdds = function(oddsStr) {
+            let cleanStr = String(oddsStr).replace(/[^\d-]/g, ''); 
+            let isNegative = cleanStr.startsWith('-');
+            let numStr = cleanStr.replace(/[^\d]/g, '');
+            let num = parseInt(numStr, 10);
+            
+            if (isNaN(num)) return oddsStr;
+            return isNegative ? `-${num}` : `+${num}`;
+        };
 
         async function initFirebase() {
             try {
@@ -502,22 +485,24 @@
                 const auth = window.firebaseModules.getAuth(app);
                 appState.db = window.firebaseModules.getFirestore(app);
 
-                try {
+                const performAuth = async () => {
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        try {
-                            const userCredential = await window.firebaseModules.signInWithCustomToken(auth, __initial_auth_token);
-                            appState.userId = userCredential.user.uid;
-                        } catch (tokenErr) {
-                            const userCredential = await window.firebaseModules.signInAnonymously(auth);
-                            appState.userId = userCredential.user.uid;
-                        }
-                    } else {
-                        const userCredential = await window.firebaseModules.signInAnonymously(auth);
-                        appState.userId = userCredential.user.uid;
+                        try { return await window.firebaseModules.signInWithCustomToken(auth, __initial_auth_token); } 
+                        catch (e) { return await window.firebaseModules.signInAnonymously(auth); }
                     }
-                } catch(e) {
-                    const userCredential = await window.firebaseModules.signInAnonymously(auth);
+                    return await window.firebaseModules.signInAnonymously(auth);
+                };
+
+                try {
+                    const userCredential = await performAuth();
                     appState.userId = userCredential.user.uid;
+                } catch(e) {
+                    try {
+                        const fallbackCredential = await window.firebaseModules.signInAnonymously(auth);
+                        appState.userId = fallbackCredential.user.uid;
+                    } catch(fallbackErr) {
+                        window.showToast("Database Auth Failed", "error");
+                    }
                 }
 
                 if (appState.userId) setupRealtimeListeners();
@@ -581,6 +566,32 @@
             });
         }
 
+        window.updateNameDropdown = function() {
+            const select = document.getElementById('nameInput');
+            if(!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="" disabled selected>Select your name</option>';
+            
+            const alreadyPicked = appState.picks.filter(p => p.week === appState.currentWeek && (p.parlayType || 'main') === appState.activeParlay).map(p => p.name);
+            
+            ALL_BETTORS.forEach(bettor => {
+                if (!alreadyPicked.includes(bettor)) {
+                    const opt = document.createElement('option');
+                    opt.value = bettor;
+                    opt.innerText = bettor;
+                    select.appendChild(opt);
+                }
+            });
+
+            if (currentVal && !alreadyPicked.includes(currentVal)) {
+                select.value = currentVal;
+                select.classList.add('text-dkGreen', 'font-bold');
+            } else {
+                select.value = "";
+                select.classList.remove('text-dkGreen', 'font-bold');
+            }
+        };
+
         window.switchTab = function(tabId) {
             ['viewPicks', 'viewStandings', 'viewAllTime'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
@@ -624,6 +635,7 @@
             
             window.calculateOdds();
             if(typeof renderPicks === 'function') renderPicks();
+            window.updateNameDropdown();
         }
 
         function getNextSaturdayNoon() {
@@ -662,7 +674,8 @@
 
             let decimalOdds = 1;
             currentWeekPicks.forEach(p => {
-                let cleanOdds = p.odds.toString().replace(/[^0-9\-+]/g, '');
+                let formattedStr = window.formatOdds(p.odds);
+                let cleanOdds = formattedStr.toString().replace(/[^0-9\-+]/g, '');
                 const odds = parseFloat(cleanOdds);
                 if (isNaN(odds)) return;
                 if (odds > 0) decimalOdds *= (odds / 100) + 1;
@@ -749,9 +762,7 @@
             const bet = document.getElementById('pickInput').value;
             let oddsInputVal = document.getElementById('oddsInput').value.trim();
             
-            let cleanVal = oddsInputVal.replace(/[^0-9\-+]/g, '');
-            let num = parseInt(cleanVal, 10);
-            let odds = isNaN(num) ? oddsInputVal : (num > 0 ? `+${num}` : `${num}`);
+            let odds = window.formatOdds(oddsInputVal);
 
             const btn = document.getElementById('submitBtn');
             const ogText = btn.innerHTML;
@@ -790,13 +801,12 @@
 
             if (currentWeekPicks.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 text-sm font-bold bg-white/[0.01]">No picks logged for this parlay yet.</td></tr>`;
+                window.updateNameDropdown();
                 return;
             }
 
             currentWeekPicks.forEach(pick => {
-                let cleanVal = pick.odds.toString().replace(/[^0-9\-+]/g, '');
-                let num = parseInt(cleanVal, 10);
-                let displayOdds = isNaN(num) ? pick.odds : (num > 0 ? `+${num}` : `${num}`);
+                let displayOdds = window.formatOdds(pick.odds);
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-white/[0.02] transition-colors group";
@@ -829,6 +839,7 @@
                 tbody.appendChild(tr);
             });
             window.calculateOdds();
+            window.updateNameDropdown();
             toggleAdminUI();
         }
 
@@ -840,7 +851,19 @@
             let voteWeek = appState.currentWeek;
             if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
 
-            const existingVote = appState.votes.find(v => v.week === voteWeek && v.voterId === appState.userId);
+            const isPastDeadline = dayOfWeek >= 2 && dayOfWeek <= 6;
+            const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
+            
+            if (isPastDeadline) {
+                window.showToast("Voting has closed for this week!", "error");
+                return;
+            }
+            if (currentWeekVotes.length >= 10) {
+                window.showToast("All votes have already been cast!", "error");
+                return;
+            }
+
+            const existingVote = currentWeekVotes.find(v => v.voterId === appState.userId);
             if (existingVote) {
                 window.showToast("You have already voted this week! Limit 1 vote per person.", "error");
                 return;
@@ -869,7 +892,11 @@
             const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
             const resultsContainer = document.getElementById('voteResults');
             
-            if (currentWeekVotes.length === 0) { resultsContainer.classList.add('hidden'); return; }
+            if (currentWeekVotes.length === 0) { 
+                resultsContainer.classList.add('hidden'); 
+                window.updateVotingUI();
+                return; 
+            }
             
             const counts = {};
             currentWeekVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
@@ -894,7 +921,43 @@
                     </div>
                 `;
             });
+            window.updateVotingUI();
         }
+
+        window.updateVotingUI = function() {
+            const dayOfWeek = new Date().getDay();
+            let voteWeek = appState.currentWeek;
+            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
+
+            const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
+            const totalVotes = currentWeekVotes.length;
+            
+            const isPastDeadline = dayOfWeek >= 2 && dayOfWeek <= 6;
+            const isLocked = isPastDeadline || totalVotes >= 10;
+            
+            const voteSelect = document.getElementById('voteSelect');
+            const submitBtn = document.querySelector('#voteForm button[type="submit"]');
+            const userVoted = currentWeekVotes.find(v => v.voterId === appState.userId);
+            
+            if (isLocked || userVoted) {
+                voteSelect.disabled = true;
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                if (userVoted) {
+                    submitBtn.innerHTML = `<span>Vote Locked In</span><i class="ph-fill ph-check-circle ml-2"></i>`;
+                } else if (isPastDeadline) {
+                    submitBtn.innerHTML = `<span>Voting Closed</span><i class="ph-fill ph-lock ml-2"></i>`;
+                } else if (totalVotes >= 10) {
+                    submitBtn.innerHTML = `<span>All Votes In</span><i class="ph-fill ph-lock ml-2"></i>`;
+                }
+            } else {
+                voteSelect.disabled = false;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.innerHTML = `<span>Submit Vote</span><i class="ph-fill ph-gavel ml-2 group-hover:rotate-12 transition-transform"></i>`;
+            }
+        };
 
         function updateStandings() {
             let combinedData = JSON.parse(JSON.stringify(historicalData));
@@ -1024,6 +1087,31 @@
             }
         };
 
+        window.clearCurrentWeekVotes = async function() {
+            if(!appState.db) return;
+            
+            const dayOfWeek = new Date().getDay();
+            let voteWeek = appState.currentWeek;
+            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
+
+            const votesToDelete = appState.votes.filter(v => v.week === voteWeek);
+            
+            if(votesToDelete.length === 0) {
+                window.showToast("No votes found for this week.", "error");
+                return;
+            }
+
+            try {
+                const { doc, deleteDoc } = window.firebaseModules;
+                for (const vote of votesToDelete) {
+                    await deleteDoc(doc(appState.db, getCollectionPath("votes"), vote.id));
+                }
+                window.showToast("This week's votes cleared!", "success");
+            } catch (e) {
+                window.showToast("Failed to clear votes.", "error");
+            }
+        };
+
         function toggleAdminUI() {
             const els = document.querySelectorAll('.admin-only');
             els.forEach(el => appState.isAdminMode ? el.classList.remove('hidden') : el.classList.add('hidden'));
@@ -1048,9 +1136,7 @@
             const bet = document.getElementById('editBetInput').value;
             let oddsVal = document.getElementById('editOddsInput').value.trim();
 
-            let cleanVal = oddsVal.replace(/[^0-9\-+]/g, '');
-            let num = parseInt(cleanVal, 10);
-            let odds = isNaN(num) ? oddsVal : (num > 0 ? `+${num}` : `${num}`);
+            let odds = window.formatOdds(oddsVal);
 
             try {
                 const { doc, updateDoc } = window.firebaseModules;
@@ -1071,13 +1157,6 @@
             } catch(e) {}
         };
 
-        window.toggleKioskMode = function() {
-            document.getElementById('mainNav').classList.toggle('hidden');
-            document.getElementById('submitFormWidget').classList.toggle('hidden');
-            window.toggleSettings();
-            window.showToast("Kiosk Mode Toggled. Refresh to exit.", "success");
-        };
-
         window.showToast = function(msg, type="success") {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -1089,6 +1168,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             calculateCurrentWeek();
+            window.updateNameDropdown();
             initFirebase();
             document.getElementById('nameInput').addEventListener('change', function() {
                 const val = this.value;
