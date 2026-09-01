@@ -9,11 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
-        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc, getAuth, signInAnonymously };
+        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc, getAuth, signInAnonymously, signInWithCustomToken };
     </script>
 
     <script>
@@ -26,6 +26,7 @@
                         dkCard: '#121212',
                         dkBorder: '#262626',
                         dkGreen: '#22c55e',
+                        draftkings: '#53d337'
                     }
                 }
             }
@@ -54,35 +55,40 @@
                 <div class="bg-dkGreen/10 p-2 rounded-lg">
                     <i class="ph-fill ph-bird text-dkGreen text-2xl leading-none"></i>
                 </div>
+                <!-- Logo always visible on mobile now -->
                 <h1 class="text-xl font-extrabold text-white tracking-widest">BOZO<span class="text-dkGreen">BETS</span></h1>
             </div>
             
-            <div class="flex items-center space-x-3 md:space-x-6">
-                <div class="hidden md:flex flex-col items-end mr-2">
+            <div class="flex items-center">
+                <!-- Group Bankroll -->
+                <div class="hidden md:flex flex-col items-end mr-4">
                     <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Group Bankroll</span>
-                    <!-- Bankroll now defaults to TBD -->
                     <span class="text-lg font-mono font-bold text-white" id="groupBankrollDisplay">TBD</span>
                 </div>
                 
-                <!-- Universal Venmo Link -->
-                <a href="https://venmo.com/Sam-Eilerman?txn=pay&amount=10.00&note=Bozo+Bets" target="_blank" onclick="window.showToast('Opening Venmo...')" class="flex items-center space-x-2 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all">
+                <!-- Venmo Button -->
+                <a href="https://venmo.com/" target="_blank" onclick="window.showToast('Opening Venmo...')" class="flex items-center space-x-2 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all">
                     <i class="ph-fill ph-currency-dollar"></i>
-                    <span class="hidden sm:inline font-medium text-xs uppercase tracking-wider">Buy In</span>
+                    <span class="hidden sm:inline font-medium text-xs uppercase tracking-wider">Venmo</span>
                 </a>
 
-                <button onclick="window.toggleSettings()" class="flex items-center space-x-2 text-sm bg-dkBorder/50 hover:bg-dkBorder text-white px-3 py-2 rounded-lg transition-all ml-2" title="Dashboard Settings">
-                    <i class="ph-fill ph-gear"></i>
-                </button>
+                <!-- Settings Button separated by border and pushed right -->
+                <div class="ml-3 pl-3 border-l border-dkBorder">
+                    <button onclick="window.toggleSettings()" class="flex items-center justify-center text-sm bg-dkBorder/50 hover:bg-dkBorder text-white h-9 w-9 rounded-lg transition-all" title="Dashboard Settings">
+                        <i class="ph-fill ph-gear text-lg"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
     <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
         
-        <div class="grid grid-cols-3 gap-2 w-full pb-2" id="tabContainer">
-            <button onclick="window.switchTab('viewPicks')" id="tab-viewPicks" class="tab-btn p-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all bg-dkGreen text-black flex flex-col lg:flex-row items-center justify-center text-center leading-tight"><i class="ph-fill ph-list-numbers lg:mr-1 mb-1 lg:mb-0 text-lg"></i> <span>Week's Picks</span></button>
-            <button onclick="window.switchTab('viewStandings')" id="tab-viewStandings" class="tab-btn p-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white flex flex-col lg:flex-row items-center justify-center text-center leading-tight"><i class="ph-fill ph-trophy lg:mr-1 mb-1 lg:mb-0 text-lg"></i> <span>Season Standings</span></button>
-            <button onclick="window.switchTab('viewAllTime')" id="tab-viewAllTime" class="tab-btn p-2 rounded-lg text-[11px] sm:text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white flex flex-col lg:flex-row items-center justify-center text-center leading-tight"><i class="ph-fill ph-archive lg:mr-1 mb-1 lg:mb-0 text-lg"></i> <span>All-Time Records</span></button>
+        <!-- Mobile friendly tabs -->
+        <div class="flex flex-wrap sm:flex-nowrap gap-2 w-full pb-2" id="tabContainer">
+            <button onclick="window.switchTab('viewPicks')" id="tab-viewPicks" class="tab-btn flex-1 p-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-dkGreen text-black flex items-center justify-center text-center"><i class="ph-fill ph-list-numbers mr-1.5 text-lg"></i> <span class="truncate">Week's Picks</span></button>
+            <button onclick="window.switchTab('viewStandings')" id="tab-viewStandings" class="tab-btn flex-1 p-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white flex items-center justify-center text-center"><i class="ph-fill ph-trophy mr-1.5 text-lg"></i> <span class="truncate">Season Standings</span></button>
+            <button onclick="window.switchTab('viewAllTime')" id="tab-viewAllTime" class="tab-btn flex-1 p-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-dkDark text-gray-400 hover:text-white flex items-center justify-center text-center"><i class="ph-fill ph-archive mr-1.5 text-lg"></i> <span class="truncate">All-Time Records</span></button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -90,10 +96,9 @@
                 
                 <div id="viewPicks" class="bg-dkCard rounded-2xl border border-dkBorder shadow-lg overflow-hidden flex flex-col h-full min-h-[400px]">
                     
-                    <!-- NEW: TBD Bozo Banner for Current Week -->
                     <div class="bg-dkDark/50 border-b border-dkBorder p-4 flex items-center justify-center">
                         <i class="ph-fill ph-mask-sad text-red-500 text-2xl mr-3"></i>
-                        <span class="text-white font-bold text-sm">Week <span id="currentWeekBannerText">--</span> Bozo: <span class="text-red-400">To Be Determined</span></span>
+                        <span class="text-white font-bold text-sm">Week <span id="currentWeekBannerText">--</span> Bozo: <span class="text-gray-400 font-normal ml-1">To Be Determined (Awaiting Results)</span></span>
                     </div>
 
                     <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-white/[0.02]">
@@ -116,6 +121,7 @@
                             </tbody>
                         </table>
                     </div>
+                    
                     <div class="p-4 border-t border-dkBorder bg-dkDark flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div class="flex items-center space-x-3 w-full sm:w-auto" id="cutoffClockContainer">
                             <div class="h-2 w-2 rounded-full bg-dkGreen animate-pulse"></div>
@@ -124,7 +130,6 @@
                         </div>
                         <div class="text-right w-full sm:w-auto flex justify-between sm:block items-center">
                             <span class="text-xs text-gray-400 uppercase tracking-widest font-bold mr-3 block sm:inline">Total Parlay Odds</span>
-                            <!-- Editable Total Odds Input -->
                             <input type="text" id="totalOddsDisplay" value="+0" class="text-xl font-mono font-black text-dkGreen bg-transparent text-right w-24 border-b border-transparent hover:border-dkBorder focus:border-dkGreen focus:outline-none transition-colors cursor-text" title="Click to manually override total odds">
                         </div>
                     </div>
@@ -132,7 +137,7 @@
 
                 <div id="viewStandings" class="bg-dkCard rounded-2xl border border-dkBorder shadow-lg overflow-hidden hidden flex-col h-full min-h-[400px]">
                     <div class="p-5 border-b border-dkBorder bg-white/[0.02]">
-                        <h3 class="text-white font-bold">2026/2027 Win/Loss Records</h3>
+                        <h3 class="text-white font-bold">2026 Season Win/Loss Records</h3>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -171,7 +176,8 @@
                 </div>
 
                 <div id="viewAllTime" class="space-y-6 hidden h-full">
-                    <!-- MOVED: Ultimate Bozo Banner now lives here -->
+                    
+                    <!-- Ultimate Bozo Banner -->
                     <div id="bozoBanner" class="bg-gradient-to-br from-[#2a0808] to-dkCard border border-red-900/50 rounded-2xl p-6 relative overflow-hidden shadow-2xl transition-all duration-300">
                         <div class="absolute -right-6 -bottom-10 opacity-5 pointer-events-none">
                             <i class="ph-fill ph-mask-sad text-[180px] text-red-500"></i>
@@ -184,7 +190,6 @@
                                 <div>
                                     <div class="flex items-center space-x-2 mb-1">
                                         <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest shadow-sm">Warning</span>
-                                        <span class="text-gray-400 text-sm font-mono" id="currentWeekDisplay">Week --</span>
                                     </div>
                                     <h2 class="text-2xl font-black text-white tracking-tight">The Ultimate Bozo</h2>
                                     <p class="text-red-400/80 text-sm max-w-md mt-1 leading-snug">This bettor holds the worst hit rate in the group. Their picks should be heavily scrutinized or faded entirely.</p>
@@ -213,15 +218,15 @@
                             <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Since 2024</span>
                         </div>
 
-                        <!-- Fixed Spacing in Download Links -->
+                        <!-- Fixed Download Links for the Spreadsheets -->
                         <div class="bg-dkDark/40 p-4 border-b border-dkBorder flex flex-col sm:flex-row gap-3">
                             <a href="./2025-2026_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2 px-3 rounded-lg transition-colors flex-1 shadow-sm" title="Download 2025/2026 Data">
-                                <i class="ph-fill ph-table text-lg"></i>
-                                <span class="truncate">2025/2026 Season Data</span>
+                                <i class="ph-fill ph-file-xls text-lg"></i>
+                                <span class="truncate">2025/2026 Season</span>
                             </a>
                             <a href="./2024-2025_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2 px-3 rounded-lg transition-colors flex-1 shadow-sm" title="Download 2024/2025 Data">
-                                <i class="ph-fill ph-table text-lg"></i>
-                                <span class="truncate">2024/2025 Season Data</span>
+                                <i class="ph-fill ph-file-xls text-lg"></i>
+                                <span class="truncate">2024/2025 Season</span>
                             </a>
                         </div>
 
@@ -256,11 +261,13 @@
 
                     <h3 class="text-white font-bold mb-5 flex items-center text-lg justify-between">
                         <span class="flex items-center"><i class="ph-fill ph-ticket text-dkGreen mr-2"></i> Submit Pick</span>
-                        <!-- Direct Link to DraftKings App/Web -->
-                        <a href="https://sportsbook.draftkings.com/" target="_blank" class="text-[10px] text-blue-400 hover:text-white uppercase tracking-wider font-bold flex items-center bg-blue-500/20 px-2 py-1 rounded transition-colors border border-blue-500/30">
-                            <i class="ph-fill ph-link mr-1"></i> DraftKings
+                        
+                        <!-- DraftKings Sportsbook Link with Crown Icon -->
+                        <a href="https://sportsbook.draftkings.com/" target="_blank" class="group text-[10px] text-draftkings hover:text-white uppercase tracking-wider font-bold flex items-center bg-draftkings/10 hover:bg-draftkings/20 px-2.5 py-1.5 rounded transition-colors border border-draftkings/30 shadow-[0_0_10px_rgba(83,211,55,0.05)] hover:shadow-[0_0_15px_rgba(83,211,55,0.15)]">
+                            <i class="ph-fill ph-crown mr-1.5 text-draftkings group-hover:text-white transition-colors"></i> DraftKings
                         </a>
                     </h3>
+                    
                     <form id="pickForm" class="space-y-4">
                         <div>
                             <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Who are you?</label>
@@ -280,7 +287,6 @@
                         </div>
                         
                         <div>
-                            <!-- Changed label to 'Bet' and added disappearing placeholder -->
                             <label class="block text-[11px] text-gray-400 uppercase tracking-wider mb-2 font-semibold">Bet</label>
                             <input type="text" id="pickInput" required placeholder="e.g., Derrick Henry Anytime TD" onfocus="this.placeholder=''" onblur="this.placeholder='e.g., Derrick Henry Anytime TD'" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all placeholder-gray-600">
                         </div>
@@ -306,7 +312,7 @@
                     <div class="bg-dkDark rounded-xl p-4 border border-dkBorder/50">
                         <div class="flex justify-between items-center mb-3">
                             <span class="text-xs text-gray-400 uppercase tracking-widest font-semibold">Group Wager</span>
-                            <span class="font-mono text-white font-bold bg-white/5 px-2 py-1 rounded">$100.00</span>
+                            <span class="font-mono text-white font-bold bg-white/5 px-2 py-1 rounded w-full max-w-[100px] text-right truncate flex items-center justify-end" id="payoutWagerDisplay">TBD</span>
                         </div>
                         <div class="h-px w-full bg-dkBorder mb-3"></div>
                         <div class="flex flex-col">
@@ -385,16 +391,14 @@
                     <button onclick="window.toggleKioskMode()" class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-colors">Enable</button>
                 </div>
 
-                <!-- Admin Controls Area -->
+                <!-- Extended Admin Section -->
                 <div class="border-t border-dkBorder pt-4 mt-2" id="adminSection">
-                    <!-- The PIN Input Block -->
                     <div id="adminUnlockUI" class="flex items-center space-x-2 bg-red-900/10 p-4 rounded-xl border border-red-900/30">
                         <i class="ph-fill ph-lock text-red-400"></i>
                         <input type="password" id="adminPinInput" placeholder="Enter Admin PIN" class="bg-dkDark border border-dkBorder rounded p-2 text-white focus:outline-none focus:border-red-500 text-sm w-full">
                         <button onclick="window.unlockAdmin()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded text-sm transition-colors">Unlock</button>
                     </div>
                     
-                    <!-- The Hidden Admin Panel -->
                     <div id="adminControlsUI" class="hidden flex-col space-y-4 bg-red-900/10 p-4 rounded-xl border border-red-900/30">
                         <div class="flex justify-between items-center">
                             <div>
@@ -407,7 +411,6 @@
                             </label>
                         </div>
                         
-                        <!-- Extended Admin Setup -->
                         <div id="extendedAdminControls" class="hidden flex-col space-y-3 pt-3 border-t border-red-900/30">
                             <div>
                                 <label class="block text-[10px] text-red-400 uppercase tracking-wider mb-1 font-bold">Group Bankroll Override ($)</label>
@@ -449,11 +452,14 @@
             customCutoff: null
         };
 
+        const appId = typeof __app_id !== 'undefined' ? __app_id : null;
+        const getCollectionPath = (name) => appId ? `artifacts/${appId}/public/data/${name}` : name;
+        const getSettingsDocPath = () => appId ? `artifacts/${appId}/public/data/settings/global` : `settings/global`;
+
         let countdownInterval;
 
         async function initFirebase() {
             try {
-                // YOUR LIVE FIREBASE KEYS
                 const myFirebaseConfig = {
                     apiKey: "AIzaSyBp7bQzxzWwT3aKKwV1VKn1pmrN3Tolq6o",
                     authDomain: "bozo-bets.firebaseapp.com",
@@ -476,11 +482,18 @@
                 appState.db = window.firebaseModules.getFirestore(app);
 
                 try {
-                    const userCredential = await window.firebaseModules.signInAnonymously(auth);
-                    appState.userId = userCredential.user.uid;
+                    if (typeof __initial_auth_token !== 'undefined') {
+                        const userCredential = await window.firebaseModules.signInWithCustomToken(auth, __initial_auth_token);
+                        appState.userId = userCredential.user.uid;
+                    } else {
+                        const userCredential = await window.firebaseModules.signInAnonymously(auth);
+                        appState.userId = userCredential.user.uid;
+                    }
                 } catch(e) { }
 
-                setupRealtimeListeners();
+                if (appState.userId) {
+                    setupRealtimeListeners();
+                }
 
             } catch (error) {
                 mockFirebaseData();
@@ -495,38 +508,64 @@
         }
 
         function setupRealtimeListeners() {
-            if(!appState.db) return;
-            const { collection, onSnapshot, query, orderBy } = window.firebaseModules;
+            if(!appState.db || !appState.userId) return;
+            const { collection, onSnapshot, query, orderBy, doc } = window.firebaseModules;
             
-            const picksQ = query(collection(appState.db, "picks"), orderBy("timestamp", "asc"));
+            const picksPath = getCollectionPath("picks");
+            const picksQ = query(collection(appState.db, picksPath));
+            
             onSnapshot(picksQ, (snapshot) => {
                 appState.picks = [];
-                snapshot.forEach((doc) => {
-                    appState.picks.push({ id: doc.id, ...doc.data() });
+                snapshot.forEach((d) => {
+                    appState.picks.push({ id: d.id, ...d.data() });
+                });
+                appState.picks.sort((a, b) => {
+                    const timeA = a.timestamp ? (a.timestamp.seconds || 0) : 0;
+                    const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
+                    return timeA - timeB;
                 });
                 renderPicks();
                 updateStandings();
+            }, (error) => {
+                console.error("Error fetching picks: ", error);
             });
 
-            const votesQ = query(collection(appState.db, "votes"));
+            const votesPath = getCollectionPath("votes");
+            const votesQ = query(collection(appState.db, votesPath));
             onSnapshot(votesQ, (snapshot) => {
                 appState.votes = [];
-                snapshot.forEach((doc) => {
-                    appState.votes.push({ id: doc.id, ...doc.data() });
+                snapshot.forEach((d) => {
+                    appState.votes.push({ id: d.id, ...d.data() });
                 });
                 renderVotes();
+            }, (error) => {
+                console.error("Error fetching votes: ", error);
             });
 
-            const configDoc = window.firebaseModules.doc(appState.db, "settings", "global");
+            let configDoc;
+            if (appId) {
+                configDoc = doc(appState.db, "artifacts", appId, "public", "data", "settings", "global");
+            } else {
+                configDoc = doc(appState.db, "settings", "global");
+            }
+
             onSnapshot(configDoc, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data.bankroll !== undefined) {
                         appState.bankroll = data.bankroll;
+                        const displayStr = data.bankroll ? `$${parseFloat(data.bankroll).toFixed(2)}` : 'TBD';
+                        
                         const displayEl = document.getElementById('groupBankrollDisplay');
-                        if (displayEl) displayEl.innerText = data.bankroll ? `$${parseFloat(data.bankroll).toFixed(2)}` : 'TBD';
+                        if (displayEl) displayEl.innerText = displayStr;
+                        
+                        const wagerDisplayEl = document.getElementById('payoutWagerDisplay');
+                        if (wagerDisplayEl) wagerDisplayEl.innerText = displayStr;
+
                         const inputEl = document.getElementById('bankrollSetting');
                         if (inputEl && document.activeElement !== inputEl) inputEl.value = data.bankroll || '';
+                        
+                        window.calculateOdds(); 
                     }
                     if (data.cutoffTime !== undefined) {
                         appState.customCutoff = data.cutoffTime;
@@ -535,6 +574,8 @@
                     }
                     calculateDynamicCutoff(); 
                 }
+            }, (error) => {
+                console.error("Error fetching settings: ", error);
             });
         }
 
@@ -543,7 +584,6 @@
             const now = new Date().getTime();
             
             if (now > seasonStart) {
-                // To allow voting through Wednesday, we logically offset the timestamp backwards by 3 days (Wednesday night)
                 const offsetNow = now - (3 * 24 * 60 * 60 * 1000); 
                 const diffTime = offsetNow - seasonStart;
                 appState.currentWeek = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7)) + 1; 
@@ -551,14 +591,13 @@
                 appState.currentWeek = 1;
             }
             
-            document.getElementById('currentWeekDisplay').innerText = `Week ${appState.currentWeek}`;
-            
             const bannerText = document.getElementById('currentWeekBannerText');
             if(bannerText) bannerText.innerText = appState.currentWeek;
 
+            const voteWeek = appState.currentWeek; 
             const titleEl = document.getElementById('bozoVoteTitle');
             if (titleEl) {
-                titleEl.innerText = `Week ${appState.currentWeek} Bozo`;
+                titleEl.innerText = `Week ${voteWeek} Bozo`;
             }
         }
 
@@ -659,6 +698,7 @@
                         <div class="flex space-x-1 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onclick="window.updatePickStatus('${p.id}', 'won')" class="bg-dkGreen/20 hover:bg-dkGreen text-dkGreen hover:text-black p-1.5 rounded transition-colors" title="Mark Won"><i class="ph-fill ph-check"></i></button>
                             <button onclick="window.updatePickStatus('${p.id}', 'lost')" class="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-black p-1.5 rounded transition-colors" title="Mark Lost"><i class="ph-fill ph-x"></i></button>
+                            <button onclick="window.deletePick('${p.id}')" class="text-gray-500 hover:text-red-400 p-1.5 rounded transition-colors ml-2" title="Remove"><i class="ph-fill ph-trash"></i></button>
                         </div>
                     `;
                 } else {
@@ -690,7 +730,7 @@
         }
 
         function updateStandings() {
-            // Updated exact historical stats combined from sheets
+            // Actual combined records from the 2024_2025 and 2025_2026 spreadsheets
             const historicalData = {
                 "Sam": { wins: 34, losses: 24 },
                 "Josh": { wins: 21, losses: 12 },
@@ -808,7 +848,8 @@
 
         function renderVotes() {
             const container = document.getElementById('voteResults');
-            const currentWeekVotes = appState.votes.filter(v => v.week === appState.currentWeek);
+            const voteWeek = appState.currentWeek; 
+            const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
             
             if(currentWeekVotes.length > 0) {
                 container.classList.remove('hidden');
@@ -840,7 +881,7 @@
             });
 
             document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById(tabId).classList.add('flex', 'flex-col'); // Add flex-col for all-time
+            document.getElementById(tabId).classList.add('flex', 'flex-col');
             
             const activeBtn = document.getElementById('tab-' + tabId);
             activeBtn.classList.remove('bg-dkDark', 'text-gray-400');
@@ -866,10 +907,8 @@
             }
         }
 
-        // The PIN Unlock Logic
         window.unlockAdmin = function() {
             const pin = document.getElementById('adminPinInput').value;
-            // Change "2026" to whatever secret code you want!
             if (pin === "2026") { 
                 document.getElementById('adminUnlockUI').classList.add('hidden');
                 document.getElementById('adminControlsUI').classList.remove('hidden');
@@ -902,10 +941,17 @@
         }
 
         window.updateAdminSettings = async function() {
+            if (!appState.userId) return;
             const br = document.getElementById('bankrollSetting').value;
             const ct = document.getElementById('cutoffSetting').value;
             if (appState.db) {
-                const configDoc = window.firebaseModules.doc(appState.db, "settings", "global");
+                let configDoc;
+                if (appId) {
+                    configDoc = window.firebaseModules.doc(appState.db, "artifacts", appId, "public", "data", "settings", "global");
+                } else {
+                    configDoc = window.firebaseModules.doc(appState.db, "settings", "global");
+                }
+                
                 await window.firebaseModules.setDoc(configDoc, {
                     bankroll: br,
                     cutoffTime: ct
@@ -1025,8 +1071,9 @@
             btn.innerHTML = '<i class="ph-fill ph-spinner bozo-spin text-xl"></i>';
 
             try {
-                if (appState.db) {
-                    await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, "picks"), newPick);
+                if (appState.db && appState.userId) {
+                    const picksPath = getCollectionPath("picks");
+                    await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, picksPath), newPick);
                 } else {
                     newPick.id = Date.now().toString();
                     appState.picks.push(newPick);
@@ -1049,15 +1096,18 @@
             const bozoName = document.getElementById('voteSelect').value;
             if(!bozoName) return;
 
+            const voteWeek = appState.currentWeek; 
+
             const newVote = {
                 bozoName,
-                week: appState.currentWeek,
+                week: voteWeek,
                 timestamp: window.firebaseModules.serverTimestamp ? window.firebaseModules.serverTimestamp() : new Date()
             };
 
             try {
-                if (appState.db) {
-                     await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, "votes"), newVote);
+                if (appState.db && appState.userId) {
+                    const votesPath = getCollectionPath("votes");
+                    await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, votesPath), newVote);
                 } else {
                     newVote.id = Date.now().toString();
                     appState.votes.push(newVote);
@@ -1073,8 +1123,9 @@
         window.deletePick = async function(id) {
             if (!confirm("Remove this pick?")) return;
             try {
-                if (appState.db) {
-                    await window.firebaseModules.deleteDoc(window.firebaseModules.doc(appState.db, "picks", id));
+                if (appState.db && appState.userId) {
+                    const picksPath = getCollectionPath("picks");
+                    await window.firebaseModules.deleteDoc(window.firebaseModules.doc(appState.db, picksPath, id));
                 } else {
                     appState.picks = appState.picks.filter(p => p.id !== id);
                     renderPicks();
@@ -1088,8 +1139,9 @@
 
         window.updatePickStatus = async function(id, status) {
             try {
-                if (appState.db) {
-                    const docRef = window.firebaseModules.doc(appState.db, "picks", id);
+                if (appState.db && appState.userId) {
+                    const picksPath = getCollectionPath("picks");
+                    const docRef = window.firebaseModules.doc(appState.db, picksPath, id);
                     await window.firebaseModules.updateDoc(docRef, { status: status });
                 } else {
                      const pick = appState.picks.find(p => p.id === id);
