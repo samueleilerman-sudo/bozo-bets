@@ -7,7 +7,8 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- Importing Inter for standard text, and Roboto Condensed for DraftKings -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Roboto+Condensed:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -21,7 +22,12 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'] },
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'], 
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+                        dk: ['"Roboto Condensed"', 'sans-serif'],
+                        venmo: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif']
+                    },
                     colors: {
                         dkDark: '#050505',
                         dkCard: 'rgba(18, 18, 18, 0.7)',
@@ -58,14 +64,15 @@
         @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-animate { animation: slideUp 0.3s ease-out forwards; }
         
-        /* Subtle glow for active tabs */
         .tab-active { box-shadow: inset 0 -3px 0 #22c55e; background: linear-gradient(to top, rgba(34, 197, 94, 0.1), transparent); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="antialiased selection:bg-dkGreen selection:text-black">
 
-    <nav id="mainNav" class="glass-nav sticky top-0 z-40 transition-all duration-300 w-full shadow-2xl shadow-black">
-        <div class="max-w-7xl mx-auto w-full px-4 md:px-8 py-4 flex justify-between items-center">
+    <nav id="mainNav" class="glass-nav sticky top-0 z-40 transition-all duration-300 w-full shadow-2xl shadow-black flex justify-center">
+        <div class="max-w-7xl w-full px-4 md:px-8 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="bg-gradient-to-br from-dkGreen/20 to-dkGreen/5 p-2 rounded-lg border border-dkGreen/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
                     <i class="ph-fill ph-bird text-dkGreen text-2xl leading-none"></i>
@@ -79,9 +86,9 @@
                     <span class="text-lg font-mono font-black text-white drop-shadow-md" id="groupBankrollDisplay">TBD</span>
                 </div>
                 
-                <a href="https://venmo.com/" target="_blank" onclick="window.showToast('Opening Venmo...')" class="flex items-center space-x-2 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all shadow-[0_0_10px_rgba(59,130,246,0.1)] hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-                    <i class="ph-fill ph-currency-dollar"></i>
-                    <span class="hidden sm:inline font-bold text-xs uppercase tracking-wider">Venmo</span>
+                <a href="https://venmo.com/" target="_blank" class="flex items-center space-x-1.5 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all shadow-[0_0_10px_rgba(59,130,246,0.1)] hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                    <i class="ph-fill ph-currency-dollar text-lg"></i>
+                    <span class="hidden sm:inline font-bold text-sm tracking-wide font-venmo pt-0.5">Venmo</span>
                 </a>
 
                 <div class="ml-3 pl-3 border-l border-dkBorder">
@@ -106,7 +113,6 @@
                 
                 <div id="viewPicks" class="flex flex-col space-y-6 h-full min-h-[400px]">
                     
-                    <!-- Main Parlay Card -->
                     <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex flex-col">
                         <div class="bg-gradient-to-r from-dkDark to-dkCard border-b border-dkBorder p-4 flex items-center justify-center relative overflow-hidden">
                             <div class="absolute inset-0 bg-dkGreen/5 pointer-events-none"></div>
@@ -114,9 +120,14 @@
                             <span class="text-white font-bold text-sm relative z-10">Week <span id="currentWeekBannerText">--</span> Bozo: <span class="text-gray-400 font-normal ml-1">To Be Determined (Awaiting Results)</span></span>
                         </div>
 
+                        <div class="flex border-b border-dkBorder bg-black/40">
+                            <button onclick="window.switchParlayTab('main')" id="tab-parlay-main" class="flex-1 py-3 text-sm font-bold text-dkGreen border-b-2 border-dkGreen bg-white/[0.02] transition-all">Main Parlay</button>
+                            <button onclick="window.switchParlayTab('side')" id="tab-parlay-side" class="flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all">Side Parlay (Backup)</button>
+                        </div>
+
                         <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-white/[0.01]">
-                            <h3 class="text-white font-black text-lg tracking-tight flex items-center">
-                                Group Selections
+                            <h3 class="text-white font-black text-lg tracking-tight flex items-center" id="parlayCardTitle">
+                                Main Group Selections
                             </h3>
                             <span class="text-xs font-bold text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/5"><span id="pickCount" class="text-white">0</span> Submitted</span>
                         </div>
@@ -139,65 +150,13 @@
                         <div class="p-5 border-t border-dkBorder bg-black/40 flex flex-col sm:flex-row justify-between items-center gap-4 relative overflow-hidden">
                             <div class="flex items-center space-x-3 w-full sm:w-auto relative z-10" id="cutoffClockContainer">
                                 <div class="h-2.5 w-2.5 rounded-full bg-dkGreen animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
-                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Lock in:</span>
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Bet Locks In:</span>
                                 <span class="font-mono text-white text-sm bg-dkCard px-3 py-1 rounded border border-dkBorder font-bold shadow-inner" id="countdownDisplay">Loading...</span>
                             </div>
                             <div class="text-right w-full sm:w-auto flex justify-between sm:block items-center relative z-10">
                                 <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mr-3 block sm:inline">Total Parlay Odds</span>
                                 <input type="text" id="totalOddsDisplay" value="+0" class="text-xl font-mono font-black text-dkGreen bg-transparent text-right w-24 border-b border-transparent hover:border-dkBorder focus:border-dkGreen focus:outline-none transition-colors cursor-text" title="Click to manually override total odds">
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex flex-col">
-                        <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-gradient-to-r from-purple-900/20 to-transparent">
-                            <h3 class="text-white font-black text-lg tracking-tight flex items-center">
-                                <i class="ph-fill ph-handshake mr-2 text-purple-400"></i> Weekly Side Bets
-                            </h3>
-                            <button onclick="window.toggleSideBetForm()" class="text-xs bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 px-3 py-1.5 rounded uppercase tracking-wider font-bold transition-all shadow-[0_0_10px_rgba(168,85,247,0.1)]">
-                                + Propose Bet
-                            </button>
-                        </div>
-                        
-                        <div id="sideBetFormContainer" class="hidden p-5 bg-black/30 border-b border-dkBorder relative overflow-hidden">
-                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500"></div>
-                            <form id="sideBetForm" class="space-y-4">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Bettor 1</label>
-                                        <select id="sideBettor1" required class="w-full bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-purple-500 transition-colors">
-                                            <option value="" disabled selected>Select...</option>
-                                            <option value="Sam">Sam</option><option value="Josh">Josh</option><option value="Zach">Zach</option><option value="Jide">Jide</option><option value="Rick">Rick</option><option value="Shane">Shane</option><option value="John">John</option><option value="Matt">Matt</option><option value="Ronnie">Ronnie</option><option value="Nate">Nate</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Bettor 2</label>
-                                        <select id="sideBettor2" required class="w-full bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-purple-500 transition-colors">
-                                            <option value="" disabled selected>Select...</option>
-                                            <option value="Sam">Sam</option><option value="Josh">Josh</option><option value="Zach">Zach</option><option value="Jide">Jide</option><option value="Rick">Rick</option><option value="Shane">Shane</option><option value="John">John</option><option value="Matt">Matt</option><option value="Ronnie">Ronnie</option><option value="Nate">Nate</option><option value="The Field">The Field</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">The Terms</label>
-                                    <input type="text" id="sideBetTerms" required placeholder="e.g. Most passing yards this week" class="w-full bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-purple-500 transition-colors">
-                                </div>
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <div class="flex-grow">
-                                        <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">The Wager</label>
-                                        <input type="text" id="sideBetWager" required placeholder="e.g. $20, A Beer, Pride" class="w-full bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white text-sm focus:outline-none focus:border-purple-500 transition-colors">
-                                    </div>
-                                    <div class="flex items-end">
-                                        <button type="submit" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 px-6 rounded-lg transition-colors text-sm shadow-[0_0_15px_rgba(147,51,234,0.4)]">Submit</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        
-                        <div class="overflow-x-auto">
-                            <ul id="sideBetsList" class="divide-y divide-dkBorder/50">
-                                <!-- Dynamic Side Bets Go Here -->
-                            </ul>
                         </div>
                     </div>
                 </div>
@@ -261,11 +220,11 @@
                                     <p class="text-red-400/80 text-xs md:text-sm max-w-md mt-1 leading-snug">This bettor holds the worst all-time hit rate. Fade heavily.</p>
                                 </div>
                             </div>
-                            <div class="bg-black/40 p-4 rounded-xl border border-red-900/30 backdrop-blur-sm w-full md:w-auto flex flex-col items-center">
+                            <div class="bg-black/40 p-4 rounded-xl border border-red-900/30 backdrop-blur-sm w-full md:w-auto flex flex-col items-center justify-center">
                                 <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 text-center w-full">Current Crown Holder</p>
                                 <div class="w-full flex justify-center">
-                                    <div class="relative z-10 flex items-center bg-dkDark p-3 rounded-xl border border-red-900/50 shadow-inner">
-                                        <div class="mr-3 text-right">
+                                    <div class="relative z-10 flex items-center bg-dkDark p-3 rounded-xl border border-red-900/50 shadow-inner w-full justify-center">
+                                        <div class="text-center">
                                             <p class="text-xl font-black text-white" id="ultimateBozoName">Loading...</p>
                                             <p class="text-xs text-red-400 font-mono" id="ultimateBozoRate">--%</p>
                                         </div>
@@ -282,13 +241,13 @@
                         </div>
 
                         <div class="bg-black/40 p-4 border-b border-dkBorder flex flex-col sm:flex-row gap-3">
-                            <a href="./2025-2026_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2.5 px-3 rounded-xl transition-all flex-1 shadow-[0_0_10px_rgba(34,197,94,0.05)] hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]" title="Download 2025-2026 Data">
+                            <a href="./2025_2026_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2.5 px-3 rounded-xl transition-all flex-1 shadow-[0_0_10px_rgba(34,197,94,0.05)] hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]" title="Download 2025-2026 Data">
                                 <i class="ph-fill ph-file-xls text-lg"></i>
-                                <span class="truncate">2025/2026 Spreadsheet</span>
+                                <span class="truncate">2025/2026 Data</span>
                             </a>
-                            <a href="./2024-2025_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2.5 px-3 rounded-xl transition-all flex-1 shadow-[0_0_10px_rgba(34,197,94,0.05)] hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]" title="Download 2024-2025 Data">
+                            <a href="./2024_2025_Bozo_Bets.xlsx" target="_blank" class="flex items-center justify-center space-x-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 py-2.5 px-3 rounded-xl transition-all flex-1 shadow-[0_0_10px_rgba(34,197,94,0.05)] hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]" title="Download 2024-2025 Data">
                                 <i class="ph-fill ph-file-xls text-lg"></i>
-                                <span class="truncate">2024/2025 Spreadsheet</span>
+                                <span class="truncate">2024/2025 Data</span>
                             </a>
                         </div>
 
@@ -326,8 +285,8 @@
                     <h3 class="text-white font-black tracking-tight mb-5 flex items-center text-lg justify-between">
                         <span class="flex items-center"><i class="ph-fill ph-ticket text-dkGreen mr-2"></i> Submit Pick</span>
                         
-                        <a href="https://sportsbook.draftkings.com/" target="_blank" class="group text-[10px] text-black hover:text-black uppercase tracking-wider font-extrabold flex items-center bg-draftkings hover:bg-[#64e348] px-3 py-1.5 rounded-lg transition-all shadow-[0_0_15px_rgba(83,211,55,0.3)] hover:shadow-[0_0_20px_rgba(83,211,55,0.5)]">
-                            <i class="ph-fill ph-crown mr-1.5 text-black"></i> DraftKings
+                        <a href="https://sportsbook.draftkings.com/" target="_blank" class="group text-[12px] text-black font-black flex items-center bg-[#53d337] hover:bg-[#64e348] px-3 py-1.5 rounded-lg transition-all shadow-[0_0_15px_rgba(83,211,55,0.3)] hover:shadow-[0_0_20px_rgba(83,211,55,0.5)] font-dk tracking-wide leading-none">
+                            <i class="ph-fill ph-crown mr-1.5 text-black text-sm"></i> DraftKings
                         </a>
                     </h3>
                     
@@ -339,15 +298,29 @@
                                 <option value="Sam">Sam</option><option value="Josh">Josh</option><option value="Zach">Zach</option><option value="Jide">Jide</option><option value="Rick">Rick</option><option value="Shane">Shane</option><option value="John">John</option><option value="Matt">Matt</option><option value="Ronnie">Ronnie</option><option value="Nate">Nate</option>
                             </select>
                         </div>
+
+                        <div>
+                            <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Which Parlay?</label>
+                            <select id="parlayTypeInput" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all appearance-none cursor-pointer shadow-inner">
+                                <option value="main" selected>Main Parlay</option>
+                                <option value="side">Side Parlay (Backup)</option>
+                            </select>
+                        </div>
                         
                         <div>
                             <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Bet</label>
                             <input type="text" id="pickInput" required placeholder="e.g., Derrick Henry Anytime TD" onfocus="this.placeholder=''" onblur="this.placeholder='e.g., Derrick Henry Anytime TD'" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all placeholder-gray-600 shadow-inner">
                         </div>
 
-                        <div>
-                            <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Odds</label>
-                            <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600 shadow-inner">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Odds</label>
+                                <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600 shadow-inner">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Game Time</label>
+                                <input type="datetime-local" id="gameTimeInput" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all shadow-inner text-sm">
+                            </div>
                         </div>
 
                         <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-dkGreen to-green-500 hover:from-green-400 hover:to-green-400 text-black font-black py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)] uppercase tracking-widest text-sm flex items-center justify-center group mt-2">
@@ -469,7 +442,7 @@
                                     <input type="datetime-local" id="cutoffSetting" class="bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500 text-sm w-full">
                                     <button onclick="window.updateAdminSettings()" class="bg-dkDark border border-dkBorder hover:bg-dkBorder text-white px-4 rounded-lg transition-colors"><i class="ph-fill ph-floppy-disk text-lg"></i></button>
                                 </div>
-                                <p class="text-[10px] text-red-400/60 mt-2 font-medium">Leave cutoff blank for auto Sunday 1PM lock.</p>
+                                <p class="text-[10px] text-red-400/60 mt-2 font-medium">Leave cutoff blank to auto-lock at first kickoff (or Saturday 12PM).</p>
                             </div>
                         </div>
                     </div>
@@ -485,7 +458,6 @@
         let appState = {
             picks: [],
             votes: [],
-            sideBets: [],
             currentWeek: 1,
             isClockEnabled: true,
             isAdminMode: false,
@@ -494,7 +466,8 @@
             db: null,
             hasManualOdds: false,
             bankroll: null,
-            customCutoff: null
+            customCutoff: null,
+            activeParlay: 'main'
         };
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : null;
@@ -502,7 +475,6 @@
 
         let countdownInterval;
 
-        // Combined records from the 2024_2025 Bozo Bets.xlsx and 2025_2026 Bozo Bets.xlsx spreadsheets
         const historicalData = {
             "Sam": { wins: 34, losses: 24 },
             "Josh": { wins: 21, losses: 12 },
@@ -561,17 +533,15 @@
         function mockFirebaseData() {
             appState.picks = [];
             appState.votes = [];
-            appState.sideBets = [];
             renderPicks();
-            renderSideBets();
             calculateOdds();
+            calculateDynamicCutoff();
         }
 
         function setupRealtimeListeners() {
             if(!appState.db || !appState.userId) return;
             const { collection, onSnapshot, query, doc } = window.firebaseModules;
             
-            // Listen to Picks
             const picksPath = getCollectionPath("picks");
             const picksQ = query(collection(appState.db, picksPath));
             onSnapshot(picksQ, (snapshot) => {
@@ -586,9 +556,9 @@
                 });
                 renderPicks();
                 updateStandings();
+                calculateDynamicCutoff(); 
             }, (error) => console.error("Error fetching picks: ", error));
 
-            // Listen to Votes
             const votesPath = getCollectionPath("votes");
             const votesQ = query(collection(appState.db, votesPath));
             onSnapshot(votesQ, (snapshot) => {
@@ -599,23 +569,6 @@
                 renderVotes();
             }, (error) => console.error("Error fetching votes: ", error));
 
-            // Listen to Side Bets
-            const sideBetsPath = getCollectionPath("sideBets");
-            const sideBetsQ = query(collection(appState.db, sideBetsPath));
-            onSnapshot(sideBetsQ, (snapshot) => {
-                appState.sideBets = [];
-                snapshot.forEach((d) => {
-                    appState.sideBets.push({ id: d.id, ...d.data() });
-                });
-                appState.sideBets.sort((a, b) => {
-                    const timeA = a.timestamp ? (a.timestamp.seconds || 0) : 0;
-                    const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
-                    return timeB - timeA; // Newest first
-                });
-                renderSideBets();
-            }, (error) => console.error("Error fetching side bets: ", error));
-
-            // Listen to Global Settings (Bankroll, Cutoff)
             let configDoc;
             if (appId) {
                 configDoc = doc(appState.db, "artifacts", appId, "public", "data", "settings", "global");
@@ -656,7 +609,6 @@
             const now = new Date().getTime();
             
             if (now > seasonStart) {
-                // Offset by 3 days so Wednesday night serves as the rollover to the next week
                 const offsetNow = now - (3 * 24 * 60 * 60 * 1000); 
                 const diffTime = offsetNow - seasonStart;
                 appState.currentWeek = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7)) + 1; 
@@ -667,8 +619,12 @@
             const bannerText = document.getElementById('currentWeekBannerText');
             if(bannerText) bannerText.innerText = appState.currentWeek;
 
-            // Voting window aligns with current display week
-            const voteWeek = appState.currentWeek; 
+            const dayOfWeek = new Date().getDay();
+            let voteWeek = appState.currentWeek;
+            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) {
+                voteWeek = appState.currentWeek - 1;
+            }
+
             const titleEl = document.getElementById('bozoVoteTitle');
             if (titleEl) {
                 titleEl.innerText = `Week ${voteWeek} Bozo`;
@@ -676,7 +632,11 @@
         }
 
         window.calculateOdds = function() {
-            const currentWeekPicks = appState.picks.filter(p => p.week === appState.currentWeek);
+            const currentWeekPicks = appState.picks.filter(p => {
+                const pType = p.parlayType || 'main';
+                return p.week === appState.currentWeek && pType === appState.activeParlay;
+            });
+            
             document.getElementById('pickCount').innerText = currentWeekPicks.length;
             
             if (currentWeekPicks.length === 0) {
@@ -745,14 +705,38 @@
             }
         });
 
+        window.switchParlayTab = function(type) {
+            appState.activeParlay = type;
+            appState.hasManualOdds = false; 
+            
+            const mainTab = document.getElementById('tab-parlay-main');
+            const sideTab = document.getElementById('tab-parlay-side');
+            const cardTitle = document.getElementById('parlayCardTitle');
+            
+            if(type === 'main') {
+                mainTab.className = "flex-1 py-3 text-sm font-bold text-dkGreen border-b-2 border-dkGreen bg-white/[0.02] transition-all";
+                sideTab.className = "flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all";
+                cardTitle.innerText = "Main Group Selections";
+            } else {
+                sideTab.className = "flex-1 py-3 text-sm font-bold text-purple-400 border-b-2 border-purple-400 bg-white/[0.02] transition-all";
+                mainTab.className = "flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all";
+                cardTitle.innerText = "Side Parlay (Backup)";
+            }
+            
+            renderPicks(); 
+        }
+
         function renderPicks() {
             const tbody = document.getElementById('picksTableBody');
             tbody.innerHTML = '';
             
-            const currentWeekPicks = appState.picks.filter(p => p.week === appState.currentWeek);
+            const currentWeekPicks = appState.picks.filter(p => {
+                const pType = p.parlayType || 'main';
+                return p.week === appState.currentWeek && pType === appState.activeParlay;
+            });
             
             if (currentWeekPicks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500 text-sm font-medium">No picks locked in yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500 text-sm font-medium">No picks locked in for this parlay yet.</td></tr>`;
                 window.calculateOdds();
                 return;
             }
@@ -764,7 +748,6 @@
                 const displayPick = p.pick;
                 const displayOdds = (p.odds > 0 ? '+'+p.odds : p.odds);
                 
-                // Styling based on status
                 let pickStyle = 'text-gray-200';
                 let rowBg = '';
                 let statusBadge = '';
@@ -818,164 +801,6 @@
             });
 
             window.calculateOdds();
-        }
-
-        function renderSideBets() {
-            const list = document.getElementById('sideBetsList');
-            list.innerHTML = '';
-            
-            const currentWeekSideBets = appState.sideBets.filter(b => b.week === appState.currentWeek);
-            
-            if (currentWeekSideBets.length === 0) {
-                list.innerHTML = `<li class="p-8 text-center text-gray-500 text-sm font-medium">No side bets proposed yet.</li>`;
-                return;
-            }
-
-            currentWeekSideBets.forEach(bet => {
-                const li = document.createElement('li');
-                li.className = "p-4 hover:bg-white/[0.02] transition-colors group relative";
-                
-                let statusUI = '';
-                let bgStyle = '';
-                
-                if (bet.status === 'won1') {
-                    statusUI = `<span class="bg-dkGreen/20 text-dkGreen border border-dkGreen/30 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ml-3">${bet.bettor1} Won</span>`;
-                    bgStyle = 'bg-dkGreen/[0.02]';
-                } else if (bet.status === 'won2') {
-                    statusUI = `<span class="bg-dkGreen/20 text-dkGreen border border-dkGreen/30 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ml-3">${bet.bettor2} Won</span>`;
-                    bgStyle = 'bg-dkGreen/[0.02]';
-                } else if (bet.status === 'push') {
-                    statusUI = `<span class="bg-gray-700/50 text-gray-400 border border-gray-600 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ml-3">Push</span>`;
-                    bgStyle = 'opacity-50';
-                } else {
-                    statusUI = `<span class="bg-purple-900/30 text-purple-400 border border-purple-900/50 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ml-3">Action</span>`;
-                }
-
-                if (bgStyle) li.classList.add(bgStyle);
-
-                let adminActions = '';
-                if (appState.isAdminMode) {
-                    adminActions = `
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity bg-dkCard p-1 rounded-lg border border-dkBorder shadow-lg">
-                            <button onclick="window.updateSideBetStatus('${bet.id}', 'won1')" class="text-[10px] bg-dkDark hover:bg-dkGreen hover:text-black text-gray-300 px-2 py-1 rounded transition-colors" title="${bet.bettor1} Wins">${bet.bettor1}</button>
-                            <button onclick="window.updateSideBetStatus('${bet.id}', 'won2')" class="text-[10px] bg-dkDark hover:bg-dkGreen hover:text-black text-gray-300 px-2 py-1 rounded transition-colors" title="${bet.bettor2} Wins">${bet.bettor2}</button>
-                            <button onclick="window.updateSideBetStatus('${bet.id}', 'push')" class="text-[10px] bg-dkDark hover:bg-gray-600 hover:text-white text-gray-400 px-2 py-1 rounded transition-colors" title="Push">Push</button>
-                            <button onclick="window.deleteSideBet('${bet.id}')" class="text-red-400 hover:text-red-300 p-1 rounded transition-colors ml-1"><i class="ph-fill ph-trash"></i></button>
-                        </div>
-                    `;
-                } else if (!appState.isLocked) {
-                     adminActions = `
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="window.deleteSideBet('${bet.id}')" class="text-gray-500 hover:text-red-400 p-1.5 rounded-lg transition-colors" title="Remove"><i class="ph-fill ph-trash"></i></button>
-                        </div>
-                    `;
-                }
-
-                li.innerHTML = `
-                    <div class="pr-20">
-                        <div class="flex items-center mb-1">
-                            <span class="font-bold text-white text-sm">${bet.bettor1}</span>
-                            <span class="text-gray-500 mx-2 text-xs italic">vs</span>
-                            <span class="font-bold text-white text-sm">${bet.bettor2}</span>
-                            ${statusUI}
-                        </div>
-                        <p class="text-gray-300 text-sm font-medium">${bet.terms}</p>
-                        <p class="text-purple-400 font-mono text-xs font-bold mt-1.5 flex items-center">
-                            <i class="ph-bold ph-coins mr-1"></i> ${bet.wager}
-                        </p>
-                    </div>
-                    ${adminActions}
-                `;
-                list.appendChild(li);
-            });
-        }
-
-        window.toggleSideBetForm = function() {
-            const form = document.getElementById('sideBetFormContainer');
-            if (form.classList.contains('hidden')) {
-                form.classList.remove('hidden');
-            } else {
-                form.classList.add('hidden');
-            }
-        };
-
-        document.getElementById('sideBetForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const bettor1 = document.getElementById('sideBettor1').value;
-            const bettor2 = document.getElementById('sideBettor2').value;
-            const terms = document.getElementById('sideBetTerms').value;
-            const wager = document.getElementById('sideBetWager').value;
-
-            if(!bettor1 || !bettor2 || !terms || !wager) {
-                window.showToast("Please fill all fields.", "error");
-                return;
-            }
-            if(bettor1 === bettor2) {
-                window.showToast("Cannot bet against yourself!", "error");
-                return;
-            }
-
-            const newSideBet = {
-                bettor1,
-                bettor2,
-                terms,
-                wager,
-                week: appState.currentWeek,
-                status: 'pending',
-                timestamp: window.firebaseModules.serverTimestamp ? window.firebaseModules.serverTimestamp() : new Date()
-            };
-
-            try {
-                if (appState.db && appState.userId) {
-                    const sideBetsPath = getCollectionPath("sideBets");
-                    await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, sideBetsPath), newSideBet);
-                } else {
-                    newSideBet.id = Date.now().toString();
-                    appState.sideBets.push(newSideBet);
-                    renderSideBets();
-                }
-                
-                document.getElementById('sideBetTerms').value = '';
-                document.getElementById('sideBetWager').value = '';
-                window.toggleSideBetForm();
-                window.showToast("Side Bet proposed!");
-            } catch (error) {
-                window.showToast("Failed to propose side bet.", "error");
-            }
-        });
-
-        window.deleteSideBet = async function(id) {
-            if (!confirm("Remove this side bet?")) return;
-            try {
-                if (appState.db && appState.userId) {
-                    const sideBetsPath = getCollectionPath("sideBets");
-                    await window.firebaseModules.deleteDoc(window.firebaseModules.doc(appState.db, sideBetsPath, id));
-                } else {
-                    appState.sideBets = appState.sideBets.filter(b => b.id !== id);
-                    renderSideBets();
-                }
-                window.showToast("Side bet removed.");
-            } catch (error) {
-                 window.showToast("Failed to remove side bet.", "error");
-            }
-        }
-
-        window.updateSideBetStatus = async function(id, status) {
-            try {
-                if (appState.db && appState.userId) {
-                    const sideBetsPath = getCollectionPath("sideBets");
-                    const docRef = window.firebaseModules.doc(appState.db, sideBetsPath, id);
-                    await window.firebaseModules.updateDoc(docRef, { status: status });
-                } else {
-                     const bet = appState.sideBets.find(b => b.id === id);
-                     if(bet) bet.status = status;
-                     renderSideBets();
-                }
-                window.showToast(`Side bet resolved.`);
-            } catch (error) {
-                 window.showToast("Failed to resolve side bet.", "error");
-            }
         }
 
         function updateStandings() {
@@ -1085,7 +910,13 @@
 
         function renderVotes() {
             const container = document.getElementById('voteResults');
-            const voteWeek = appState.currentWeek; 
+            
+            let voteWeek = appState.currentWeek;
+            const dayOfWeek = new Date().getDay();
+            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) {
+                voteWeek = appState.currentWeek - 1;
+            }
+            
             const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
             
             if(currentWeekVotes.length > 0) {
@@ -1175,7 +1006,6 @@
             
             calculateDynamicCutoff(); 
             renderPicks();
-            renderSideBets(); 
         }
 
         window.updateAdminSettings = async function() {
@@ -1229,17 +1059,39 @@
             }
 
             let targetTime;
+            
             if (appState.customCutoff) {
                 targetTime = new Date(appState.customCutoff).getTime();
             } else {
+                let earliestGameTime = null;
+                const currentWeekPicks = appState.picks.filter(p => p.week === appState.currentWeek);
+                
+                currentWeekPicks.forEach(p => {
+                    if (p.gameTime) {
+                        const pTime = new Date(p.gameTime).getTime();
+                        if (!earliestGameTime || pTime < earliestGameTime) {
+                            earliestGameTime = pTime;
+                        }
+                    }
+                });
+
                 const now = new Date();
-                let nextSunday = new Date();
-                nextSunday.setDate(now.getDate() + (7 - now.getDay()) % 7);
-                if (now.getDay() === 0 && now.getHours() >= 13) {
-                    nextSunday.setDate(nextSunday.getDate() + 7);
+                let nextSaturday = new Date();
+                let daysUntilSaturday = (6 - now.getDay() + 7) % 7;
+                
+                if (daysUntilSaturday === 0 && now.getHours() >= 12) {
+                    daysUntilSaturday = 7;
                 }
-                nextSunday.setHours(13, 0, 0, 0);
-                targetTime = nextSunday.getTime();
+                nextSaturday.setDate(now.getDate() + daysUntilSaturday);
+                nextSaturday.setHours(12, 0, 0, 0); 
+                
+                const defaultTime = nextSaturday.getTime();
+
+                if (earliestGameTime && earliestGameTime < defaultTime) {
+                    targetTime = earliestGameTime;
+                } else {
+                    targetTime = defaultTime;
+                }
             }
 
             countdownInterval = setInterval(() => {
@@ -1251,12 +1103,12 @@
                     lockForm();
                     return;
                 }
-                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const h = Math.floor(distance / (1000 * 60 * 60));
                 const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((distance % (1000 * 60)) / 1000);
                 
                 document.getElementById('countdownDisplay').innerText = 
-                    (h > 0 ? h + "h " : "") + 
+                    (h > 0 ? h + "h " : "0h ") + 
                     (m < 10 ? "0" : "") + m + "m " + 
                     (s < 10 ? "0" : "") + s + "s";
                 
@@ -1268,14 +1120,12 @@
             appState.isLocked = true;
             document.getElementById('formOverlay').classList.remove('hidden');
             renderPicks(); 
-            renderSideBets();
         }
 
         function unlockForm() {
             appState.isLocked = false;
             document.getElementById('formOverlay').classList.add('hidden');
             renderPicks(); 
-            renderSideBets();
         }
 
         document.getElementById('pickForm').addEventListener('submit', async (e) => {
@@ -1283,24 +1133,33 @@
             if (appState.isLocked) return;
 
             const name = document.getElementById('nameInput').value;
+            const parlayType = document.getElementById('parlayTypeInput').value;
             const pick = document.getElementById('pickInput').value;
             const odds = document.getElementById('oddsInput').value;
+            const gameTime = document.getElementById('gameTimeInput').value;
 
-            if(!name || !pick || !odds) {
+            if(!name || !pick || !odds || !gameTime) {
                 window.showToast("Please fill all fields.", "error");
                 return;
             }
             
-            const existingPick = appState.picks.find(p => p.name === name && p.week === appState.currentWeek);
+            const existingPick = appState.picks.find(p => {
+                const pType = p.parlayType || 'main';
+                return p.name === name && p.week === appState.currentWeek && pType === parlayType;
+            });
+            
             if(existingPick) {
-                window.showToast(`${name} has already submitted a pick for Week ${appState.currentWeek}.`, "error");
+                const label = parlayType === 'main' ? 'Main Parlay' : 'Side Parlay';
+                window.showToast(`${name} has already submitted a pick for the Week ${appState.currentWeek} ${label}.`, "error");
                 return;
             }
 
             const newPick = {
                 name,
+                parlayType,
                 pick,
                 odds: parseInt(odds, 10),
+                gameTime,
                 week: appState.currentWeek,
                 status: 'pending',
                 timestamp: window.firebaseModules.serverTimestamp ? window.firebaseModules.serverTimestamp() : new Date()
@@ -1319,10 +1178,17 @@
                     appState.picks.push(newPick);
                     renderPicks();
                     updateStandings();
+                    calculateDynamicCutoff();
                 }
                 
                 document.getElementById('pickInput').value = '';
                 document.getElementById('oddsInput').value = '';
+                document.getElementById('gameTimeInput').value = '';
+                
+                if (appState.activeParlay !== parlayType) {
+                    window.switchParlayTab(parlayType);
+                }
+                
                 window.showToast("Pick locked in successfully!");
             } catch (error) {
                 window.showToast("Failed to lock in pick.", "error");
@@ -1336,7 +1202,11 @@
             const bozoName = document.getElementById('voteSelect').value;
             if(!bozoName) return;
 
-            const voteWeek = appState.currentWeek; 
+            let voteWeek = appState.currentWeek;
+            const dayOfWeek = new Date().getDay();
+            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) {
+                voteWeek = appState.currentWeek - 1;
+            }
 
             const newVote = {
                 bozoName,
@@ -1370,6 +1240,7 @@
                     appState.picks = appState.picks.filter(p => p.id !== id);
                     renderPicks();
                     updateStandings();
+                    calculateDynamicCutoff();
                 }
                 window.showToast("Pick removed.");
             } catch (error) {
