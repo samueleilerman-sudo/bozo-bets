@@ -7,7 +7,6 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Importing Inter for standard text, and Roboto Condensed for DraftKings -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Roboto+Condensed:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     
     <script type="module">
@@ -25,8 +24,7 @@
                     fontFamily: { 
                         sans: ['Inter', 'sans-serif'], 
                         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
-                        dk: ['"Roboto Condensed"', 'sans-serif'],
-                        venmo: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif']
+                        dk: ['"Roboto Condensed"', 'sans-serif']
                     },
                     colors: {
                         dkDark: '#050505',
@@ -37,42 +35,26 @@
                     }
                 }
             }
-        }
+        };
     </script>
-    
+
     <style>
-        body { 
-            background-color: #050505; 
-            color: #fff; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow-x: hidden;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-        .glass-nav { background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .glass-card { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .bozo-spin { animation: spin 8s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #404040; }
-        
-        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .toast-animate { animation: slideUp 0.3s ease-out forwards; }
-        
-        .tab-active { box-shadow: inset 0 -3px 0 #22c55e; background: linear-gradient(to top, rgba(34, 197, 94, 0.1), transparent); }
+        body { background-color: #050505; color: #fff; background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 20px 20px; }
+        .glass-card { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .bozo-spin { animation: bozoSpin 2s linear infinite; }
+        @keyframes bozoSpin { 100% { transform: rotate(360deg); } }
+        .toast-animate { animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Add specific class for the table cell wrap */
+        .break-word-cell { word-break: break-word; overflow-wrap: break-word; }
     </style>
 </head>
-<body class="antialiased selection:bg-dkGreen selection:text-black">
+<body class="min-h-screen flex flex-col font-sans selection:bg-dkGreen selection:text-black">
 
-    <nav id="mainNav" class="glass-nav sticky top-0 z-40 transition-all duration-300 w-full shadow-2xl shadow-black flex justify-center">
-        <div class="max-w-7xl w-full px-4 md:px-8 py-4 flex justify-between items-center">
+    <nav class="bg-dkDark/80 backdrop-blur-xl border-b border-dkBorder sticky top-0 z-40" id="mainNav">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8 py-4">
             <div class="flex items-center space-x-3">
                 <div class="bg-gradient-to-br from-dkGreen/20 to-dkGreen/5 p-2 rounded-lg border border-dkGreen/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
                     <i class="ph-fill ph-bird text-dkGreen text-2xl leading-none"></i>
@@ -86,11 +68,6 @@
                     <span class="text-lg font-mono font-black text-white drop-shadow-md" id="groupBankrollDisplay">TBD</span>
                 </div>
                 
-                <a href="https://venmo.com/" target="_blank" class="flex items-center space-x-1.5 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-3 py-2 rounded-lg transition-all shadow-[0_0_10px_rgba(59,130,246,0.1)] hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-                    <i class="ph-fill ph-currency-dollar text-lg"></i>
-                    <span class="hidden sm:inline font-bold text-sm tracking-wide font-venmo pt-0.5">Venmo</span>
-                </a>
-
                 <div class="ml-3 pl-3 border-l border-dkBorder">
                     <button onclick="window.toggleSettings()" class="flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-white h-9 w-9 rounded-lg transition-all" title="Dashboard Settings">
                         <i class="ph-fill ph-gear text-lg"></i>
@@ -132,14 +109,14 @@
                             <span class="text-xs font-bold text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/5"><span id="pickCount" class="text-white">0</span> Submitted</span>
                         </div>
                         
-                        <div class="overflow-x-auto flex-grow">
-                            <table class="w-full text-left border-collapse min-w-[500px]">
+                        <div class="overflow-hidden w-full flex-grow">
+                            <table class="w-full text-left border-collapse table-fixed">
                                 <thead>
                                     <tr class="text-gray-400 text-[10px] uppercase tracking-widest border-b border-dkBorder bg-black/20">
-                                        <th class="p-4 font-bold w-1/4">Bettor</th>
-                                        <th class="p-4 font-bold w-1/2">Selection</th>
-                                        <th class="p-4 font-bold w-1/4 text-right">Odds</th>
-                                        <th class="p-4 font-bold text-center w-16 admin-only hidden">Edit</th>
+                                        <th class="p-3 font-bold w-[25%] sm:w-[20%]">Bettor</th>
+                                        <th class="p-3 font-bold w-[50%] sm:w-[60%]">Selection</th>
+                                        <th class="p-3 font-bold w-[25%] sm:w-[20%] text-right">Odds</th>
+                                        <th class="p-3 font-bold text-center w-16 admin-only hidden">Edit</th>
                                     </tr>
                                 </thead>
                                 <tbody id="picksTableBody" class="divide-y divide-dkBorder/50">
@@ -149,7 +126,7 @@
                         
                         <div class="p-5 border-t border-dkBorder bg-black/40 flex flex-col sm:flex-row justify-between items-center gap-4 relative overflow-hidden">
                             <div class="flex items-center space-x-3 w-full sm:w-auto relative z-10" id="cutoffClockContainer">
-                                <div class="h-2.5 w-2.5 rounded-full bg-dkGreen animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
+                                <div class="h-2.5 w-2.5 rounded-full bg-dkGreen animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" id="clockPulse"></div>
                                 <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Bet Locks In:</span>
                                 <span class="font-mono text-white text-sm bg-dkCard px-3 py-1 rounded border border-dkBorder font-bold shadow-inner" id="countdownDisplay">Loading...</span>
                             </div>
@@ -284,7 +261,7 @@
 
                     <h3 class="text-white font-black tracking-tight mb-5 flex items-center text-lg justify-between">
                         <span class="flex items-center">
-                            <i class="ph-fill ph-ticket text-dkGreen mr-2"></i> Submit Pick 
+                            <i class="ph-fill ph-ticket text-dkGreen mr-2" id="submitPickIcon"></i> Submit Pick 
                             <span id="submitPickLabel" class="ml-2 text-[10px] font-bold text-dkGreen bg-dkGreen/10 px-2 py-0.5 rounded border border-dkGreen/20 uppercase tracking-wider">Main</span>
                         </span>
                         
@@ -321,7 +298,7 @@
 
                 <div id="payoutWidget" class="bg-dkCard glass-card rounded-2xl p-6 border border-dkBorder shadow-2xl relative overflow-hidden transition-all duration-300">
                     <h3 class="text-white font-black tracking-tight mb-4 flex items-center text-lg">
-                        <i class="ph-fill ph-money text-dkGreen mr-2"></i>
+                        <i class="ph-fill ph-money text-dkGreen mr-2" id="payoutIcon"></i>
                         Potential Return
                     </h3>
                     
@@ -334,7 +311,7 @@
                         <div class="flex flex-col">
                             <div class="flex justify-between items-end">
                                 <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">To Win</p>
-                                <p class="text-3xl font-mono font-black text-dkGreen drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]">$<span id="totalPayout">0.00</span></p>
+                                <p class="text-3xl font-mono font-black text-dkGreen drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" id="totalPayoutContainer">$<span id="totalPayout">0.00</span></p>
                             </div>
                         </div>
                         
@@ -351,8 +328,7 @@
                     </h3>
                     <p class="text-[11px] text-gray-400 mb-4 leading-relaxed font-medium">Cast your vote for the worst pick of the week. Voting stays open until Wednesday.</p>
                     
-                    <div id="voteResults" class="space-y-3 hidden mb-4 bg-black/30 p-3 rounded-xl border border-dkBorder">
-                    </div>
+                    <div id="voteResults" class="space-y-3 hidden mb-4 bg-black/30 p-3 rounded-xl border border-dkBorder"></div>
 
                     <form id="voteForm" class="space-y-3">
                         <select id="voteSelect" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all appearance-none cursor-pointer shadow-inner">
@@ -382,7 +358,7 @@
                 <div class="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-dkBorder shadow-inner">
                     <div>
                         <h4 class="text-white font-bold text-sm">Strict Cutoff Time</h4>
-                        <p class="text-xs text-gray-400 mt-1">Lock submissions at kickoff.</p>
+                        <p class="text-xs text-gray-400 mt-1">Lock submissions at cutoff.</p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="clockToggle" class="sr-only peer" checked onchange="window.updateSettings()">
@@ -441,7 +417,7 @@
         </div>
     </div>
 
-    <div id="toastContainer" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2"></div>
+    <div id="toastContainer" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
     <script>
         let appState = {
@@ -461,7 +437,6 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : null;
         const getCollectionPath = (name) => appId ? `artifacts/${appId}/public/data/${name}` : name;
-
         let countdownInterval;
 
         const historicalData = {
@@ -475,7 +450,7 @@
             "Matt": { wins: 31, losses: 24 },
             "Ronnie": { wins: 30, losses: 10 },
             "Nate": { wins: 36, losses: 20 }
-        }; 
+        };
 
         async function initFirebase() {
             try {
@@ -485,8 +460,7 @@
                     projectId: "bozo-bets",
                     storageBucket: "bozo-bets.firebasestorage.app",
                     messagingSenderId: "298630664070",
-                    appId: "1:298630664070:web:3171b1ac1f5688ff162607",
-                    measurementId: "G-T3LQSHDFYN"
+                    appId: "1:298630664070:web:3171b1ac1f5688ff162607"
                 };
 
                 const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : myFirebaseConfig;
@@ -508,13 +482,15 @@
                         const userCredential = await window.firebaseModules.signInAnonymously(auth);
                         appState.userId = userCredential.user.uid;
                     }
-                } catch(e) { }
-
-                if (appState.userId) {
-                    setupRealtimeListeners();
+                } catch(e) {
+                    console.error("Auth Exception:", e);
+                    window.showToast("Database Auth Failed!", "error");
+                    throw e; 
                 }
 
+                if (appState.userId) setupRealtimeListeners();
             } catch (error) {
+                console.error("Firebase Error:", error);
                 mockFirebaseData();
             }
         }
@@ -532,107 +508,119 @@
             const { collection, onSnapshot, query, doc } = window.firebaseModules;
             
             const picksPath = getCollectionPath("picks");
-            const picksQ = query(collection(appState.db, picksPath));
-            onSnapshot(picksQ, (snapshot) => {
+            onSnapshot(query(collection(appState.db, picksPath)), (snapshot) => {
                 appState.picks = [];
-                snapshot.forEach((d) => {
-                    appState.picks.push({ id: d.id, ...d.data() });
-                });
-                appState.picks.sort((a, b) => {
-                    const timeA = a.timestamp ? (a.timestamp.seconds || 0) : 0;
-                    const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
-                    return timeA - timeB;
-                });
+                snapshot.forEach((d) => appState.picks.push({ id: d.id, ...d.data() }));
+                appState.picks.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0));
                 renderPicks();
                 updateStandings();
                 calculateDynamicCutoff(); 
-            }, (error) => console.error("Error fetching picks: ", error));
+            });
 
             const votesPath = getCollectionPath("votes");
-            const votesQ = query(collection(appState.db, votesPath));
-            onSnapshot(votesQ, (snapshot) => {
+            onSnapshot(query(collection(appState.db, votesPath)), (snapshot) => {
                 appState.votes = [];
-                snapshot.forEach((d) => {
-                    appState.votes.push({ id: d.id, ...d.data() });
-                });
+                snapshot.forEach((d) => appState.votes.push({ id: d.id, ...d.data() }));
                 renderVotes();
-            }, (error) => console.error("Error fetching votes: ", error));
+            });
 
-            let configDoc;
-            if (appId) {
-                configDoc = doc(appState.db, "artifacts", appId, "public", "data", "settings", "global");
-            } else {
-                configDoc = doc(appState.db, "settings", "global");
-            }
-
+            let configDoc = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
             onSnapshot(configDoc, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data.bankroll !== undefined) {
                         appState.bankroll = data.bankroll;
                         const displayStr = data.bankroll ? `$${parseFloat(data.bankroll).toFixed(2)}` : 'TBD';
-                        
-                        const displayEl = document.getElementById('groupBankrollDisplay');
-                        if (displayEl) displayEl.innerText = displayStr;
-                        
-                        const wagerDisplayEl = document.getElementById('payoutWagerDisplay');
-                        if (wagerDisplayEl) wagerDisplayEl.innerText = displayStr;
-
-                        const inputEl = document.getElementById('bankrollSetting');
-                        if (inputEl && document.activeElement !== inputEl) inputEl.value = data.bankroll || '';
-                        
+                        document.getElementById('groupBankrollDisplay').innerText = displayStr;
+                        document.getElementById('payoutWagerDisplay').innerText = displayStr;
+                        if (document.activeElement !== document.getElementById('bankrollSetting')) document.getElementById('bankrollSetting').value = data.bankroll || '';
                         window.calculateOdds(); 
                     }
                     if (data.cutoffTime !== undefined) {
                         appState.customCutoff = data.cutoffTime;
-                        const cutoffEl = document.getElementById('cutoffSetting');
-                        if (cutoffEl && document.activeElement !== cutoffEl) cutoffEl.value = data.cutoffTime || '';
+                        if (document.activeElement !== document.getElementById('cutoffSetting')) document.getElementById('cutoffSetting').value = data.cutoffTime || '';
                     }
                     calculateDynamicCutoff(); 
                 }
-            }, (error) => console.error("Error fetching settings: ", error));
+            });
+        }
+
+        window.switchTab = function(tabId) {
+            ['viewPicks', 'viewStandings', 'viewAllTime'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById(id).classList.remove('flex');
+                document.getElementById(`tab-${id}`).classList.remove('tab-active', 'text-white');
+                document.getElementById(`tab-${id}`).classList.add('text-gray-400', 'bg-dkCard/50');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            if (tabId !== 'viewAllTime') document.getElementById(tabId).classList.add('flex');
+            document.getElementById(`tab-${tabId}`).classList.add('tab-active', 'text-white');
+            document.getElementById(`tab-${tabId}`).classList.remove('text-gray-400', 'bg-dkCard/50');
+        }
+
+        window.switchParlayTab = function(type) {
+            appState.activeParlay = type;
+            appState.hasManualOdds = false; 
+            
+            const isMain = type === 'main';
+            
+            document.getElementById('tab-parlay-main').className = `flex-1 py-3 text-sm font-bold border-b-2 transition-all ${isMain ? 'text-dkGreen border-dkGreen bg-white/[0.02]' : 'text-gray-500 border-transparent hover:text-gray-300'}`;
+            document.getElementById('tab-parlay-side').className = `flex-1 py-3 text-sm font-bold border-b-2 transition-all ${!isMain ? 'text-purple-400 border-purple-400 bg-white/[0.02]' : 'text-gray-500 border-transparent hover:text-gray-300'}`;
+            
+            document.getElementById('parlayCardTitle').innerText = isMain ? "Main Group Selections" : "Side Group Selections";
+            
+            const submitLabel = document.getElementById('submitPickLabel');
+            if(submitLabel) {
+                submitLabel.innerText = isMain ? "Main" : "Side";
+                submitLabel.className = `ml-2 text-[10px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider transition-colors ${isMain ? 'text-dkGreen bg-dkGreen/10 border-dkGreen/20' : 'text-purple-400 bg-purple-400/10 border-purple-400/20'}`;
+                document.getElementById('submitPickIcon').className = `ph-fill ph-ticket mr-2 transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
+                
+                document.getElementById('submitBtn').className = `w-full text-black font-black py-3.5 rounded-xl transition-all uppercase tracking-widest text-sm flex items-center justify-center group mt-2 ${isMain ? 'bg-gradient-to-r from-dkGreen to-green-500 hover:from-green-400 shadow-[0_0_20px_rgba(34,197,94,0.4)]' : 'bg-gradient-to-r from-purple-400 to-fuchsia-400 hover:from-purple-300 text-white shadow-[0_0_20px_rgba(192,132,252,0.4)]'}`;
+                
+                const styleColor = isMain ? 'focus:border-dkGreen focus:ring-dkGreen' : 'focus:border-purple-500 focus:ring-purple-500';
+                document.getElementById('oddsInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all font-mono placeholder-gray-600 shadow-inner ${styleColor}`;
+                document.getElementById('pickInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all placeholder-gray-600 shadow-inner ${styleColor}`;
+                document.getElementById('nameInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all appearance-none cursor-pointer shadow-inner ${styleColor}`;
+                
+                document.getElementById('totalPayoutContainer').className = `text-3xl font-mono font-black drop-shadow-[0_0_10px_rgba(0,0,0,0.3)] transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
+                document.getElementById('payoutIcon').className = `ph-fill ph-money mr-2 transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
+            }
+            
+            window.calculateOdds();
+            if(typeof renderPicks === 'function') renderPicks();
+        }
+
+        function getNextSaturdayNoon() {
+            const now = new Date();
+            const d = new Date();
+            d.setDate(now.getDate() + (6 - now.getDay() + 7) % 7);
+            d.setHours(12, 0, 0, 0);
+            if (now.getDay() === 6 && now.getHours() >= 12) d.setDate(d.getDate() + 7);
+            return d;
         }
 
         function calculateCurrentWeek() {
             const seasonStart = new Date('2026-09-08T00:00:00').getTime(); 
             const now = new Date().getTime();
-            
             if (now > seasonStart) {
-                const offsetNow = now - (3 * 24 * 60 * 60 * 1000); 
-                const diffTime = offsetNow - seasonStart;
+                const diffTime = (now - (3 * 24 * 60 * 60 * 1000)) - seasonStart;
                 appState.currentWeek = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7)) + 1; 
             } else {
                 appState.currentWeek = 1;
             }
-            
-            const bannerText = document.getElementById('currentWeekBannerText');
-            if(bannerText) bannerText.innerText = appState.currentWeek;
-
+            document.getElementById('currentWeekBannerText').innerText = appState.currentWeek;
             const dayOfWeek = new Date().getDay();
             let voteWeek = appState.currentWeek;
-            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) {
-                voteWeek = appState.currentWeek - 1;
-            }
-
-            const titleEl = document.getElementById('bozoVoteTitle');
-            if (titleEl) {
-                titleEl.innerText = `Week ${voteWeek} Bozo`;
-            }
+            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
+            document.getElementById('bozoVoteTitle').innerText = `Week ${voteWeek} Bozo`;
         }
 
         window.calculateOdds = function() {
-            const currentWeekPicks = appState.picks.filter(p => {
-                const pType = p.parlayType || 'main';
-                return p.week === appState.currentWeek && pType === appState.activeParlay;
-            });
-            
+            const currentWeekPicks = appState.picks.filter(p => p.week === appState.currentWeek && (p.parlayType || 'main') === appState.activeParlay);
             document.getElementById('pickCount').innerText = currentWeekPicks.length;
             
             if (currentWeekPicks.length === 0) {
-                if(!appState.hasManualOdds) {
-                    document.getElementById('totalOddsDisplay').value = "+0";
-                    updatePayoutDisplay(0);
-                }
+                if(!appState.hasManualOdds) { document.getElementById('totalOddsDisplay').value = "+0"; updatePayoutDisplay(0); }
                 return;
             }
 
@@ -640,44 +628,25 @@
             currentWeekPicks.forEach(p => {
                 const odds = parseFloat(p.odds);
                 if (isNaN(odds)) return;
-                
-                if (odds > 0) {
-                    decimalOdds *= (odds / 100) + 1;
-                } else if (odds < 0) {
-                    decimalOdds *= (100 / Math.abs(odds)) + 1;
-                }
+                if (odds > 0) decimalOdds *= (odds / 100) + 1;
+                else if (odds < 0) decimalOdds *= (100 / Math.abs(odds)) + 1;
             });
 
             let parlayOdds = 0;
-            if (decimalOdds >= 2) {
-                parlayOdds = Math.round((decimalOdds - 1) * 100);
-            } else if (decimalOdds > 1) {
-                parlayOdds = Math.round(-100 / (decimalOdds - 1));
-            }
+            if (decimalOdds >= 2) parlayOdds = Math.round((decimalOdds - 1) * 100);
+            else if (decimalOdds > 1) parlayOdds = Math.round(-100 / (decimalOdds - 1));
 
             if (!appState.hasManualOdds) {
-                const prefix = parlayOdds > 0 ? "+" : "";
-                document.getElementById('totalOddsDisplay').value = prefix + parlayOdds;
+                document.getElementById('totalOddsDisplay').value = (parlayOdds > 0 ? "+" : "") + parlayOdds;
                 updatePayoutDisplay(parlayOdds);
             }
-        }
+        };
 
         function updatePayoutDisplay(parlayOdds) {
-            if (parlayOdds === 0) {
-                document.getElementById('totalPayout').innerText = "0.00";
-                return;
-            }
-            
-            let decimalOdds = 1;
-            if (parlayOdds > 0) {
-                decimalOdds = (parlayOdds / 100) + 1;
-            } else if (parlayOdds < 0) {
-                decimalOdds = (100 / Math.abs(parlayOdds)) + 1;
-            }
-            
+            if (parlayOdds === 0) { document.getElementById('totalPayout').innerText = "0.00"; return; }
+            let dec = parlayOdds > 0 ? (parlayOdds / 100) + 1 : (100 / Math.abs(parlayOdds)) + 1;
             const wager = appState.bankroll || 100;
-            const payout = wager * decimalOdds;
-            document.getElementById('totalPayout').innerText = (payout - wager).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('totalPayout').innerText = ((wager * dec) - wager).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         document.getElementById('totalOddsDisplay').addEventListener('input', (e) => {
@@ -687,591 +656,370 @@
                 window.calculateOdds();
             } else {
                 appState.hasManualOdds = true;
-                let numericOdds = parseInt(val.replace(/[^0-9\-+]/g, ''), 10);
-                if (!isNaN(numericOdds)) {
-                    updatePayoutDisplay(numericOdds);
-                }
+                let numOdds = parseInt(val.replace(/[^0-9\-+]/g, ''), 10);
+                if (!isNaN(numOdds)) updatePayoutDisplay(numOdds);
             }
         });
 
-        window.switchParlayTab = function(type) {
-            appState.activeParlay = type;
-            appState.hasManualOdds = false; 
-            
-            const mainTab = document.getElementById('tab-parlay-main');
-            const sideTab = document.getElementById('tab-parlay-side');
-            const cardTitle = document.getElementById('parlayCardTitle');
-            const submitLabel = document.getElementById('submitPickLabel');
-            
-            if(type === 'main') {
-                mainTab.className = "flex-1 py-3 text-sm font-bold text-dkGreen border-b-2 border-dkGreen bg-white/[0.02] transition-all";
-                sideTab.className = "flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all";
-                cardTitle.innerText = "Main Group Selections";
-                if(submitLabel) {
-                    submitLabel.innerText = "Main";
-                    submitLabel.className = "ml-2 text-[10px] font-bold text-dkGreen bg-dkGreen/10 px-2 py-0.5 rounded border border-dkGreen/20 uppercase tracking-wider";
-                }
-            } else {
-                sideTab.className = "flex-1 py-3 text-sm font-bold text-purple-400 border-b-2 border-purple-400 bg-white/[0.02] transition-all";
-                mainTab.className = "flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all";
-                cardTitle.innerText = "Side Parlay";
-                if(submitLabel) {
-                    submitLabel.innerText = "Side";
-                    submitLabel.className = "ml-2 text-[10px] font-bold text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded border border-purple-400/20 uppercase tracking-wider";
-                }
-            }
-            
-            renderPicks(); 
-        }
-
-        function renderPicks() {
-            const tbody = document.getElementById('picksTableBody');
-            tbody.innerHTML = '';
-            
-            const currentWeekPicks = appState.picks.filter(p => {
-                const pType = p.parlayType || 'main';
-                return p.week === appState.currentWeek && pType === appState.activeParlay;
-            });
-            
-            if (currentWeekPicks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-500 text-sm font-medium">No picks locked in for this parlay yet.</td></tr>`;
-                window.calculateOdds();
+        function calculateDynamicCutoff() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (!appState.isClockEnabled) {
+                document.getElementById('countdownDisplay').innerText = "DISABLED";
+                document.getElementById('clockPulse').classList.remove('bg-dkGreen', 'bg-red-500', 'animate-pulse');
+                document.getElementById('clockPulse').classList.add('bg-gray-600');
+                unlockForm();
                 return;
             }
 
-            currentWeekPicks.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-white/[0.05] transition-colors group";
-                
-                const displayPick = p.pick;
-                const displayOdds = (p.odds > 0 ? '+'+p.odds : p.odds);
-                
-                let pickStyle = 'text-gray-200';
-                let rowBg = '';
-                let statusBadge = '';
-                
-                if (p.status === 'won') {
-                    pickStyle = 'text-dkGreen';
-                    rowBg = 'bg-dkGreen/5';
-                    statusBadge = '<span class="ml-2 bg-dkGreen text-black text-[9px] px-1.5 py-0.5 rounded uppercase font-bold">Won</span>';
-                } else if (p.status === 'lost') {
-                    pickStyle = 'text-red-400 line-through opacity-75';
-                    rowBg = 'bg-red-900/10';
-                    statusBadge = '<span class="ml-2 bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded uppercase font-bold">Lost</span>';
-                }
-                
-                if (rowBg) tr.classList.add(...rowBg.split(' '));
-                
-                const oddsColor = (p.odds > 0 ? 'text-dkGreen' : 'text-white');
-                
-                let actionHTML = '';
-                if (appState.isAdminMode) {
-                    actionHTML = `
-                        <div class="flex space-x-1 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="window.updatePickStatus('${p.id}', 'won')" class="bg-dkGreen/20 hover:bg-dkGreen text-dkGreen hover:text-black p-1.5 rounded-lg transition-colors shadow-sm" title="Mark Won"><i class="ph-fill ph-check"></i></button>
-                            <button onclick="window.updatePickStatus('${p.id}', 'lost')" class="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white p-1.5 rounded-lg transition-colors shadow-sm" title="Mark Lost"><i class="ph-fill ph-x"></i></button>
-                            <button onclick="window.deletePick('${p.id}')" class="text-gray-500 hover:text-red-400 p-1.5 rounded-lg transition-colors ml-2" title="Remove"><i class="ph-fill ph-trash"></i></button>
-                        </div>
-                    `;
-                } else {
-                    actionHTML = `
-                        <div class="flex space-x-1 justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="window.deletePick('${p.id}')" class="text-gray-500 hover:text-red-400 p-1.5 rounded-lg transition-colors" title="Remove"><i class="ph-fill ph-trash"></i></button>
-                        </div>
-                    `;
+            let targetTime = appState.customCutoff ? new Date(appState.customCutoff).getTime() : getNextSaturdayNoon().getTime();
+
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetTime - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdownDisplay').innerText = "LOCKED";
+                    document.getElementById('countdownDisplay').classList.replace('text-white', 'text-red-500');
+                    document.getElementById('clockPulse').classList.replace('bg-dkGreen', 'bg-red-500');
+                    lockForm();
+                    return;
                 }
 
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-white border-none">${p.name}</td>
-                    <td class="p-4 ${pickStyle} text-sm font-medium border-none flex items-center">${displayPick} ${statusBadge}</td>
-                    <td class="p-4 text-right font-mono font-bold ${oddsColor} text-sm border-none">${displayOdds}</td>
-                    <td class="p-4 text-center border-none ${appState.isAdminMode || !appState.isLocked ? '' : 'hidden'}">
-                        ${actionHTML}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+                document.getElementById('countdownDisplay').classList.replace('text-red-500', 'text-white');
+                document.getElementById('clockPulse').classList.replace('bg-red-500', 'bg-dkGreen');
+                document.getElementById('clockPulse').classList.add('animate-pulse');
+                unlockForm();
 
-            const adminCols = document.querySelectorAll('.admin-only');
-            adminCols.forEach(col => {
-                if (appState.isAdminMode || !appState.isLocked) col.classList.remove('hidden');
-                else col.classList.add('hidden');
-            });
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('countdownDisplay').innerText = `${d}d ${h}h ${m}m ${s}s`;
+            }, 1000);
+        }
 
+        function lockForm() { appState.isLocked = true; document.getElementById('formOverlay').classList.remove('hidden'); }
+        function unlockForm() { appState.isLocked = false; document.getElementById('formOverlay').classList.add('hidden'); }
+
+        document.getElementById('pickForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (appState.isLocked && !appState.isAdminMode) { window.showToast("Submissions are currently locked.", "error"); return; }
+            if (!appState.db) { window.showToast("Database not initialized", "error"); return; }
+
+            const name = document.getElementById('nameInput').value;
+            const bet = document.getElementById('pickInput').value;
+            let odds = document.getElementById('oddsInput').value;
+            if (!odds.startsWith('+') && !odds.startsWith('-')) odds = (odds > 0 ? '+' : '') + odds;
+
+            const btn = document.getElementById('submitBtn');
+            const ogText = btn.innerHTML;
+            btn.innerHTML = `<i class="ph-bold ph-spinner bozo-spin mr-2"></i> Locking...`;
+            btn.disabled = true;
+
+            try {
+                const { collection, addDoc, serverTimestamp } = window.firebaseModules;
+                await addDoc(collection(appState.db, getCollectionPath("picks")), {
+                    name, bet, odds,
+                    week: appState.currentWeek,
+                    status: 'pending',
+                    parlayType: appState.activeParlay,
+                    timestamp: serverTimestamp()
+                });
+                
+                document.getElementById('pickInput').value = '';
+                document.getElementById('oddsInput').value = '';
+                window.showToast("Pick Locked In! 🔒", "success");
+            } catch (error) {
+                console.error("Error adding pick: ", error);
+                window.showToast("Failed to lock pick.", "error");
+            }
+            btn.innerHTML = ogText;
+            btn.disabled = false;
+        });
+
+        function renderPicks() {
+        const tbody = document.getElementById('picksTableBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        
+        const currentWeekPicks = appState.picks.filter(p => {
+            const pType = p.parlayType || 'main';
+            return p.week === appState.currentWeek && pType === appState.activeParlay;
+        });
+
+        if (currentWeekPicks.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 text-sm font-bold bg-white/[0.01]">No picks logged for this parlay yet.</td></tr>`;
+            return;
+        }
+
+        currentWeekPicks.forEach(pick => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-white/[0.02] transition-colors group";
+            tr.innerHTML = `
+                <td class="p-3">
+                    <div class="flex items-center space-x-2">
+                        <div class="h-6 w-6 rounded bg-dkDark flex items-center justify-center text-[10px] font-bold border border-dkBorder text-gray-400 group-hover:text-white group-hover:border-white/20 transition-all shrink-0">
+                            ${pick.name.charAt(0)}
+                        </div>
+                        <span class="font-bold text-white text-xs sm:text-sm truncate">${pick.name}</span>
+                    </div>
+                </td>
+                <td class="p-3 font-medium text-gray-300 text-xs sm:text-sm break-words whitespace-normal">
+                    ${pick.pick}
+                </td>
+                <td class="p-3 font-mono font-bold text-dkGreen text-right text-xs sm:text-sm">
+                    ${pick.odds > 0 ? '+'+pick.odds : pick.odds}
+                </td>
+                <td class="p-3 text-center admin-only hidden">
+                    <button onclick="window.deletePick('${pick.id}')" class="text-red-500/50 hover:text-red-500 p-1.5 rounded bg-red-500/5 hover:bg-red-500/10 transition-all" title="Delete Pick">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
             window.calculateOdds();
+            toggleAdminUI();
+        }
+
+        document.getElementById('voteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!appState.db) { window.showToast("Database not initialized", "error"); return; }
+            const dayOfWeek = new Date().getDay();
+            let voteWeek = appState.currentWeek;
+            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
+
+            const bozoName = document.getElementById('voteSelect').value;
+            try {
+                const { collection, addDoc, serverTimestamp } = window.firebaseModules;
+                await addDoc(collection(appState.db, getCollectionPath("votes")), {
+                    voterId: appState.userId || 'anon',
+                    bozoName: bozoName,
+                    week: voteWeek,
+                    timestamp: serverTimestamp()
+                });
+                window.showToast("Vote Cast! 🤡", "success");
+            } catch (error) {
+                console.error("Error voting: ", error);
+                window.showToast("Failed to cast vote.", "error");
+            }
+        });
+
+        function renderVotes() {
+            const dayOfWeek = new Date().getDay();
+            let voteWeek = appState.currentWeek;
+            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
+
+            const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
+            const resultsContainer = document.getElementById('voteResults');
+            
+            if (currentWeekVotes.length === 0) { resultsContainer.classList.add('hidden'); return; }
+            
+            const counts = {};
+            currentWeekVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
+            
+            resultsContainer.innerHTML = '';
+            resultsContainer.classList.remove('hidden');
+            
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            const maxVotes = sorted[0][1];
+            
+            sorted.forEach(([name, count], index) => {
+                const pct = (count / currentWeekVotes.length) * 100;
+                const isLeader = index === 0;
+                resultsContainer.innerHTML += `
+                    <div class="relative pt-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <div><span class="text-xs font-bold ${isLeader ? 'text-red-400' : 'text-gray-300'}">${name} ${isLeader ? '🤡' : ''}</span></div>
+                            <div class="text-right"><span class="text-xs font-bold ${isLeader ? 'text-red-400' : 'text-gray-500'}">${count} vote${count!==1?'s':''}</span></div>
+                        </div>
+                        <div class="overflow-hidden h-2 text-xs flex rounded bg-white/5 border border-white/5">
+                            <div style="width:${pct}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${isLeader ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-gray-600'}"></div>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         function updateStandings() {
-            const currentSeason = {};
-            const names = ["Sam", "Josh", "Zach", "Jide", "Rick", "Shane", "John", "Matt", "Ronnie", "Nate"];
-            names.forEach(n => currentSeason[n] = { wins: 0, losses: 0, pending: 0 });
-
-            appState.picks.forEach(p => {
-                if(currentSeason[p.name]) {
-                    if(p.status === 'won') currentSeason[p.name].wins++;
-                    else if(p.status === 'lost') currentSeason[p.name].losses++;
-                    else currentSeason[p.name].pending++;
-                }
-            });
-
-            const allTime = [];
-            const seasonStats = [];
-
-            names.forEach(name => {
-                const hist = historicalData[name] || { wins: 0, losses: 0 };
-                const curr = currentSeason[name];
-                
-                const seasonTotal = curr.wins + curr.losses;
-                let seasonRate = 0;
-                if(seasonTotal > 0) seasonRate = Math.round((curr.wins / seasonTotal) * 100);
-                seasonStats.push({ name, wins: curr.wins, losses: curr.losses, rate: seasonRate, total: seasonTotal });
-
-                const tWins = hist.wins + curr.wins;
-                const tLosses = hist.losses + curr.losses;
-                const tTotal = tWins + tLosses;
-                let tRate = 0;
-                if(tTotal > 0) tRate = Math.round((tWins / tTotal) * 100);
-                allTime.push({ name, wins: tWins, losses: tLosses, rate: tRate, total: tTotal });
-            });
-
-            let ultimateBozo = null;
-            let lowestRate = 100;
-            allTime.forEach(s => {
-                if(s.total > 5 && s.rate < lowestRate) {
-                    lowestRate = s.rate;
-                    ultimateBozo = s;
-                }
-            });
-
-            if (ultimateBozo) {
-                document.getElementById('ultimateBozoName').innerText = ultimateBozo.name;
-                document.getElementById('ultimateBozoRate').innerText = `${ultimateBozo.rate}% Hit Rate`;
-            } else {
-                document.getElementById('ultimateBozoName').innerText = "TBD";
-                document.getElementById('ultimateBozoRate').innerText = `--% Hit Rate`;
-                ultimateBozo = {name: 'TBD'};
-            }
-
-            seasonStats.sort((a, b) => b.rate - a.rate);
-            const stBody = document.getElementById('standingsTableBody');
-            stBody.innerHTML = '';
-            seasonStats.forEach((s, index) => {
-                if(s.total === 0) return;
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-white/[0.05] transition-colors";
-                tr.innerHTML = `
-                    <td class="p-4 text-gray-500 font-mono text-center text-sm border-none">${index + 1}</td>
-                    <td class="p-4 font-bold text-white border-none">${s.name}</td>
-                    <td class="p-4 text-center font-mono border-none"><span class="text-dkGreen drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]">${s.wins}</span><span class="text-gray-500 mx-1">-</span><span class="text-red-400">${s.losses}</span></td>
-                    <td class="p-4 text-right border-none">
-                        <span class="px-2 py-1 rounded-md bg-dkDark border border-dkBorder text-xs font-mono font-bold shadow-inner ${s.rate >= 50 ? 'text-dkGreen' : 'text-red-400'}">${s.rate}%</span>
-                    </td>
-                `;
-                stBody.appendChild(tr);
-            });
-
-            allTime.sort((a, b) => b.rate - a.rate);
-            const atBody = document.getElementById('allTimeTableBody');
-            atBody.innerHTML = '';
-            allTime.forEach((s, index) => {
-                if(s.total === 0) return;
-                const isUlt = s.name === ultimateBozo.name;
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-white/[0.05] transition-colors";
-                tr.innerHTML = `
-                    <td class="p-4 text-gray-500 font-mono text-center text-sm border-none">${index + 1}</td>
-                    <td class="p-4 font-bold ${isUlt ? 'text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'text-white'} flex items-center border-none">
-                        ${s.name} ${isUlt ? '<i class="ph-fill ph-skull ml-2 text-red-500"></i>' : ''}
-                    </td>
-                    <td class="p-4 text-center text-gray-400 font-mono text-sm border-none">${s.total}</td>
-                    <td class="p-4 text-center font-mono border-none"><span class="text-dkGreen">${s.wins}</span><span class="text-gray-500 mx-1">-</span><span class="text-red-400">${s.losses}</span></td>
-                    <td class="p-4 text-right border-none">
-                        <span class="px-2 py-1 rounded-md bg-dkDark border border-dkBorder text-xs font-mono font-bold shadow-inner ${s.rate >= 50 ? 'text-dkGreen' : 'text-red-400'}">${s.rate}%</span>
-                    </td>
-                `;
-                atBody.appendChild(tr);
-            });
+            let combinedData = JSON.parse(JSON.stringify(historicalData));
             
-            renderBozoHistory();
+            appState.picks.forEach(pick => {
+                if (pick.status === 'won' || pick.status === 'lost') {
+                    if (!combinedData[pick.name]) combinedData[pick.name] = { wins: 0, losses: 0 };
+                    if (pick.status === 'won') combinedData[pick.name].wins++;
+                    else combinedData[pick.name].losses++;
+                }
+            });
+
+            const currentSeasonData = {};
+            appState.picks.forEach(pick => {
+                if (pick.status === 'won' || pick.status === 'lost') {
+                    if (!currentSeasonData[pick.name]) currentSeasonData[pick.name] = { wins: 0, losses: 0 };
+                    if (pick.status === 'won') currentSeasonData[pick.name].wins++;
+                    else currentSeasonData[pick.name].losses++;
+                }
+            });
+
+            renderTable('standingsTableBody', currentSeasonData);
+            renderTable('allTimeTableBody', combinedData, true);
+            updateUltimateBozo(combinedData);
         }
 
-        function renderBozoHistory() {
-            const tbody = document.getElementById('bozoHistoryTableBody');
-            if (!tbody) return;
+        function renderTable(tbodyId, dataObj, isAllTime = false) {
+            const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
-            const seasonBozos = [];
-            if (seasonBozos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-gray-500 text-sm font-medium">No Bozos crowned yet this season.</td></tr>`;
+            
+            const arr = Object.keys(dataObj).map(name => {
+                const d = dataObj[name];
+                const total = d.wins + d.losses;
+                const rate = total > 0 ? (d.wins / total) * 100 : 0;
+                return { name, wins: d.wins, losses: d.losses, total, rate };
+            }).filter(item => isAllTime || item.total > 0).sort((a, b) => b.rate - a.rate || b.wins - a.wins);
+            
+            if (arr.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500 font-medium">No completed picks yet.</td></tr>`;
                 return;
             }
-        }
 
-        function renderVotes() {
-            const container = document.getElementById('voteResults');
-            
-            let voteWeek = appState.currentWeek;
-            const dayOfWeek = new Date().getDay();
-            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) {
-                voteWeek = appState.currentWeek - 1;
-            }
-            
-            const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
-            
-            if(currentWeekVotes.length > 0) {
-                container.classList.remove('hidden');
-                const tally = {};
-                currentWeekVotes.forEach(v => {
-                    tally[v.bozoName] = (tally[v.bozoName] || 0) + 1;
-                });
-
-                let html = '<div class="flex flex-wrap gap-2">';
-                for (const [name, count] of Object.entries(tally)) {
-                    html += `<div class="bg-dkDark border border-red-900/30 px-3 py-1.5 rounded-lg text-sm flex items-center shadow-inner"><span class="text-white font-bold mr-2">${name}</span><span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded font-mono font-bold shadow-sm">${count}</span></div>`;
-                }
-                html += '</div>';
-                container.innerHTML = html;
-            } else {
-                container.classList.add('hidden');
-                container.innerHTML = '';
-            }
-        }
-
-        window.switchTab = function(tabId) {
-            ['viewPicks', 'viewStandings', 'viewAllTime'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-                document.getElementById(id).classList.remove('flex');
+            arr.forEach((item, index) => {
+                let rankClass = "text-gray-400";
+                if (index === 0) rankClass = "text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.5)]";
+                if (index === arr.length - 1 && item.total > 0) rankClass = "text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]";
                 
-                const btn = document.getElementById('tab-' + id);
-                btn.classList.remove('text-white', 'tab-active', 'border-white/20');
-                btn.classList.add('bg-dkCard/50', 'text-gray-400', 'border-transparent');
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/[0.02] transition-colors";
+                tr.innerHTML = `
+                    <td class="p-4 border-b border-dkBorder text-center font-black ${rankClass}">${index + 1}</td>
+                    <td class="p-4 border-b border-dkBorder font-bold text-white">${item.name} ${index===0?'👑':index===arr.length-1&&item.total>0?'🤡':''}</td>
+                    ${isAllTime ? `<td class="p-4 border-b border-dkBorder text-center text-gray-400 text-sm font-mono">${item.total}</td>` : ''}
+                    <td class="p-4 border-b border-dkBorder text-center whitespace-nowrap"><span class="text-dkGreen font-bold">${item.wins}</span><span class="text-gray-500 mx-1">-</span><span class="text-red-500 font-bold">${item.losses}</span></td>
+                    <td class="p-4 border-b border-dkBorder text-right font-mono font-bold text-white">${item.rate.toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
             });
+        }
 
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById(tabId).classList.add('flex', 'flex-col');
+        function updateUltimateBozo(dataObj) {
+            const arr = Object.keys(dataObj).map(name => {
+                const d = dataObj[name];
+                const total = d.wins + d.losses;
+                return { name, total, rate: total > 0 ? (d.wins / total) * 100 : 0 };
+            }).filter(item => item.total > 10).sort((a, b) => a.rate - b.rate);
             
-            const activeBtn = document.getElementById('tab-' + tabId);
-            activeBtn.classList.remove('bg-dkCard/50', 'text-gray-400', 'border-transparent');
-            activeBtn.classList.add('text-white', 'tab-active', 'border-white/20');
+            if (arr.length > 0) {
+                document.getElementById('ultimateBozoName').innerText = arr[0].name;
+                document.getElementById('ultimateBozoRate').innerText = `${arr[0].rate.toFixed(1)}% Hit Rate`;
+            }
         }
 
         window.toggleSettings = function() {
             const modal = document.getElementById('settingsModal');
             const content = document.getElementById('settingsContent');
-            
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('scale-95', 'opacity-0');
-                    content.classList.add('scale-100', 'opacity-100');
-                }, 10);
+                setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
             } else {
                 content.classList.remove('scale-100', 'opacity-100');
                 content.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 200);
+                setTimeout(() => modal.classList.add('hidden'), 200);
             }
-        }
+        };
 
         window.unlockAdmin = function() {
             const pin = document.getElementById('adminPinInput').value;
-            if (pin === "2026") { 
+            if (pin === "2026") {
                 document.getElementById('adminUnlockUI').classList.add('hidden');
                 document.getElementById('adminControlsUI').classList.remove('hidden');
                 document.getElementById('adminControlsUI').classList.add('flex');
-                window.showToast("Admin access granted.", "success");
-                document.getElementById('adminPinInput').value = ''; 
             } else {
-                window.showToast("Incorrect PIN.", "error");
+                window.showToast("Incorrect PIN", "error");
                 document.getElementById('adminPinInput').value = '';
             }
-        }
+        };
 
         window.updateSettings = function() {
             appState.isClockEnabled = document.getElementById('clockToggle').checked;
             appState.isAdminMode = document.getElementById('adminToggle').checked;
-            
-            document.getElementById('cutoffClockContainer').style.display = appState.isClockEnabled ? 'flex' : 'none';
-            
-            const extAdmin = document.getElementById('extendedAdminControls');
-            if (extAdmin) {
-                if (appState.isAdminMode) extAdmin.classList.remove('hidden', 'flex-col');
-                else extAdmin.classList.add('hidden');
-                if(appState.isAdminMode) extAdmin.classList.add('flex', 'flex-col');
+            const extended = document.getElementById('extendedAdminControls');
+            if (appState.isAdminMode) {
+                extended.classList.remove('hidden');
+                extended.classList.add('flex');
+            } else {
+                extended.classList.add('hidden');
+                extended.classList.remove('flex');
             }
-            
-            if (appState.isAdminMode) window.showToast("Admin Mode Enabled");
-            
-            calculateDynamicCutoff(); 
-            renderPicks();
-        }
+            toggleAdminUI();
+            calculateDynamicCutoff();
+        };
 
         window.updateAdminSettings = async function() {
-            if (!appState.userId) return;
-            const br = document.getElementById('bankrollSetting').value;
-            const ct = document.getElementById('cutoffSetting').value;
-            if (appState.db) {
-                let configDoc;
-                if (appId) {
-                    configDoc = window.firebaseModules.doc(appState.db, "artifacts", appId, "public", "data", "settings", "global");
-                } else {
-                    configDoc = window.firebaseModules.doc(appState.db, "settings", "global");
-                }
-                
-                await window.firebaseModules.setDoc(configDoc, {
-                    bankroll: br,
-                    cutoffTime: ct
-                }, { merge: true });
-                window.showToast("Admin settings saved.", "success");
-            }
-        }
-
-        window.toggleKioskMode = function() {
-            window.toggleSettings();
-            document.getElementById('mainNav').classList.toggle('hidden');
-            document.getElementById('submitFormWidget').classList.toggle('hidden');
-            document.getElementById('bozoVoteWidget').classList.toggle('hidden');
-            document.getElementById('payoutWidget').classList.toggle('hidden');
-            const bb = document.getElementById('bozoBanner');
-            if (bb) bb.classList.toggle('hidden');
+            if(!appState.db) return;
+            const bankroll = document.getElementById('bankrollSetting').value;
+            const cutoff = document.getElementById('cutoffSetting').value;
             
-            const tabs = document.getElementById('tabContainer');
-            if(tabs) tabs.classList.toggle('hidden');
-
-            const container = document.querySelector('main > div.grid');
-            if (container) {
-                container.classList.toggle('lg:grid-cols-3');
-                container.classList.toggle('lg:grid-cols-1');
-            }
-            window.showToast("Kiosk Mode Toggled. Refresh to exit.");
-        }
-
-        function calculateDynamicCutoff() {
-            clearInterval(countdownInterval);
-            
-            if (!appState.isClockEnabled) {
-                unlockForm();
-                document.getElementById('countdownDisplay').innerText = "DISABLED";
-                document.getElementById('countdownDisplay').classList.remove('text-red-500');
-                return;
-            }
-
-            let targetTime;
-            
-            if (appState.customCutoff) {
-                targetTime = new Date(appState.customCutoff).getTime();
-            } else {
-                const now = new Date();
-                let nextSaturday = new Date();
-                let daysUntilSaturday = (6 - now.getDay() + 7) % 7;
-                
-                if (daysUntilSaturday === 0 && now.getHours() >= 12) {
-                    daysUntilSaturday = 7;
-                }
-                nextSaturday.setDate(now.getDate() + daysUntilSaturday);
-                nextSaturday.setHours(12, 0, 0, 0); 
-                
-                targetTime = nextSaturday.getTime();
-            }
-
-            countdownInterval = setInterval(() => {
-                const distance = targetTime - new Date().getTime();
-                if (distance < 0) {
-                    clearInterval(countdownInterval);
-                    document.getElementById('countdownDisplay').innerText = "LOCKED";
-                    document.getElementById('countdownDisplay').classList.add('text-red-500');
-                    lockForm();
-                    return;
-                }
-                const h = Math.floor(distance / (1000 * 60 * 60));
-                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((distance % (1000 * 60)) / 1000);
-                
-                document.getElementById('countdownDisplay').innerText = 
-                    (h > 0 ? h + "h " : "0h ") + 
-                    (m < 10 ? "0" : "") + m + "m " + 
-                    (s < 10 ? "0" : "") + s + "s";
-                
-                unlockForm();
-            }, 1000);
-        }
-
-        function lockForm() {
-            appState.isLocked = true;
-            document.getElementById('formOverlay').classList.remove('hidden');
-            renderPicks(); 
-        }
-
-        function unlockForm() {
-            appState.isLocked = false;
-            document.getElementById('formOverlay').classList.add('hidden');
-            renderPicks(); 
-        }
-
-        document.getElementById('pickForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (appState.isLocked) return;
-
-            const name = document.getElementById('nameInput').value;
-            const parlayType = appState.activeParlay; // Dynamically grabbed from currently selected tab
-            const pick = document.getElementById('pickInput').value;
-            const odds = document.getElementById('oddsInput').value;
-
-            if(!name || !pick || !odds) {
-                window.showToast("Please fill all fields.", "error");
-                return;
-            }
-            
-            const existingPick = appState.picks.find(p => {
-                const pType = p.parlayType || 'main';
-                return p.name === name && p.week === appState.currentWeek && pType === parlayType;
-            });
-            
-            if(existingPick) {
-                const label = parlayType === 'main' ? 'Main Parlay' : 'Side Parlay';
-                window.showToast(`${name} has already submitted a pick for the Week ${appState.currentWeek} ${label}.`, "error");
-                return;
-            }
-
-            const newPick = {
-                name,
-                parlayType,
-                pick,
-                odds: parseInt(odds, 10),
-                week: appState.currentWeek,
-                status: 'pending',
-                timestamp: window.firebaseModules.serverTimestamp ? window.firebaseModules.serverTimestamp() : new Date()
-            };
-
-            const btn = document.getElementById('submitBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="ph-fill ph-spinner bozo-spin text-xl"></i>';
-
             try {
-                if (appState.db && appState.userId) {
-                    const picksPath = getCollectionPath("picks");
-                    await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, picksPath), newPick);
-                } else {
-                    newPick.id = Date.now().toString();
-                    appState.picks.push(newPick);
-                    renderPicks();
-                    updateStandings();
-                    calculateDynamicCutoff();
-                }
-                
-                document.getElementById('pickInput').value = '';
-                document.getElementById('oddsInput').value = '';
-                
-                window.showToast("Pick locked in successfully!");
-            } catch (error) {
-                window.showToast("Failed to lock in pick.", "error");
-            } finally {
-                btn.innerHTML = originalText;
+                const { setDoc, doc } = window.firebaseModules;
+                const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
+                await setDoc(path, { bankroll: bankroll || null, cutoffTime: cutoff || null }, { merge: true });
+                window.showToast("Admin Settings Saved!", "success");
+            } catch(e) {
+                console.error(e);
+                window.showToast("Failed to save settings.", "error");
             }
-        });
+        };
 
-        document.getElementById('voteForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const bozoName = document.getElementById('voteSelect').value;
-            if(!bozoName) return;
-
-            let voteWeek = appState.currentWeek;
-            const dayOfWeek = new Date().getDay();
-            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) {
-                voteWeek = appState.currentWeek - 1;
-            }
-
-            const newVote = {
-                bozoName,
-                week: voteWeek,
-                timestamp: window.firebaseModules.serverTimestamp ? window.firebaseModules.serverTimestamp() : new Date()
-            };
-
-            try {
-                if (appState.db && appState.userId) {
-                    const votesPath = getCollectionPath("votes");
-                    await window.firebaseModules.addDoc(window.firebaseModules.collection(appState.db, votesPath), newVote);
-                } else {
-                    newVote.id = Date.now().toString();
-                    appState.votes.push(newVote);
-                    renderVotes();
-                }
-                document.getElementById('voteSelect').value = '';
-                window.showToast(`Voted for ${bozoName} as Bozo!`);
-            } catch (error) {
-                window.showToast("Failed to cast vote.", "error");
-            }
-        });
+        function toggleAdminUI() {
+            const els = document.querySelectorAll('.admin-only');
+            els.forEach(el => appState.isAdminMode ? el.classList.remove('hidden') : el.classList.add('hidden'));
+        }
 
         window.deletePick = async function(id) {
-            if (!confirm("Remove this pick?")) return;
+            if(!appState.db) return;
             try {
-                if (appState.db && appState.userId) {
-                    const picksPath = getCollectionPath("picks");
-                    await window.firebaseModules.deleteDoc(window.firebaseModules.doc(appState.db, picksPath, id));
-                } else {
-                    appState.picks = appState.picks.filter(p => p.id !== id);
-                    renderPicks();
-                    updateStandings();
-                    calculateDynamicCutoff();
-                }
-                window.showToast("Pick removed.");
-            } catch (error) {
-                 window.showToast("Failed to remove pick.", "error");
-            }
-        }
+                const { doc, deleteDoc } = window.firebaseModules;
+                await deleteDoc(doc(appState.db, getCollectionPath("picks"), id));
+                window.showToast("Pick deleted.", "success");
+            } catch(e) { console.error(e); }
+        };
 
         window.updatePickStatus = async function(id, status) {
+            if(!appState.db) return;
             try {
-                if (appState.db && appState.userId) {
-                    const picksPath = getCollectionPath("picks");
-                    const docRef = window.firebaseModules.doc(appState.db, picksPath, id);
-                    await window.firebaseModules.updateDoc(docRef, { status: status });
-                } else {
-                     const pick = appState.picks.find(p => p.id === id);
-                     if(pick) pick.status = status;
-                     renderPicks();
-                     updateStandings();
-                }
-                window.showToast(`Pick marked as ${status.toUpperCase()}.`);
-            } catch (error) {
-                 window.showToast("Failed to update status.", "error");
-            }
-        }
+                const { doc, updateDoc } = window.firebaseModules;
+                await updateDoc(doc(appState.db, getCollectionPath("picks"), id), { status: status });
+                window.showToast("Status updated.", "success");
+            } catch(e) { console.error(e); }
+        };
 
-        window.showToast = function(message, type = 'success') {
+        window.toggleKioskMode = function() {
+            document.getElementById('mainNav').classList.toggle('hidden');
+            document.getElementById('submitFormWidget').classList.toggle('hidden');
+            window.toggleSettings();
+            window.showToast("Kiosk Mode Toggled. Refresh to exit.", "success");
+        };
+
+        window.showToast = function(msg, type="success") {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            
-            const bgColor = type === 'error' ? 'bg-red-950 border-red-500' : 'bg-[#1a1a1a] border-dkGreen/50';
-            const icon = type === 'error' ? '<i class="ph-fill ph-warning-circle text-red-500 mr-3 text-xl"></i>' : '<i class="ph-fill ph-check-circle text-dkGreen mr-3 text-xl drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]"></i>';
-
-            toast.className = `flex items-center px-4 py-3 rounded-xl border shadow-[0_10px_40px_rgba(0,0,0,0.8)] ${bgColor} text-white text-sm font-bold toast-animate backdrop-blur-xl`;
-            toast.innerHTML = `${icon} ${message}`;
-            
+            toast.className = `toast-animate p-4 rounded-xl shadow-[0_0_30px_rgba(0,0,0,0.8)] text-white font-bold text-sm flex items-center justify-between border ${type === 'success' ? 'bg-dkDark border-dkGreen text-dkGreen' : 'bg-red-950 border-red-500 text-red-500'}`;
+            toast.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()" class="ml-4 opacity-70 hover:opacity-100"><i class="ph-fill ph-x"></i></button>`;
             container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(100%)';
-                toast.style.transition = 'all 0.3s ease-in';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        window.onload = function() {
-            calculateCurrentWeek();
-            calculateDynamicCutoff();
-            updateStandings();
-            
-            setTimeout(() => {
-                if (window.firebaseModules && window.firebaseModules.initializeApp) {
-                    initFirebase();
-                } else {
-                    mockFirebaseData();
-                }
-            }, 500);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 3000);
         };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            calculateCurrentWeek();
+            initFirebase();
+            document.getElementById('nameInput').addEventListener('change', function() {
+                const val = this.value;
+                if (val) this.classList.add('text-dkGreen', 'font-bold');
+                else this.classList.remove('text-dkGreen', 'font-bold');
+            });
+        });
+
     </script>
 </body>
 </html>
