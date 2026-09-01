@@ -75,7 +75,7 @@
                 <div class="flex items-center space-x-3 ml-2 pl-3 border-l border-dkBorder">
                     <!-- Native HTML Venmo Link with official SVG (No target="_blank" to prevent mobile crashes) -->
                     <a href="https://venmo.com/" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Venmo Group">
-                        <svg viewBox="0 0 24 24" class="h-3 w-3 mr-1" fill="currentColor">
+                        <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 mr-1" fill="currentColor">
                             <path d="M12.924 2.516c-1.059-.219-2.502-.284-4.104-.284-3.985 0-6.621 2.3-6.621 6.38 0 4.408 3.22 9.664 5.83 14.73l4.316-.001c-1.558-5.184-2.298-9.288-2.298-11.458 0-1.784.852-2.529 2.378-2.529 1.94 0 3.153 1.523 4.116 4.786l3.965-1.127C19.986 8.608 17.272 2.898 12.924 2.516z"/>
                         </svg>
                         Venmo
@@ -120,7 +120,6 @@
                             <span class="text-xs font-bold text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/5"><span id="pickCount" class="text-white">0</span> Submitted</span>
                         </div>
                         
-                        <!-- Fixed overflow-hidden to prevent horizontal scroll on long text -->
                         <div class="overflow-hidden w-full flex-grow">
                             <table class="w-full text-left border-collapse table-fixed">
                                 <thead>
@@ -302,7 +301,7 @@
                     </h3>
                     <p class="text-[11px] text-gray-400 mb-4 leading-relaxed font-medium">
                         Cast your vote for the worst pick of the week. Limit one vote per person.
-                        <span class="text-red-400 font-bold block mt-1">Voting closes Monday at 11:59 PM EST.</span>
+                        <span class="text-red-400 font-bold block mt-1">Voting for the current week closes Monday at 11:59 PM EST.</span>
                     </p>
                     
                     <div id="voteResults" class="space-y-3 hidden mb-4 bg-black/30 p-3 rounded-xl border border-dkBorder"></div>
@@ -648,19 +647,23 @@
         }
 
         function calculateCurrentWeek() {
-            const seasonStart = new Date('2026-09-08T00:00:00').getTime(); 
+            // Define Season Start: Tuesday, Sept 8, 2026 exactly at 00:00 EDT
+            const seasonStart = new Date('2026-09-08T00:00:00-04:00').getTime(); 
             const now = new Date().getTime();
+            
             if (now > seasonStart) {
-                const diffTime = (now - (3 * 24 * 60 * 60 * 1000)) - seasonStart;
+                // Calculate weeks passed strictly based on 7-day increments from Tuesday 00:00
+                const diffTime = now - seasonStart;
                 appState.currentWeek = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7)) + 1; 
             } else {
                 appState.currentWeek = 1;
             }
-            document.getElementById('currentWeekBannerText').innerText = appState.currentWeek;
-            const dayOfWeek = new Date().getDay();
-            let voteWeek = appState.currentWeek;
-            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
-            document.getElementById('bozoVoteTitle').innerText = `Week ${voteWeek} Bozo`;
+            
+            const weekBanner = document.getElementById('currentWeekBannerText');
+            if (weekBanner) weekBanner.innerText = appState.currentWeek;
+            
+            const bozoTitle = document.getElementById('bozoVoteTitle');
+            if (bozoTitle) bozoTitle.innerText = `Week ${appState.currentWeek} Bozo`;
         }
 
         window.calculateOdds = function() {
@@ -693,10 +696,14 @@
         };
 
         function updatePayoutDisplay(parlayOdds) {
-            if (parlayOdds === 0) { document.getElementById('totalPayout').innerText = "0.00"; return; }
+            if (parlayOdds === 0) { 
+                document.getElementById('totalPayout').innerText = "0.00"; 
+                return; 
+            }
             let dec = parlayOdds > 0 ? (parlayOdds / 100) + 1 : (100 / Math.abs(parlayOdds)) + 1;
             const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0;
-            document.getElementById('totalPayout').innerText = ((wagerAmount * dec) - wagerAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const totalToWin = (wagerAmount * dec) - wagerAmount;
+            document.getElementById('totalPayout').innerText = totalToWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         document.getElementById('totalOddsDisplay').addEventListener('input', (e) => {
@@ -847,17 +854,9 @@
             e.preventDefault();
             if (!appState.db || !appState.userId) { window.showToast("Database not initialized", "error"); return; }
             
-            const dayOfWeek = new Date().getDay();
-            let voteWeek = appState.currentWeek;
-            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
-
-            const isPastDeadline = dayOfWeek >= 2 && dayOfWeek <= 6;
+            const voteWeek = appState.currentWeek;
             const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
             
-            if (isPastDeadline) {
-                window.showToast("Voting has closed for this week!", "error");
-                return;
-            }
             if (currentWeekVotes.length >= 10) {
                 window.showToast("All votes have already been cast!", "error");
                 return;
@@ -885,10 +884,7 @@
         });
 
         function renderVotes() {
-            const dayOfWeek = new Date().getDay();
-            let voteWeek = appState.currentWeek;
-            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
-
+            const voteWeek = appState.currentWeek;
             const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
             const resultsContainer = document.getElementById('voteResults');
             
@@ -925,15 +921,11 @@
         }
 
         window.updateVotingUI = function() {
-            const dayOfWeek = new Date().getDay();
-            let voteWeek = appState.currentWeek;
-            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
-
+            const voteWeek = appState.currentWeek;
             const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
             const totalVotes = currentWeekVotes.length;
             
-            const isPastDeadline = dayOfWeek >= 2 && dayOfWeek <= 6;
-            const isLocked = isPastDeadline || totalVotes >= 10;
+            const isLocked = totalVotes >= 10;
             
             const voteSelect = document.getElementById('voteSelect');
             const submitBtn = document.querySelector('#voteForm button[type="submit"]');
@@ -946,8 +938,6 @@
                 
                 if (userVoted) {
                     submitBtn.innerHTML = `<span>Vote Locked In</span><i class="ph-fill ph-check-circle ml-2"></i>`;
-                } else if (isPastDeadline) {
-                    submitBtn.innerHTML = `<span>Voting Closed</span><i class="ph-fill ph-lock ml-2"></i>`;
                 } else if (totalVotes >= 10) {
                     submitBtn.innerHTML = `<span>All Votes In</span><i class="ph-fill ph-lock ml-2"></i>`;
                 }
@@ -1090,10 +1080,7 @@
         window.clearCurrentWeekVotes = async function() {
             if(!appState.db) return;
             
-            const dayOfWeek = new Date().getDay();
-            let voteWeek = appState.currentWeek;
-            if (dayOfWeek >= 1 && dayOfWeek <= 3 && appState.currentWeek > 1) voteWeek = appState.currentWeek - 1;
-
+            const voteWeek = appState.currentWeek;
             const votesToDelete = appState.votes.filter(v => v.week === voteWeek);
             
             if(votesToDelete.length === 0) {
