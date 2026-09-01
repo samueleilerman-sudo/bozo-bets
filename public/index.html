@@ -776,7 +776,7 @@
                     ${pick.bet}
                 </td>
                 <td class="p-3 font-mono font-bold text-dkGreen text-right text-xs sm:text-sm">
-                    ${pick.odds > 0 ? '+'+pick.odds : pick.odds}
+                    ${String(pick.odds).startsWith('+') || String(pick.odds).startsWith('-') ? pick.odds : (pick.odds > 0 ? '+' + pick.odds : pick.odds)}
                 </td>
                 <td class="p-3 text-center admin-only hidden">
                     <button onclick="window.deletePick('${pick.id}')" class="text-red-500/50 hover:text-red-500 p-1.5 rounded bg-red-500/5 hover:bg-red-500/10 transition-all" title="Delete Pick">
