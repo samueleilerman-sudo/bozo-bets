@@ -122,7 +122,7 @@
 
                         <div class="flex border-b border-dkBorder bg-black/40">
                             <button onclick="window.switchParlayTab('main')" id="tab-parlay-main" class="flex-1 py-3 text-sm font-bold text-dkGreen border-b-2 border-dkGreen bg-white/[0.02] transition-all">Main Parlay</button>
-                            <button onclick="window.switchParlayTab('side')" id="tab-parlay-side" class="flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all">Side Parlay (Backup)</button>
+                            <button onclick="window.switchParlayTab('side')" id="tab-parlay-side" class="flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all">Side Parlay</button>
                         </div>
 
                         <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-white/[0.01]">
@@ -283,7 +283,10 @@
                     </div>
 
                     <h3 class="text-white font-black tracking-tight mb-5 flex items-center text-lg justify-between">
-                        <span class="flex items-center"><i class="ph-fill ph-ticket text-dkGreen mr-2"></i> Submit Pick</span>
+                        <span class="flex items-center">
+                            <i class="ph-fill ph-ticket text-dkGreen mr-2"></i> Submit Pick 
+                            <span id="submitPickLabel" class="ml-2 text-[10px] font-bold text-dkGreen bg-dkGreen/10 px-2 py-0.5 rounded border border-dkGreen/20 uppercase tracking-wider">Main</span>
+                        </span>
                         
                         <a href="https://sportsbook.draftkings.com/" target="_blank" class="group text-[12px] text-black font-black flex items-center bg-[#53d337] hover:bg-[#64e348] px-3 py-1.5 rounded-lg transition-all shadow-[0_0_15px_rgba(83,211,55,0.3)] hover:shadow-[0_0_20px_rgba(83,211,55,0.5)] font-dk tracking-wide leading-none">
                             <i class="ph-fill ph-crown mr-1.5 text-black text-sm"></i> DraftKings
@@ -298,29 +301,15 @@
                                 <option value="Sam">Sam</option><option value="Josh">Josh</option><option value="Zach">Zach</option><option value="Jide">Jide</option><option value="Rick">Rick</option><option value="Shane">Shane</option><option value="John">John</option><option value="Matt">Matt</option><option value="Ronnie">Ronnie</option><option value="Nate">Nate</option>
                             </select>
                         </div>
-
-                        <div>
-                            <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Which Parlay?</label>
-                            <select id="parlayTypeInput" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all appearance-none cursor-pointer shadow-inner">
-                                <option value="main" selected>Main Parlay</option>
-                                <option value="side">Side Parlay (Backup)</option>
-                            </select>
-                        </div>
                         
                         <div>
                             <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Bet</label>
                             <input type="text" id="pickInput" required placeholder="e.g., Derrick Henry Anytime TD" onfocus="this.placeholder=''" onblur="this.placeholder='e.g., Derrick Henry Anytime TD'" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all placeholder-gray-600 shadow-inner">
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Odds</label>
-                                <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600 shadow-inner">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Game Time</label>
-                                <input type="datetime-local" id="gameTimeInput" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all shadow-inner text-sm">
-                            </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Odds</label>
+                            <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600 shadow-inner">
                         </div>
 
                         <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-dkGreen to-green-500 hover:from-green-400 hover:to-green-400 text-black font-black py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)] uppercase tracking-widest text-sm flex items-center justify-center group mt-2">
@@ -442,7 +431,7 @@
                                     <input type="datetime-local" id="cutoffSetting" class="bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500 text-sm w-full">
                                     <button onclick="window.updateAdminSettings()" class="bg-dkDark border border-dkBorder hover:bg-dkBorder text-white px-4 rounded-lg transition-colors"><i class="ph-fill ph-floppy-disk text-lg"></i></button>
                                 </div>
-                                <p class="text-[10px] text-red-400/60 mt-2 font-medium">Leave cutoff blank to auto-lock at first kickoff (or Saturday 12PM).</p>
+                                <p class="text-[10px] text-red-400/60 mt-2 font-medium">Leave cutoff blank to auto-lock at Saturday 12PM Eastern.</p>
                             </div>
                         </div>
                     </div>
@@ -712,15 +701,24 @@
             const mainTab = document.getElementById('tab-parlay-main');
             const sideTab = document.getElementById('tab-parlay-side');
             const cardTitle = document.getElementById('parlayCardTitle');
+            const submitLabel = document.getElementById('submitPickLabel');
             
             if(type === 'main') {
                 mainTab.className = "flex-1 py-3 text-sm font-bold text-dkGreen border-b-2 border-dkGreen bg-white/[0.02] transition-all";
                 sideTab.className = "flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all";
                 cardTitle.innerText = "Main Group Selections";
+                if(submitLabel) {
+                    submitLabel.innerText = "Main";
+                    submitLabel.className = "ml-2 text-[10px] font-bold text-dkGreen bg-dkGreen/10 px-2 py-0.5 rounded border border-dkGreen/20 uppercase tracking-wider";
+                }
             } else {
                 sideTab.className = "flex-1 py-3 text-sm font-bold text-purple-400 border-b-2 border-purple-400 bg-white/[0.02] transition-all";
                 mainTab.className = "flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all";
-                cardTitle.innerText = "Side Parlay (Backup)";
+                cardTitle.innerText = "Side Parlay";
+                if(submitLabel) {
+                    submitLabel.innerText = "Side";
+                    submitLabel.className = "ml-2 text-[10px] font-bold text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded border border-purple-400/20 uppercase tracking-wider";
+                }
             }
             
             renderPicks(); 
@@ -1063,18 +1061,6 @@
             if (appState.customCutoff) {
                 targetTime = new Date(appState.customCutoff).getTime();
             } else {
-                let earliestGameTime = null;
-                const currentWeekPicks = appState.picks.filter(p => p.week === appState.currentWeek);
-                
-                currentWeekPicks.forEach(p => {
-                    if (p.gameTime) {
-                        const pTime = new Date(p.gameTime).getTime();
-                        if (!earliestGameTime || pTime < earliestGameTime) {
-                            earliestGameTime = pTime;
-                        }
-                    }
-                });
-
                 const now = new Date();
                 let nextSaturday = new Date();
                 let daysUntilSaturday = (6 - now.getDay() + 7) % 7;
@@ -1085,13 +1071,7 @@
                 nextSaturday.setDate(now.getDate() + daysUntilSaturday);
                 nextSaturday.setHours(12, 0, 0, 0); 
                 
-                const defaultTime = nextSaturday.getTime();
-
-                if (earliestGameTime && earliestGameTime < defaultTime) {
-                    targetTime = earliestGameTime;
-                } else {
-                    targetTime = defaultTime;
-                }
+                targetTime = nextSaturday.getTime();
             }
 
             countdownInterval = setInterval(() => {
@@ -1133,12 +1113,11 @@
             if (appState.isLocked) return;
 
             const name = document.getElementById('nameInput').value;
-            const parlayType = document.getElementById('parlayTypeInput').value;
+            const parlayType = appState.activeParlay; // Dynamically grabbed from currently selected tab
             const pick = document.getElementById('pickInput').value;
             const odds = document.getElementById('oddsInput').value;
-            const gameTime = document.getElementById('gameTimeInput').value;
 
-            if(!name || !pick || !odds || !gameTime) {
+            if(!name || !pick || !odds) {
                 window.showToast("Please fill all fields.", "error");
                 return;
             }
@@ -1159,7 +1138,6 @@
                 parlayType,
                 pick,
                 odds: parseInt(odds, 10),
-                gameTime,
                 week: appState.currentWeek,
                 status: 'pending',
                 timestamp: window.firebaseModules.serverTimestamp ? window.firebaseModules.serverTimestamp() : new Date()
@@ -1183,11 +1161,6 @@
                 
                 document.getElementById('pickInput').value = '';
                 document.getElementById('oddsInput').value = '';
-                document.getElementById('gameTimeInput').value = '';
-                
-                if (appState.activeParlay !== parlayType) {
-                    window.switchParlayTab(parlayType);
-                }
                 
                 window.showToast("Pick locked in successfully!");
             } catch (error) {
