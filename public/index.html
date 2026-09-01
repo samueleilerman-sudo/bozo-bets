@@ -455,7 +455,7 @@
         async function initFirebase() {
             try {
                 const myFirebaseConfig = {
-                    apiKey: "AIzaSyBp7bQzxzWwT3aKKwV1VKn1pmrN3Tolq6o",
+                    apiKey: "AIzaSyBp7bQZxzWwT3aKKwV1VKn1pmrN3Tolq6o",
                     authDomain: "bozo-bets.firebaseapp.com",
                     projectId: "bozo-bets",
                     storageBucket: "bozo-bets.firebasestorage.app",
@@ -471,24 +471,30 @@
                 }
 
                 const app = window.firebaseModules.initializeApp(firebaseConfig);
-                const auth = window.firebaseModules.getAuth(app);
-                appState.db = window.firebaseModules.getFirestore(app);
+            const auth = window.firebaseModules.getAuth(app);
+            appState.db = window.firebaseModules.getFirestore(app);
 
-                try {
-                    if (typeof __initial_auth_token !== 'undefined') {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    try {
                         const userCredential = await window.firebaseModules.signInWithCustomToken(auth, __initial_auth_token);
                         appState.userId = userCredential.user.uid;
-                    } else {
+                    } catch (tokenErr) {
+                        console.warn("Custom auth failed, falling back to anonymous", tokenErr);
                         const userCredential = await window.firebaseModules.signInAnonymously(auth);
                         appState.userId = userCredential.user.uid;
                     }
-                } catch(e) {
-                    console.error("Auth Exception:", e);
-                    window.showToast("Database Auth Failed!", "error");
-                    throw e; 
+                } else {
+                    const userCredential = await window.firebaseModules.signInAnonymously(auth);
+                    appState.userId = userCredential.user.uid;
                 }
+            } catch(e) {
+                console.error("Auth Exception:", e);
+                window.showToast("Database Auth Failed! Check Console.", "error");
+                throw e; 
+            }
 
-                if (appState.userId) setupRealtimeListeners();
+            if (appState.userId) setupRealtimeListeners();
             } catch (error) {
                 console.error("Firebase Error:", error);
                 mockFirebaseData();
