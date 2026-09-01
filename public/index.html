@@ -71,8 +71,8 @@
                 
                 <div class="flex items-center space-x-3 ml-2 pl-3 border-l border-dkBorder">
                     <!-- Venmo Button -->
-                    <a href="https://venmo.com/" target="_blank" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Buzzards Nest on Venmo">
-                        <i class="ph-bold ph-currency-dollar mr-1 text-sm"></i> Buzzards Nest
+                    <a href="https://venmo.com/" target="_blank" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Venmo">
+                        <i class="ph-bold ph-currency-dollar mr-1 text-sm"></i> Venmo
                     </a>
                     
                     <!-- Settings Button -->
@@ -291,7 +291,7 @@
 
                         <div>
                             <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Odds</label>
-                            <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600 shadow-inner">
+                            <input type="text" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600 shadow-inner">
                         </div>
 
                         <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-dkGreen to-green-500 hover:from-green-400 text-black font-black py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)] uppercase tracking-widest text-sm flex items-center justify-center group mt-2">
@@ -467,7 +467,6 @@
 
         async function initFirebase() {
             try {
-                // FIXED: Real API Key properly integrated
                 const myFirebaseConfig = {
                     apiKey: "AIzaSyBp7bQZxzWwT3aKKwV1VKn1pmrN3Tolq6o",
                     authDomain: "bozo-bets.firebaseapp.com",
@@ -670,7 +669,7 @@
         function updatePayoutDisplay(parlayOdds) {
             if (parlayOdds === 0) { document.getElementById('totalPayout').innerText = "0.00"; return; }
             let dec = parlayOdds > 0 ? (parlayOdds / 100) + 1 : (100 / Math.abs(parlayOdds)) + 1;
-            const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0; // FIXED: Default fallback is 0
+            const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0;
             document.getElementById('totalPayout').innerText = ((wagerAmount * dec) - wagerAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
@@ -735,11 +734,13 @@
 
             const name = document.getElementById('nameInput').value;
             const bet = document.getElementById('pickInput').value;
-            let odds = document.getElementById('oddsInput').value;
+            let odds = document.getElementById('oddsInput').value.trim();
             
-            // Clean up double signs if user accidentally types them
             odds = odds.replace(/\++/g, '+').replace(/\-+/g, '-');
-            if (!odds.startsWith('+') && !odds.startsWith('-')) odds = (parseFloat(odds) > 0 ? '+' : '') + odds;
+            if (!odds.startsWith('+') && !odds.startsWith('-')) {
+                let num = parseFloat(odds);
+                odds = (num > 0 ? '+' : '') + odds;
+            }
 
             const btn = document.getElementById('submitBtn');
             const ogText = btn.innerHTML;
@@ -783,7 +784,6 @@
             }
 
             currentWeekPicks.forEach(pick => {
-                // FIXED: Safety check to avoid double + signs
                 let displayOdds = pick.odds.toString();
                 if (!displayOdds.startsWith('+') && !displayOdds.startsWith('-')) {
                     let numOdds = parseFloat(displayOdds);
@@ -792,7 +792,6 @@
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-white/[0.02] transition-colors group";
-                // FIXED: Text wrapping styles and pick.bet reference applied
                 tr.innerHTML = `
                     <td class="p-3 align-top sm:align-middle border-b border-dkBorder/30">
                         <div class="flex items-center space-x-2 pt-0.5 sm:pt-0">
