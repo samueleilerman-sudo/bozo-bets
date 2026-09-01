@@ -47,7 +47,6 @@
         @keyframes bozoSpin { 100% { transform: rotate(360deg); } }
         .toast-animate { animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        /* Add specific class for the table cell wrap */
         .break-word-cell { word-break: break-word; overflow-wrap: break-word; }
     </style>
 </head>
@@ -68,7 +67,7 @@
                     <span class="text-lg font-mono font-black text-white drop-shadow-md" id="groupBankrollDisplay">TBD</span>
                 </div>
                 
-                <div class="ml-3 pl-3 border-l border-dkBorder">
+                <div class="ml-3 pl-3 border-l border-dkBorder flex items-center">
                     <button onclick="window.toggleSettings()" class="flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-white h-9 w-9 rounded-lg transition-all" title="Dashboard Settings">
                         <i class="ph-fill ph-gear text-lg"></i>
                     </button>
@@ -89,7 +88,6 @@
             <div class="lg:col-span-2 space-y-6">
                 
                 <div id="viewPicks" class="flex flex-col space-y-6 h-full min-h-[400px]">
-                    
                     <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex flex-col">
                         <div class="bg-gradient-to-r from-dkDark to-dkCard border-b border-dkBorder p-4 flex items-center justify-center relative overflow-hidden">
                             <div class="absolute inset-0 bg-dkGreen/5 pointer-events-none"></div>
@@ -179,7 +177,6 @@
                 </div>
 
                 <div id="viewAllTime" class="space-y-6 hidden h-full">
-                    
                     <div id="bozoBanner" class="bg-gradient-to-br from-[#2a0808] to-dkDark border border-red-900/50 rounded-2xl p-6 relative overflow-hidden shadow-2xl transition-all duration-300">
                         <div class="absolute -right-6 -bottom-10 opacity-5 pointer-events-none">
                             <i class="ph-fill ph-mask-sad text-[180px] text-red-500"></i>
@@ -262,7 +259,7 @@
                     <h3 class="text-white font-black tracking-tight mb-5 flex items-center text-lg justify-between">
                         <span class="flex items-center">
                             <i class="ph-fill ph-ticket text-dkGreen mr-2" id="submitPickIcon"></i> Submit Pick 
-                            <span id="submitPickLabel" class="ml-2 text-[10px] font-bold text-dkGreen bg-dkGreen/10 px-2 py-0.5 rounded border border-dkGreen/20 uppercase tracking-wider">Main</span>
+                            <span id="submitPickLabel" class="ml-2 text-[10px] font-bold text-dkGreen bg-dkGreen/10 px-2 py-0.5 rounded border border-dkGreen/20 uppercase tracking-wider transition-colors">Main</span>
                         </span>
                         
                         <a href="https://sportsbook.draftkings.com/" target="_blank" class="group text-[12px] text-black font-black flex items-center bg-[#53d337] hover:bg-[#64e348] px-3 py-1.5 rounded-lg transition-all shadow-[0_0_15px_rgba(83,211,55,0.3)] hover:shadow-[0_0_20px_rgba(83,211,55,0.5)] font-dk tracking-wide leading-none">
@@ -289,7 +286,7 @@
                             <input type="number" id="oddsInput" required placeholder="-110 or +150" class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-dkGreen focus:ring-1 focus:ring-dkGreen transition-all font-mono placeholder-gray-600 shadow-inner">
                         </div>
 
-                        <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-dkGreen to-green-500 hover:from-green-400 hover:to-green-400 text-black font-black py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)] uppercase tracking-widest text-sm flex items-center justify-center group mt-2">
+                        <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-dkGreen to-green-500 hover:from-green-400 text-black font-black py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)] uppercase tracking-widest text-sm flex items-center justify-center group mt-2">
                             <span>Lock It In</span>
                             <i class="ph-fill ph-check-circle ml-2 group-hover:scale-110 transition-transform"></i>
                         </button>
@@ -304,7 +301,7 @@
                     
                     <div class="bg-black/40 rounded-xl p-4 border border-dkBorder shadow-inner">
                         <div class="flex justify-between items-center mb-3">
-                            <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Group Wager</span>
+                            <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Weekly Wager</span>
                             <span class="font-mono text-white font-bold bg-white/5 px-2 py-1 rounded w-full max-w-[100px] text-right truncate flex items-center justify-end border border-white/5" id="payoutWagerDisplay">TBD</span>
                         </div>
                         <div class="h-px w-full bg-dkBorder mb-3"></div>
@@ -402,6 +399,13 @@
                                 </div>
                             </div>
                             <div>
+                                <label class="block text-[10px] text-red-400 uppercase tracking-wider mb-1.5 font-bold">Weekly Wager Override ($)</label>
+                                <div class="flex space-x-2">
+                                    <input type="number" id="wagerSetting" placeholder="e.g. 10" class="bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500 text-sm w-full font-mono">
+                                    <button onclick="window.updateAdminSettings()" class="bg-dkDark border border-dkBorder hover:bg-dkBorder text-white px-4 rounded-lg transition-colors"><i class="ph-fill ph-floppy-disk text-lg"></i></button>
+                                </div>
+                            </div>
+                            <div>
                                 <label class="block text-[10px] text-red-400 uppercase tracking-wider mb-1.5 font-bold">Custom Cutoff Override</label>
                                 <div class="flex space-x-2">
                                     <input type="datetime-local" id="cutoffSetting" class="bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500 text-sm w-full">
@@ -431,6 +435,7 @@
             db: null,
             hasManualOdds: false,
             bankroll: null,
+            wager: null,
             customCutoff: null,
             activeParlay: 'main'
         };
@@ -471,30 +476,30 @@
                 }
 
                 const app = window.firebaseModules.initializeApp(firebaseConfig);
-            const auth = window.firebaseModules.getAuth(app);
-            appState.db = window.firebaseModules.getFirestore(app);
+                const auth = window.firebaseModules.getAuth(app);
+                appState.db = window.firebaseModules.getFirestore(app);
 
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    try {
-                        const userCredential = await window.firebaseModules.signInWithCustomToken(auth, __initial_auth_token);
-                        appState.userId = userCredential.user.uid;
-                    } catch (tokenErr) {
-                        console.warn("Custom auth failed, falling back to anonymous", tokenErr);
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        try {
+                            const userCredential = await window.firebaseModules.signInWithCustomToken(auth, __initial_auth_token);
+                            appState.userId = userCredential.user.uid;
+                        } catch (tokenErr) {
+                            console.warn("Custom auth failed, falling back to anonymous", tokenErr);
+                            const userCredential = await window.firebaseModules.signInAnonymously(auth);
+                            appState.userId = userCredential.user.uid;
+                        }
+                    } else {
                         const userCredential = await window.firebaseModules.signInAnonymously(auth);
                         appState.userId = userCredential.user.uid;
                     }
-                } else {
-                    const userCredential = await window.firebaseModules.signInAnonymously(auth);
-                    appState.userId = userCredential.user.uid;
+                } catch(e) {
+                    console.error("Auth Exception:", e);
+                    window.showToast("Database Auth Failed! Check Console.", "error");
+                    return; // Fail gracefully
                 }
-            } catch(e) {
-                console.error("Auth Exception:", e);
-                window.showToast("Database Auth Failed! Check Console.", "error");
-                throw e; 
-            }
 
-            if (appState.userId) setupRealtimeListeners();
+                if (appState.userId) setupRealtimeListeners();
             } catch (error) {
                 console.error("Firebase Error:", error);
                 mockFirebaseData();
@@ -538,8 +543,13 @@
                         appState.bankroll = data.bankroll;
                         const displayStr = data.bankroll ? `$${parseFloat(data.bankroll).toFixed(2)}` : 'TBD';
                         document.getElementById('groupBankrollDisplay').innerText = displayStr;
-                        document.getElementById('payoutWagerDisplay').innerText = displayStr;
                         if (document.activeElement !== document.getElementById('bankrollSetting')) document.getElementById('bankrollSetting').value = data.bankroll || '';
+                    }
+                    if (data.wager !== undefined) {
+                        appState.wager = data.wager;
+                        const wagerStr = data.wager ? `$${parseFloat(data.wager).toFixed(2)}` : 'TBD';
+                        document.getElementById('payoutWagerDisplay').innerText = wagerStr;
+                        if (document.activeElement !== document.getElementById('wagerSetting')) document.getElementById('wagerSetting').value = data.wager || '';
                         window.calculateOdds(); 
                     }
                     if (data.cutoffTime !== undefined) {
@@ -651,8 +661,8 @@
         function updatePayoutDisplay(parlayOdds) {
             if (parlayOdds === 0) { document.getElementById('totalPayout').innerText = "0.00"; return; }
             let dec = parlayOdds > 0 ? (parlayOdds / 100) + 1 : (100 / Math.abs(parlayOdds)) + 1;
-            const wager = appState.bankroll || 100;
-            document.getElementById('totalPayout').innerText = ((wager * dec) - wager).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0;
+            document.getElementById('totalPayout').innerText = ((wagerAmount * dec) - wagerAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         document.getElementById('totalOddsDisplay').addEventListener('input', (e) => {
@@ -717,7 +727,10 @@
             const name = document.getElementById('nameInput').value;
             const bet = document.getElementById('pickInput').value;
             let odds = document.getElementById('oddsInput').value;
-            if (!odds.startsWith('+') && !odds.startsWith('-')) odds = (odds > 0 ? '+' : '') + odds;
+            
+            // Clean up double signs if user accidentally types them
+            odds = odds.replace(/\++/g, '+').replace(/\-+/g, '-');
+            if (!odds.startsWith('+') && !odds.startsWith('-')) odds = (parseFloat(odds) > 0 ? '+' : '') + odds;
 
             const btn = document.getElementById('submitBtn');
             const ogText = btn.innerHTML;
@@ -746,46 +759,50 @@
         });
 
         function renderPicks() {
-        const tbody = document.getElementById('picksTableBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        
-        const currentWeekPicks = appState.picks.filter(p => {
-            const pType = p.parlayType || 'main';
-            return p.week === appState.currentWeek && pType === appState.activeParlay;
-        });
+            const tbody = document.getElementById('picksTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            
+            const currentWeekPicks = appState.picks.filter(p => {
+                const pType = p.parlayType || 'main';
+                return p.week === appState.currentWeek && pType === appState.activeParlay;
+            });
 
-        if (currentWeekPicks.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 text-sm font-bold bg-white/[0.01]">No picks logged for this parlay yet.</td></tr>`;
-            return;
-        }
+            if (currentWeekPicks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 text-sm font-bold bg-white/[0.01]">No picks logged for this parlay yet.</td></tr>`;
+                return;
+            }
 
-        currentWeekPicks.forEach(pick => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-white/[0.02] transition-colors group";
-            tr.innerHTML = `
-                <td class="p-3">
-                    <div class="flex items-center space-x-2">
-                        <div class="h-6 w-6 rounded bg-dkDark flex items-center justify-center text-[10px] font-bold border border-dkBorder text-gray-400 group-hover:text-white group-hover:border-white/20 transition-all shrink-0">
-                            ${pick.name.charAt(0)}
+            currentWeekPicks.forEach(pick => {
+                // Ensure correct plus/minus formatting for display
+                let numOdds = parseFloat(pick.odds);
+                let displayOdds = isNaN(numOdds) ? pick.odds : (numOdds > 0 ? `+${numOdds}` : `${numOdds}`);
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/[0.02] transition-colors group";
+                tr.innerHTML = `
+                    <td class="p-3 align-top sm:align-middle">
+                        <div class="flex items-center space-x-2 pt-0.5 sm:pt-0">
+                            <div class="h-6 w-6 rounded bg-dkDark flex items-center justify-center text-[10px] font-bold border border-dkBorder text-gray-400 group-hover:text-white group-hover:border-white/20 transition-all shrink-0">
+                                ${pick.name.charAt(0)}
+                            </div>
+                            <span class="font-bold text-white text-xs sm:text-sm truncate">${pick.name}</span>
                         </div>
-                        <span class="font-bold text-white text-xs sm:text-sm truncate">${pick.name}</span>
-                    </div>
-                </td>
-                <td class="p-3 font-medium text-gray-300 text-xs sm:text-sm break-words whitespace-normal">
-                    ${pick.bet}
-                </td>
-                <td class="p-3 font-mono font-bold text-dkGreen text-right text-xs sm:text-sm">
-                    ${String(pick.odds).startsWith('+') || String(pick.odds).startsWith('-') ? pick.odds : (pick.odds > 0 ? '+' + pick.odds : pick.odds)}
-                </td>
-                <td class="p-3 text-center admin-only hidden">
-                    <button onclick="window.deletePick('${pick.id}')" class="text-red-500/50 hover:text-red-500 p-1.5 rounded bg-red-500/5 hover:bg-red-500/10 transition-all" title="Delete Pick">
-                        <i class="ph-bold ph-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+                    </td>
+                    <td class="p-3 font-medium text-gray-300 text-xs sm:text-sm break-words whitespace-normal leading-snug">
+                        ${pick.bet}
+                    </td>
+                    <td class="p-3 font-mono font-bold text-dkGreen text-right text-xs sm:text-sm align-top sm:align-middle">
+                        ${displayOdds}
+                    </td>
+                    <td class="p-3 text-center admin-only hidden">
+                        <button onclick="window.deletePick('${pick.id}')" class="text-red-500/50 hover:text-red-500 p-1.5 rounded bg-red-500/5 hover:bg-red-500/10 transition-all" title="Delete Pick">
+                            <i class="ph-bold ph-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
             window.calculateOdds();
             toggleAdminUI();
         }
@@ -964,12 +981,13 @@
         window.updateAdminSettings = async function() {
             if(!appState.db) return;
             const bankroll = document.getElementById('bankrollSetting').value;
+            const wager = document.getElementById('wagerSetting').value;
             const cutoff = document.getElementById('cutoffSetting').value;
             
             try {
                 const { setDoc, doc } = window.firebaseModules;
                 const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
-                await setDoc(path, { bankroll: bankroll || null, cutoffTime: cutoff || null }, { merge: true });
+                await setDoc(path, { bankroll: bankroll || null, wager: wager || null, cutoffTime: cutoff || null }, { merge: true });
                 window.showToast("Admin Settings Saved!", "success");
             } catch(e) {
                 console.error(e);
