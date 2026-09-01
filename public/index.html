@@ -24,14 +24,16 @@
                     fontFamily: { 
                         sans: ['Inter', 'sans-serif'], 
                         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
-                        dk: ['"Roboto Condensed"', 'sans-serif']
+                        dk: ['"Roboto Condensed"', 'sans-serif'],
+                        venmo: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif']
                     },
                     colors: {
                         dkDark: '#050505',
                         dkCard: 'rgba(18, 18, 18, 0.7)',
                         dkBorder: 'rgba(255, 255, 255, 0.1)',
                         dkGreen: '#22c55e',
-                        draftkings: '#53d337'
+                        draftkings: '#53d337',
+                        venmoBlue: '#008CFF'
                     }
                 }
             }
@@ -67,7 +69,13 @@
                     <span class="text-lg font-mono font-black text-white drop-shadow-md" id="groupBankrollDisplay">TBD</span>
                 </div>
                 
-                <div class="ml-3 pl-3 border-l border-dkBorder flex items-center">
+                <div class="flex items-center space-x-3 ml-2 pl-3 border-l border-dkBorder">
+                    <!-- Venmo Button -->
+                    <a href="https://venmo.com/" target="_blank" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Buzzards Nest on Venmo">
+                        <i class="ph-bold ph-currency-dollar mr-1 text-sm"></i> Buzzards Nest
+                    </a>
+                    
+                    <!-- Settings Button -->
                     <button onclick="window.toggleSettings()" class="flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-white h-9 w-9 rounded-lg transition-all" title="Dashboard Settings">
                         <i class="ph-fill ph-gear text-lg"></i>
                     </button>
@@ -459,6 +467,7 @@
 
         async function initFirebase() {
             try {
+                // FIXED: Real API Key properly integrated
                 const myFirebaseConfig = {
                     apiKey: "AIzaSyBp7bQZxzWwT3aKKwV1VKn1pmrN3Tolq6o",
                     authDomain: "bozo-bets.firebaseapp.com",
@@ -496,7 +505,7 @@
                 } catch(e) {
                     console.error("Auth Exception:", e);
                     window.showToast("Database Auth Failed! Check Console.", "error");
-                    return; // Fail gracefully
+                    return; 
                 }
 
                 if (appState.userId) setupRealtimeListeners();
@@ -661,7 +670,7 @@
         function updatePayoutDisplay(parlayOdds) {
             if (parlayOdds === 0) { document.getElementById('totalPayout').innerText = "0.00"; return; }
             let dec = parlayOdds > 0 ? (parlayOdds / 100) + 1 : (100 / Math.abs(parlayOdds)) + 1;
-            const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0;
+            const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0; // FIXED: Default fallback is 0
             document.getElementById('totalPayout').innerText = ((wagerAmount * dec) - wagerAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
@@ -774,14 +783,18 @@
             }
 
             currentWeekPicks.forEach(pick => {
-                // Ensure correct plus/minus formatting for display
-                let numOdds = parseFloat(pick.odds);
-                let displayOdds = isNaN(numOdds) ? pick.odds : (numOdds > 0 ? `+${numOdds}` : `${numOdds}`);
+                // FIXED: Safety check to avoid double + signs
+                let displayOdds = pick.odds.toString();
+                if (!displayOdds.startsWith('+') && !displayOdds.startsWith('-')) {
+                    let numOdds = parseFloat(displayOdds);
+                    if (!isNaN(numOdds) && numOdds > 0) displayOdds = `+${displayOdds}`;
+                }
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-white/[0.02] transition-colors group";
+                // FIXED: Text wrapping styles and pick.bet reference applied
                 tr.innerHTML = `
-                    <td class="p-3 align-top sm:align-middle">
+                    <td class="p-3 align-top sm:align-middle border-b border-dkBorder/30">
                         <div class="flex items-center space-x-2 pt-0.5 sm:pt-0">
                             <div class="h-6 w-6 rounded bg-dkDark flex items-center justify-center text-[10px] font-bold border border-dkBorder text-gray-400 group-hover:text-white group-hover:border-white/20 transition-all shrink-0">
                                 ${pick.name.charAt(0)}
@@ -789,13 +802,13 @@
                             <span class="font-bold text-white text-xs sm:text-sm truncate">${pick.name}</span>
                         </div>
                     </td>
-                    <td class="p-3 font-medium text-gray-300 text-xs sm:text-sm break-words whitespace-normal leading-snug">
+                    <td class="p-3 font-medium text-gray-300 text-xs sm:text-sm break-words whitespace-normal leading-snug border-b border-dkBorder/30">
                         ${pick.bet}
                     </td>
-                    <td class="p-3 font-mono font-bold text-dkGreen text-right text-xs sm:text-sm align-top sm:align-middle">
+                    <td class="p-3 font-mono font-bold text-dkGreen text-right text-xs sm:text-sm align-top sm:align-middle border-b border-dkBorder/30">
                         ${displayOdds}
                     </td>
-                    <td class="p-3 text-center admin-only hidden">
+                    <td class="p-3 text-center admin-only hidden border-b border-dkBorder/30">
                         <button onclick="window.deletePick('${pick.id}')" class="text-red-500/50 hover:text-red-500 p-1.5 rounded bg-red-500/5 hover:bg-red-500/10 transition-all" title="Delete Pick">
                             <i class="ph-bold ph-trash"></i>
                         </button>
