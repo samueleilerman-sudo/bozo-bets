@@ -796,7 +796,7 @@
             currentWeekPicks.forEach(pick => {
                 let cleanVal = pick.odds.toString().replace(/[^0-9\-+]/g, '');
                 let num = parseInt(cleanVal, 10);
-                let displayOdds = isNaN(num) ? pick.odds : (num > 0 ? (cleanVal.startsWith('+') ? `+${cleanVal}` : `+${num}`) : `${num}`);
+                let displayOdds = isNaN(num) ? pick.odds : (num > 0 ? `+${num}` : `${num}`);
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-white/[0.02] transition-colors group";
@@ -1050,7 +1050,7 @@
 
             let cleanVal = oddsVal.replace(/[^0-9\-+]/g, '');
             let num = parseInt(cleanVal, 10);
-            let odds = isNaN(num) ? oddsVal : (num > 0 ? (cleanVal.startsWith('+') ? `+${cleanVal}` : `+${num}`) : `${num}`);
+            let odds = isNaN(num) ? oddsVal : (num > 0 ? `+${num}` : `${num}`);
 
             try {
                 const { doc, updateDoc } = window.firebaseModules;
