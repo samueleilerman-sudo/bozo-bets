@@ -75,6 +75,7 @@
                 </div>
                 
                 <div class="flex items-center space-x-3 ml-2 pl-3 border-l border-dkBorder">
+                    <!-- Native HTML Venmo Link with official SVG (No target="_blank" to prevent mobile crashes) -->
                     <a href="https://venmo.com/" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Venmo">
                         <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 mr-1" fill="currentColor">
                             <path d="M12.924 2.516c-1.059-.219-2.502-.284-4.104-.284-3.985 0-6.621 2.3-6.621 6.38 0 4.408 3.22 9.664 5.83 14.73l4.316-.001c-1.558-5.184-2.298-9.288-2.298-11.458 0-1.784.852-2.529 2.378-2.529 1.94 0 3.153 1.523 4.116 4.786l3.965-1.127C19.986 8.608 17.272 2.898 12.924 2.516z"/>
@@ -114,6 +115,7 @@
                             <button onclick="window.switchParlayTab('side')" id="tab-parlay-side" class="flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all">Side Parlay</button>
                         </div>
 
+                        <!-- Time Machine Header -->
                         <div class="p-4 border-b border-dkBorder flex justify-between items-center bg-white/[0.01]">
                             <div class="flex items-center space-x-2 sm:space-x-4">
                                 <button onclick="window.changeWeek(-1)" id="prevWeekBtn" class="p-1.5 sm:p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed">
@@ -152,7 +154,7 @@
                             </div>
                             <div class="text-right w-full sm:w-auto flex justify-between sm:block items-center relative z-10">
                                 <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mr-3 block sm:inline">Total Parlay Odds</span>
-                                <input type="text" id="totalOddsDisplay" value="+0" class="text-xl font-mono font-black text-dkGreen bg-transparent text-right w-24 border-b border-transparent focus:outline-none transition-colors" readonly title="Admin: Edit to override odds">
+                                <input type="text" id="totalOddsDisplay" value="+0" class="text-xl font-mono font-black text-dkGreen bg-transparent text-right w-24 border-b border-transparent hover:border-dkBorder focus:border-dkGreen focus:outline-none transition-colors cursor-text" title="Click to manually override total odds">
                             </div>
                         </div>
                     </div>
@@ -228,7 +230,8 @@
                                 </tbody>
                             </table>
                         </div>
-                        
+
+                        <!-- Legacy Data Footer -->
                         <div class="p-5 border-t border-dkBorder bg-black/40 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <div class="flex items-center space-x-2">
                                 <div class="bg-green-500/10 p-1.5 rounded-lg border border-green-500/20">
@@ -237,10 +240,10 @@
                                 <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Legacy Spreadsheets</span>
                             </div>
                             <div class="flex space-x-3 w-full sm:w-auto">
-                                <a href="./2024_2025_Bozo_Bets.xlsx" download class="flex-1 sm:flex-none flex justify-center items-center text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2.5 rounded-xl transition-all shadow-sm">
+                                <a href="./2024_2025_Bozo_Bets.xlsx" download="2024_2025_Bozo_Bets.xlsx" class="flex-1 sm:flex-none flex justify-center items-center text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2.5 rounded-xl transition-all shadow-sm">
                                     2024 Season <i class="ph-bold ph-download-simple ml-2 text-gray-400"></i>
                                 </a>
-                                <a href="./2025_2026_Bozo_Bets.xlsx" download class="flex-1 sm:flex-none flex justify-center items-center text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2.5 rounded-xl transition-all shadow-sm">
+                                <a href="./2025_2026_Bozo_Bets.xlsx" download="2025_2026_Bozo_Bets.xlsx" class="flex-1 sm:flex-none flex justify-center items-center text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2.5 rounded-xl transition-all shadow-sm">
                                     2025 Season <i class="ph-bold ph-download-simple ml-2 text-gray-400"></i>
                                 </a>
                             </div>
@@ -314,10 +317,7 @@
                         <div class="flex flex-col">
                             <div class="flex justify-between items-end">
                                 <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">To Win</p>
-                                <div class="flex items-center text-3xl font-mono font-black transition-colors text-dkGreen drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" id="totalPayoutContainer">
-                                    <span class="mr-1">$</span>
-                                    <input type="text" id="totalPayoutDisplay" value="0.00" class="bg-transparent text-right w-full max-w-[130px] border-b border-transparent focus:outline-none transition-colors" readonly title="Admin: Edit to override payout">
-                                </div>
+                                <p class="text-3xl font-mono font-black text-dkGreen drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" id="totalPayoutContainer">$<span id="totalPayout">0.00</span></p>
                             </div>
                         </div>
                     </div>
@@ -329,8 +329,8 @@
                         <span id="bozoVoteTitle">Week -- Bozo</span>
                     </h3>
                     <p class="text-[11px] text-gray-400 mb-4 leading-relaxed font-medium">
-                        Cast your vote for the worst pick of the week. 
-                        <span class="text-red-400 font-bold block mt-1">You can only vote if you submitted a pick for this week!</span>
+                        Cast your vote for the worst pick of the week. Limit one vote per person.
+                        <span class="text-red-400 font-bold block mt-1">Voting for the current week closes Monday at 11:59 PM EST.</span>
                     </p>
                     
                     <div id="voteResults" class="space-y-3 hidden mb-4 bg-black/30 p-3 rounded-xl border border-dkBorder"></div>
@@ -360,7 +360,7 @@
                     <i class="ph-fill ph-x"></i>
                 </button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
                 
                 <div class="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-dkBorder shadow-inner">
                     <div>
@@ -414,13 +414,18 @@
                                     <button onclick="window.updateAdminSettings()" class="bg-dkDark border border-dkBorder hover:bg-dkBorder text-white px-4 rounded-lg transition-colors"><i class="ph-fill ph-floppy-disk text-lg"></i></button>
                                 </div>
                             </div>
+                            <div>
+                                <label class="block text-[10px] text-red-400 uppercase tracking-wider mb-1.5 font-bold">Retroactive Voters (Comma separated)</label>
+                                <p class="text-[9px] text-red-400/70 mb-1 leading-tight">Force-removes names from this week's Bozo dropdown (fixes anonymous legacy votes).</p>
+                                <div class="flex space-x-2">
+                                    <input type="text" id="manualVotersSetting" placeholder="e.g. Sam, Josh, Rick" class="bg-dkDark border border-dkBorder rounded-lg p-2.5 text-white focus:outline-none focus:border-red-500 text-sm w-full font-mono">
+                                    <button onclick="window.updateAdminSettings()" class="bg-dkDark border border-dkBorder hover:bg-dkBorder text-white px-4 rounded-lg transition-colors"><i class="ph-fill ph-floppy-disk text-lg"></i></button>
+                                </div>
+                            </div>
                             
-                            <div class="pt-2 flex gap-2">
-                                <button onclick="window.clearCurrentWeekVotes()" class="flex-1 bg-red-900/40 hover:bg-red-800 text-red-400 border border-red-500/30 font-bold py-2.5 rounded-lg uppercase tracking-widest text-[9px] transition-all flex items-center justify-center">
-                                    <i class="ph-fill ph-trash mr-1 text-base"></i> Clear Votes
-                                </button>
-                                <button onclick="window.clearParlayOverride()" class="flex-1 bg-yellow-900/40 hover:bg-yellow-800 text-yellow-400 border border-yellow-500/30 font-bold py-2.5 rounded-lg uppercase tracking-widest text-[9px] transition-all flex items-center justify-center">
-                                    <i class="ph-fill ph-eraser mr-1 text-base"></i> Clear Odds
+                            <div class="pt-2">
+                                <button onclick="window.clearCurrentWeekVotes()" class="w-full bg-red-900/40 hover:bg-red-800 text-red-400 border border-red-500/30 font-bold py-2.5 rounded-lg uppercase tracking-widest text-[10px] transition-all flex items-center justify-center">
+                                    <i class="ph-fill ph-trash mr-2"></i> Clear Viewing Week's Votes
                                 </button>
                             </div>
                         </div>
@@ -463,7 +468,6 @@
         let appState = {
             picks: [],
             votes: [],
-            overrides: {},
             currentWeek: 1,
             viewingWeek: 1,
             isClockEnabled: true,
@@ -471,9 +475,11 @@
             isLocked: false,
             userId: null,
             db: null,
+            hasManualOdds: false,
             bankroll: null,
             wager: null,
             customCutoff: null,
+            manualVoters: {},
             activeParlay: 'main',
             celebratedWeeks: new Set()
         };
@@ -494,9 +500,9 @@
             "Ronnie": { wins: 30, losses: 10 },
             "Nate": { wins: 36, losses: 20 }
         };
-        
-        // Ensure Bozo vote offsets accurately to previous week if currently open
+
         window.getBozoWeek = function() {
+            // Bozo vote locks onto the PREVIOUS week if the current week bets haven't locked yet.
             if (appState.viewingWeek === appState.currentWeek && !appState.isLocked && appState.currentWeek > 1) {
                 return appState.currentWeek - 1;
             }
@@ -578,7 +584,7 @@
                 appState.votes = [];
                 snapshot.forEach((d) => appState.votes.push({ id: d.id, ...d.data() }));
                 renderVotes();
-                renderPicks(); 
+                renderPicks(); // Re-render picks so Bozo icon refreshes if votes change
             });
 
             let configDoc = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
@@ -596,15 +602,21 @@
                         const wagerStr = data.wager ? `$${parseFloat(data.wager).toFixed(2)}` : 'TBD';
                         document.getElementById('payoutWagerDisplay').innerText = wagerStr;
                         if (document.activeElement !== document.getElementById('wagerSetting')) document.getElementById('wagerSetting').value = data.wager || '';
+                        window.calculateOdds(); 
                     }
                     if (data.cutoffTime !== undefined) {
                         appState.customCutoff = data.cutoffTime;
                         if (document.activeElement !== document.getElementById('cutoffSetting')) document.getElementById('cutoffSetting').value = data.cutoffTime || '';
                     }
-                    if (data.overrides !== undefined) {
-                        appState.overrides = data.overrides || {};
+                    if (data.manualVoters !== undefined) {
+                        appState.manualVoters = data.manualVoters;
+                        const manualInput = document.getElementById('manualVotersSetting');
+                        const bozoWeek = window.getBozoWeek();
+                        if (manualInput && document.activeElement !== manualInput) {
+                            manualInput.value = appState.manualVoters[bozoWeek] ? appState.manualVoters[bozoWeek].join(', ') : '';
+                        }
+                        window.updateVotingUI();
                     }
-                    window.calculateOdds(); 
                     calculateDynamicCutoff(); 
                 }
             });
@@ -658,6 +670,7 @@
 
         window.switchParlayTab = function(type) {
             appState.activeParlay = type;
+            appState.hasManualOdds = false; 
             updateWeekUI();
             
             const isMain = type === 'main';
@@ -688,6 +701,11 @@
             const bozoWeek = window.getBozoWeek();
             document.getElementById('bozoVoteTitle').innerText = `Week ${bozoWeek} Bozo`;
             
+            const manualInput = document.getElementById('manualVotersSetting');
+            if (manualInput && document.activeElement !== manualInput) {
+                manualInput.value = (appState.manualVoters && appState.manualVoters[bozoWeek]) ? appState.manualVoters[bozoWeek].join(', ') : '';
+            }
+            
             const isPast = appState.viewingWeek < appState.currentWeek;
             
             const submitLabel = document.getElementById('submitPickLabel');
@@ -705,7 +723,7 @@
                 document.getElementById('pickInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all placeholder-gray-600 shadow-inner ${styleColor}`;
                 document.getElementById('nameInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all appearance-none cursor-pointer shadow-inner ${styleColor}`;
                 
-                document.getElementById('totalPayoutContainer').className = `flex items-center text-3xl font-mono font-black drop-shadow-[0_0_10px_rgba(0,0,0,0.3)] transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
+                document.getElementById('totalPayoutContainer').className = `text-3xl font-mono font-black drop-shadow-[0_0_10px_rgba(0,0,0,0.3)] transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
                 document.getElementById('payoutIcon').className = `ph-fill ph-money mr-2 transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
                 
                 if (isPast) {
@@ -738,7 +756,6 @@
         }
 
         function calculateCurrentWeek() {
-            // Set for Tuesday at 3:00 AM EDT explicitly
             const seasonStart = new Date('2026-09-08T03:00:00-04:00').getTime(); 
             const now = new Date().getTime();
             
@@ -763,23 +780,8 @@
             const weekPicks = appState.picks.filter(p => p.week === appState.viewingWeek && (p.parlayType || 'main') === appState.activeParlay);
             document.getElementById('pickCount').innerText = weekPicks.length;
             
-            const key = `${appState.viewingWeek}-${appState.activeParlay}`;
-            
-            // Apply Manual Admin Overrides if they exist
-            if (appState.overrides && appState.overrides[key]) {
-                document.getElementById('totalOddsDisplay').value = appState.overrides[key].odds;
-                document.getElementById('totalPayoutDisplay').value = appState.overrides[key].payout;
-                document.getElementById('totalOddsDisplay').classList.add('text-yellow-400');
-                document.getElementById('totalPayoutDisplay').classList.add('text-yellow-400');
-                return;
-            }
-
-            document.getElementById('totalOddsDisplay').classList.remove('text-yellow-400');
-            document.getElementById('totalPayoutDisplay').classList.remove('text-yellow-400');
-
             if (weekPicks.length === 0) {
-                document.getElementById('totalOddsDisplay').value = "+0";
-                document.getElementById('totalPayoutDisplay').value = "0.00";
+                if(!appState.hasManualOdds) { document.getElementById('totalOddsDisplay').value = "+0"; updatePayoutDisplay(0); }
                 return;
             }
 
@@ -797,47 +799,34 @@
             if (decimalOdds >= 2) parlayOdds = Math.round((decimalOdds - 1) * 100);
             else if (decimalOdds > 1) parlayOdds = Math.round(-100 / (decimalOdds - 1));
 
-            document.getElementById('totalOddsDisplay').value = (parlayOdds > 0 ? "+" : "") + parlayOdds;
-            
+            if (!appState.hasManualOdds) {
+                document.getElementById('totalOddsDisplay').value = (parlayOdds > 0 ? "+" : "") + parlayOdds;
+                updatePayoutDisplay(parlayOdds);
+            }
+        };
+
+        function updatePayoutDisplay(parlayOdds) {
+            if (parlayOdds === 0) { 
+                document.getElementById('totalPayout').innerText = "0.00"; 
+                return; 
+            }
             let dec = parlayOdds > 0 ? (parlayOdds / 100) + 1 : (100 / Math.abs(parlayOdds)) + 1;
             const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0;
             const totalToWin = (wagerAmount * dec) - wagerAmount;
-            document.getElementById('totalPayoutDisplay').value = totalToWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        };
+            document.getElementById('totalPayout').innerText = totalToWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
 
-        window.saveOverrides = async function() {
-            if (!appState.isAdminMode || !appState.db) return;
-            const odds = document.getElementById('totalOddsDisplay').value.trim();
-            const payout = document.getElementById('totalPayoutDisplay').value.trim();
-            const key = `${appState.viewingWeek}-${appState.activeParlay}`;
-            
-            try {
-                const { setDoc, doc } = window.firebaseModules;
-                const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
-                
-                await setDoc(path, {
-                    overrides: { [key]: { odds, payout } }
-                }, { merge: true });
-                window.showToast("Parlay override saved!", "success");
-            } catch(e) {
-                console.error(e);
+        document.getElementById('totalOddsDisplay').addEventListener('input', (e) => {
+            const val = e.target.value;
+            if (val.trim() === '') {
+                appState.hasManualOdds = false;
+                window.calculateOdds();
+            } else {
+                appState.hasManualOdds = true;
+                let numOdds = parseInt(val.replace(/[^0-9\-+]/g, ''), 10);
+                if (!isNaN(numOdds)) updatePayoutDisplay(numOdds);
             }
-        };
-
-        window.clearParlayOverride = async function() {
-            if (!appState.isAdminMode || !appState.db) return;
-            const key = `${appState.viewingWeek}-${appState.activeParlay}`;
-            try {
-                const { setDoc, doc } = window.firebaseModules;
-                const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
-                await setDoc(path, {
-                    overrides: { [key]: null }
-                }, { merge: true });
-                window.showToast("Override cleared!", "success");
-            } catch (e) {
-                console.error(e);
-            }
-        };
+        });
 
         function calculateDynamicCutoff() {
             if (countdownInterval) clearInterval(countdownInterval);
@@ -882,7 +871,7 @@
             appState.isLocked = true; 
             document.getElementById('formOverlay').classList.remove('hidden'); 
             updateWeekUI(); 
-            renderVotes();
+            renderVotes(); // Ensure Bozo week updates if locking
         }
         function unlockForm() { 
             appState.isLocked = false; 
@@ -974,7 +963,6 @@
             if (weekPicks.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 text-sm font-bold bg-white/[0.01]">No picks logged for this parlay yet.</td></tr>`;
                 window.updateNameDropdown();
-                window.updateVotingUI(); // Refresh vote UI since picks changed
                 return;
             }
 
@@ -1024,7 +1012,6 @@
             window.updateNameDropdown();
             toggleAdminUI();
             checkConfetti(weekPicks);
-            window.updateVotingUI(); 
         }
 
         window.gradePick = async function(id, status) {
@@ -1043,9 +1030,15 @@
             if (!appState.db || !appState.userId) { window.showToast("Database not initialized", "error"); return; }
             
             const voteWeek = window.getBozoWeek();
-            if (voteWeek < 1) return;
-
+            if (voteWeek < 1) { window.showToast("Cannot vote on past weeks.", "error"); return; }
+            
             const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
+            
+            if (currentWeekVotes.length >= 10) {
+                window.showToast("All votes have already been cast!", "error");
+                return;
+            }
+            
             const voterName = document.getElementById('voterIdentity').value;
             const bozoName = document.getElementById('voteSelect').value;
             
@@ -1054,7 +1047,6 @@
                 return;
             }
 
-            // Check if UID OR explicitly chosen Name has already voted
             const existingVote = currentWeekVotes.find(v => v.voterId === appState.userId || v.voterName === voterName);
             if (existingVote) {
                 window.showToast("You have already voted this week! Limit 1 vote per person.", "error");
@@ -1118,9 +1110,11 @@
             const weekVotes = appState.votes.filter(v => v.week === voteWeek);
             const weekPicks = appState.picks.filter(p => p.week === voteWeek);
             
-            // Get unique list of anyone who made ANY pick this week
             const eligibleVoters = [...new Set(weekPicks.map(p => p.name))];
-            const votedNames = weekVotes.map(v => v.voterName).filter(Boolean);
+            
+            // Merge actual database names with the manual override list from Admin
+            const manual = appState.manualVoters?.[voteWeek] || [];
+            const votedNames = [...new Set([...weekVotes.map(v => v.voterName).filter(Boolean), ...manual])];
             
             const voterSelect = document.getElementById('voterIdentity');
             const bozoSelect = document.getElementById('voteSelect');
@@ -1131,7 +1125,6 @@
             const currentVoterVal = voterSelect.value;
             const currentBozoVal = bozoSelect.value;
 
-            // Populate "Who are you?" Dropdown
             voterSelect.innerHTML = '<option value="" disabled selected>Who are you?</option>';
             if (eligibleVoters.length === 0) {
                 const opt = document.createElement('option');
@@ -1140,7 +1133,6 @@
                 voterSelect.appendChild(opt);
             } else {
                 eligibleVoters.forEach(name => {
-                    // Only show names that haven't voted yet
                     if (!votedNames.includes(name)) {
                         const opt = document.createElement('option');
                         opt.value = name;
@@ -1153,7 +1145,6 @@
                 voterSelect.value = currentVoterVal;
             }
 
-            // Populate Bozo Candidates (Only people who actually picked something)
             bozoSelect.innerHTML = '<option value="" disabled selected>Select this week\'s Bozo</option>';
             if (eligibleVoters.length === 0) {
                 const opt = document.createElement('option');
@@ -1172,14 +1163,11 @@
                 bozoSelect.value = currentBozoVal;
             }
 
-            // Lock Logic
             const totalVotes = weekVotes.length;
             const totalEligible = eligibleVoters.length;
             
-            // Check if looking at past week (offset by 1 if current week is open)
+            // Lock voting if viewing past week (not tied to current offset), or fully voted
             const isPastWeek = voteWeek < (appState.currentWeek - (appState.isLocked ? 0 : 1));
-            
-            // Lock if 100% of bettors have voted
             const isFullyVoted = totalEligible > 0 && totalVotes >= totalEligible;
             const userVoted = weekVotes.find(v => v.voterId === appState.userId);
 
@@ -1353,10 +1341,20 @@
             const wager = document.getElementById('wagerSetting').value;
             const cutoff = document.getElementById('cutoffSetting').value;
             
+            const manualStr = document.getElementById('manualVotersSetting').value;
+            const manualArr = manualStr.split(',').map(s => s.trim()).filter(Boolean);
+            const currentManual = appState.manualVoters || {};
+            currentManual[window.getBozoWeek()] = manualArr;
+            
             try {
                 const { setDoc, doc } = window.firebaseModules;
                 const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
-                await setDoc(path, { bankroll: bankroll || null, wager: wager || null, cutoffTime: cutoff || null }, { merge: true });
+                await setDoc(path, { 
+                    bankroll: bankroll || null, 
+                    wager: wager || null, 
+                    cutoffTime: cutoff || null,
+                    manualVoters: currentManual
+                }, { merge: true });
                 window.showToast("Admin Settings Saved!", "success");
             } catch(e) {
                 window.showToast("Failed to save settings.", "error");
@@ -1388,21 +1386,6 @@
         function toggleAdminUI() {
             const els = document.querySelectorAll('.admin-only');
             els.forEach(el => appState.isAdminMode ? el.classList.remove('hidden') : el.classList.add('hidden'));
-            
-            const oddsInput = document.getElementById('totalOddsDisplay');
-            const payoutInput = document.getElementById('totalPayoutDisplay');
-            
-            if (appState.isAdminMode) {
-                oddsInput.readOnly = false;
-                payoutInput.readOnly = false;
-                oddsInput.classList.add('hover:border-dkBorder', 'cursor-text');
-                payoutInput.classList.add('hover:border-dkBorder', 'cursor-text');
-            } else {
-                oddsInput.readOnly = true;
-                payoutInput.readOnly = true;
-                oddsInput.classList.remove('hover:border-dkBorder', 'cursor-text');
-                payoutInput.classList.remove('hover:border-dkBorder', 'cursor-text');
-            }
         }
 
         window.openEditModal = function(id, name, bet, odds) {
@@ -1458,15 +1441,11 @@
             calculateCurrentWeek();
             window.updateNameDropdown();
             initFirebase();
-            
             document.getElementById('nameInput').addEventListener('change', function() {
                 const val = this.value;
                 if (val) this.classList.add('text-dkGreen', 'font-bold');
                 else this.classList.remove('text-dkGreen', 'font-bold');
             });
-            
-            document.getElementById('totalOddsDisplay').addEventListener('change', window.saveOverrides);
-            document.getElementById('totalPayoutDisplay').addEventListener('change', window.saveOverrides);
         });
 
     </script>
