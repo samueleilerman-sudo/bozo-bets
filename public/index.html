@@ -13,10 +13,10 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
-        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc, getAuth, signInAnonymously, signInWithCustomToken };
+        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc, orderBy, limit, getAuth, signInAnonymously, signInWithCustomToken };
     </script>
 
     <script>
@@ -75,7 +75,6 @@
                 </div>
                 
                 <div class="flex items-center space-x-3 ml-2 pl-3 border-l border-dkBorder">
-                    <!-- Native HTML Venmo Link with official SVG (No target="_blank" to prevent mobile crashes) -->
                     <a href="https://venmo.com/" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Venmo">
                         <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 mr-1" fill="currentColor">
                             <path d="M12.924 2.516c-1.059-.219-2.502-.284-4.104-.284-3.985 0-6.621 2.3-6.621 6.38 0 4.408 3.22 9.664 5.83 14.73l4.316-.001c-1.558-5.184-2.298-9.288-2.298-11.458 0-1.784.852-2.529 2.378-2.529 1.94 0 3.153 1.523 4.116 4.786l3.965-1.127C19.986 8.608 17.272 2.898 12.924 2.516z"/>
@@ -107,7 +106,10 @@
                         <div class="bg-gradient-to-r from-dkDark to-dkCard border-b border-dkBorder p-4 flex items-center justify-center relative overflow-hidden">
                             <div class="absolute inset-0 bg-dkGreen/5 pointer-events-none"></div>
                             <i class="ph-fill ph-mask-sad text-red-500 text-2xl mr-3 relative z-10"></i>
-                            <span class="text-white font-bold text-sm relative z-10">Week <span id="currentWeekBannerText">--</span>&nbsp;Bozo: <span class="text-gray-400 font-normal ml-1">To Be Determined (Awaiting Results)</span></span>
+                            <span class="text-white font-bold text-sm relative z-10 flex items-center">
+                                Week <span id="currentWeekBannerText">--</span>&nbsp;Bozo: 
+                                <span id="bannerBozoName" class="text-gray-400 font-normal ml-1">To Be Determined (Awaiting Results)</span>
+                            </span>
                         </div>
 
                         <div class="flex border-b border-dkBorder bg-black/40">
@@ -115,7 +117,6 @@
                             <button onclick="window.switchParlayTab('side')" id="tab-parlay-side" class="flex-1 py-3 text-sm font-bold text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-all">Side Parlay</button>
                         </div>
 
-                        <!-- Time Machine Header -->
                         <div class="p-4 border-b border-dkBorder flex justify-between items-center bg-white/[0.01]">
                             <div class="flex items-center space-x-2 sm:space-x-4">
                                 <button onclick="window.changeWeek(-1)" id="prevWeekBtn" class="p-1.5 sm:p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed">
@@ -353,14 +354,14 @@
     </main>
 
     <div id="settingsModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-dkCard glass-card w-full max-w-md rounded-2xl border border-dkBorder shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden transform scale-95 opacity-0 transition-all duration-200" id="settingsContent">
-            <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-black/40">
+        <div class="bg-dkCard glass-card w-full max-w-md rounded-2xl border border-dkBorder shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden transform scale-95 opacity-0 transition-all duration-200 flex flex-col max-h-[90vh]" id="settingsContent">
+            <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-black/40 shrink-0">
                 <h3 class="text-white font-black text-lg tracking-tight flex items-center"><i class="ph-fill ph-gear mr-2 text-gray-400"></i> Settings</h3>
                 <button onclick="window.toggleSettings()" class="text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors">
                     <i class="ph-fill ph-x"></i>
                 </button>
             </div>
-            <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+            <div class="p-6 space-y-4 overflow-y-auto flex-grow">
                 
                 <div class="flex justify-between items-center bg-black/40 p-4 rounded-xl border border-dkBorder shadow-inner">
                     <div>
@@ -428,6 +429,15 @@
                                     <i class="ph-fill ph-trash mr-2"></i> Clear Viewing Week's Votes
                                 </button>
                             </div>
+
+                            <!-- NEW: Admin Activity Log Container -->
+                            <div class="border-t border-red-900/30 pt-4 mt-4 hidden" id="adminLogSection">
+                                <h4 class="text-red-400 font-bold text-sm mb-2 flex items-center"><i class="ph-fill ph-clock-counter-clockwise mr-2"></i> Admin Activity Log</h4>
+                                <div class="bg-dkDark/50 rounded-xl border border-red-900/30 shadow-inner p-3 max-h-40 overflow-y-auto space-y-3" id="adminLogList">
+                                    <div class="text-gray-500 text-center text-xs py-2">Loading logs...</div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -468,6 +478,7 @@
         let appState = {
             picks: [],
             votes: [],
+            adminLogs: [], // New state for admin tracking
             currentWeek: 1,
             viewingWeek: 1,
             isClockEnabled: true,
@@ -502,7 +513,6 @@
         };
 
         window.getBozoWeek = function() {
-            // Bozo vote locks onto the PREVIOUS week if the current week bets haven't locked yet.
             if (appState.viewingWeek === appState.currentWeek && !appState.isLocked && appState.currentWeek > 1) {
                 return appState.currentWeek - 1;
             }
@@ -565,10 +575,24 @@
             calculateDynamicCutoff();
         }
 
+        // NEW: Core Admin Action Logger
+        window.logAdminAction = async function(action, details) {
+            if(!appState.db) return;
+            try {
+                const { collection, addDoc, serverTimestamp } = window.firebaseModules;
+                await addDoc(collection(appState.db, getCollectionPath("admin_logs")), {
+                    action: action,
+                    details: details,
+                    timestamp: serverTimestamp()
+                });
+            } catch(e) { console.error("Failed to log admin action", e); }
+        };
+
         function setupRealtimeListeners() {
             if(!appState.db || !appState.userId) return;
-            const { collection, onSnapshot, query, doc } = window.firebaseModules;
+            const { collection, onSnapshot, query, doc, orderBy, limit } = window.firebaseModules;
             
+            // Listen to Picks
             const picksPath = getCollectionPath("picks");
             onSnapshot(query(collection(appState.db, picksPath)), (snapshot) => {
                 appState.picks = [];
@@ -579,14 +603,25 @@
                 calculateDynamicCutoff(); 
             });
 
+            // Listen to Votes
             const votesPath = getCollectionPath("votes");
             onSnapshot(query(collection(appState.db, votesPath)), (snapshot) => {
                 appState.votes = [];
                 snapshot.forEach((d) => appState.votes.push({ id: d.id, ...d.data() }));
                 renderVotes();
-                renderPicks(); // Re-render picks so Bozo icon refreshes if votes change
+                renderPicks(); 
             });
 
+            // Listen to Admin Logs (New!)
+            const logsPath = getCollectionPath("admin_logs");
+            const logsQuery = query(collection(appState.db, logsPath), orderBy("timestamp", "desc"), limit(50));
+            onSnapshot(logsQuery, (snapshot) => {
+                appState.adminLogs = [];
+                snapshot.forEach((d) => appState.adminLogs.push({ id: d.id, ...d.data() }));
+                renderAdminLogs();
+            });
+
+            // Listen to Global Settings
             let configDoc = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
             onSnapshot(configDoc, (docSnap) => {
                 if (docSnap.exists()) {
@@ -744,6 +779,8 @@
                     }
                 }
             }
+            
+            if (window.updateBozoBanner) window.updateBozoBanner();
         }
 
         function getNextSaturdayNoon() {
@@ -756,6 +793,7 @@
         }
 
         function calculateCurrentWeek() {
+            // Re-aligned NFL calendar baseline: 2026-09-01 at 3:00 AM EDT
             const seasonStart = new Date('2026-09-01T03:00:00-04:00').getTime(); 
             const now = new Date().getTime();
             
@@ -769,9 +807,6 @@
             if (!appState.viewingWeek || appState.viewingWeek === 1) {
                 appState.viewingWeek = appState.currentWeek;
             }
-            
-            const weekBanner = document.getElementById('currentWeekBannerText');
-            if (weekBanner) weekBanner.innerText = appState.currentWeek;
             
             updateWeekUI();
         }
@@ -927,6 +962,39 @@
             const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
             return sorted.length > 0 ? sorted[0][0] : null;
         }
+        
+        window.updateBozoBanner = function() {
+            const bannerWeekNum = document.getElementById('currentWeekBannerText');
+            const bannerName = document.getElementById('bannerBozoName');
+            if (!bannerWeekNum || !bannerName) return;
+
+            let targetWeek = appState.viewingWeek - 1;
+            
+            if (targetWeek < 1) {
+                bannerWeekNum.innerText = "1";
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+                return;
+            }
+
+            bannerWeekNum.innerText = targetWeek;
+
+            const prevVotes = appState.votes.filter(v => v.week === targetWeek);
+            if (prevVotes.length === 0) {
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+                return;
+            }
+
+            const counts = {};
+            prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            const winner = sorted.length > 0 ? sorted[0][0] : null;
+
+            if (winner) {
+                bannerName.innerHTML = `<span class="text-white font-black ml-1">${winner}</span> <span class="ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>`;
+            } else {
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+            }
+        };
 
         function checkConfetti(picksArray) {
             if (picksArray.length === 0) return;
@@ -1017,9 +1085,13 @@
         window.gradePick = async function(id, status) {
             if(!appState.db) return;
             try {
+                const pick = appState.picks.find(p => p.id === id);
                 const { doc, updateDoc } = window.firebaseModules;
                 await updateDoc(doc(appState.db, getCollectionPath("picks"), id), { status });
                 window.showToast(`Pick marked as ${status.toUpperCase()}!`, "success");
+                
+                // Track in admin log
+                if (pick) window.logAdminAction("Grade Pick", `Marked ${pick.name}'s pick (${pick.bet}) as ${status.toUpperCase()}`);
             } catch(e) {
                 window.showToast("Failed to grade pick.", "error");
             }
@@ -1077,6 +1149,7 @@
 
             if (weekVotes.length === 0) { 
                 resultsContainer.classList.add('hidden'); 
+                if (window.updateBozoBanner) window.updateBozoBanner();
                 return; 
             }
             
@@ -1103,6 +1176,8 @@
                     </div>
                 `;
             });
+            
+            if (window.updateBozoBanner) window.updateBozoBanner();
         }
 
         window.updateVotingUI = function() {
@@ -1112,7 +1187,6 @@
             
             const eligibleVoters = [...new Set(weekPicks.map(p => p.name))];
             
-            // Merge actual database names with the manual override list from Admin
             const manual = appState.manualVoters?.[voteWeek] || [];
             const votedNames = [...new Set([...weekVotes.map(v => v.voterName).filter(Boolean), ...manual])];
             
@@ -1166,7 +1240,6 @@
             const totalVotes = weekVotes.length;
             const totalEligible = eligibleVoters.length;
             
-            // Lock voting if viewing past week (not tied to current offset), or fully voted
             const isPastWeek = voteWeek < (appState.currentWeek - (appState.isLocked ? 0 : 1));
             const isFullyVoted = totalEligible > 0 && totalVotes >= totalEligible;
             const userVoted = weekVotes.find(v => v.voterId === appState.userId);
@@ -1314,6 +1387,9 @@
                 document.getElementById('adminUnlockUI').classList.add('hidden');
                 document.getElementById('adminControlsUI').classList.remove('hidden');
                 document.getElementById('adminControlsUI').classList.add('flex');
+                
+                // Show Admin Log section only when unlocked
+                document.getElementById('adminLogSection').classList.remove('hidden');
             } else {
                 window.showToast("Incorrect PIN", "error");
                 document.getElementById('adminPinInput').value = '';
@@ -1324,6 +1400,10 @@
             appState.isClockEnabled = document.getElementById('clockToggle').checked;
             appState.isAdminMode = document.getElementById('adminToggle').checked;
             const extended = document.getElementById('extendedAdminControls');
+            
+            const oddsInput = document.getElementById('totalOddsDisplay');
+            if (oddsInput) oddsInput.readOnly = !appState.isAdminMode;
+            
             if (appState.isAdminMode) {
                 extended.classList.remove('hidden');
                 extended.classList.add('flex');
@@ -1356,6 +1436,8 @@
                     manualVoters: currentManual
                 }, { merge: true });
                 window.showToast("Admin Settings Saved!", "success");
+                
+                window.logAdminAction("Update Settings", "Saved global config overrides (Bankroll, Wager, Cutoff, or Voters)");
             } catch(e) {
                 window.showToast("Failed to save settings.", "error");
             }
@@ -1378,10 +1460,34 @@
                     await deleteDoc(doc(appState.db, getCollectionPath("votes"), vote.id));
                 }
                 window.showToast(`Week ${voteWeek} votes cleared!`, "success");
+                
+                window.logAdminAction("Clear Votes", `Manually wiped all votes for Week ${voteWeek}`);
             } catch (e) {
                 window.showToast("Failed to clear votes.", "error");
             }
         };
+
+        // NEW: Render the fetched Admin Logs into the UI
+        function renderAdminLogs() {
+            const container = document.getElementById('adminLogList');
+            if (!container) return;
+            
+            if (appState.adminLogs.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center text-xs py-4">No admin activity logged yet.</div>';
+                return;
+            }
+            
+            container.innerHTML = appState.adminLogs.map(log => {
+                const time = log.timestamp ? new Date(log.timestamp.seconds * 1000).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Just now';
+                return `<div class="border-b border-red-900/30 pb-2 mb-2 last:border-0 last:pb-0 last:mb-0">
+                    <div class="flex justify-between items-center mb-0.5">
+                        <span class="text-red-400 font-bold uppercase tracking-wider text-[9px]">${log.action}</span>
+                        <span class="text-gray-500 text-[9px]">${time}</span>
+                    </div>
+                    <div class="text-gray-300 text-[10px] leading-snug">${log.details}</div>
+                </div>`;
+            }).join('');
+        }
 
         function toggleAdminUI() {
             const els = document.querySelectorAll('.admin-only');
@@ -1410,10 +1516,13 @@
             let odds = window.formatOdds(oddsVal);
 
             try {
+                const pick = appState.picks.find(p => p.id === id);
                 const { doc, updateDoc } = window.firebaseModules;
                 await updateDoc(doc(appState.db, getCollectionPath("picks"), id), { bet: bet, odds: odds });
                 window.showToast("Pick Updated Successfully!", "success");
                 window.closeEditModal();
+                
+                if (pick) window.logAdminAction("Edit Pick", `Changed ${pick.name}'s pick to "${bet}" at ${odds}`);
             } catch(e) {
                 window.showToast("Failed to update pick.", "error");
             }
@@ -1422,9 +1531,12 @@
         window.deletePick = async function(id) {
             if(!appState.db) return;
             try {
+                const pick = appState.picks.find(p => p.id === id);
                 const { doc, deleteDoc } = window.firebaseModules;
                 await deleteDoc(doc(appState.db, getCollectionPath("picks"), id));
                 window.showToast("Pick deleted.", "success");
+                
+                if (pick) window.logAdminAction("Delete Pick", `Permanently removed ${pick.name}'s pick (${pick.bet})`);
             } catch(e) {}
         };
 
@@ -1446,6 +1558,9 @@
                 if (val) this.classList.add('text-dkGreen', 'font-bold');
                 else this.classList.remove('text-dkGreen', 'font-bold');
             });
+            
+            const oddsInput = document.getElementById('totalOddsDisplay');
+            if (oddsInput) oddsInput.readOnly = true;
         });
 
     </script>
