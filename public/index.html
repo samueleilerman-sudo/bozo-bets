@@ -9,7 +9,8 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- 3D Confetti Library for Parlay Hits! -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Roboto+Condensed:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+    <!-- Switched from Inter to Roboto to fix word spacing/kerning issues -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Condensed:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -24,7 +25,7 @@
             theme: {
                 extend: {
                     fontFamily: { 
-                        sans: ['Inter', 'sans-serif'], 
+                        sans: ['Roboto', 'sans-serif'], 
                         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
                         dk: ['"Roboto Condensed"', 'sans-serif'],
                         venmo: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif']
@@ -105,9 +106,9 @@
                     <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex flex-col">
                         <div class="bg-gradient-to-r from-dkDark to-dkCard border-b border-dkBorder p-4 flex items-center justify-center relative overflow-hidden">
                             <div class="absolute inset-0 bg-dkGreen/5 pointer-events-none"></div>
-                            <i class="ph-fill ph-mask-sad text-red-500 text-2xl mr-3 relative z-10"></i>
+                            <span class="text-2xl mr-3 relative z-10 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>
                             <span class="text-white font-bold text-sm relative z-10 flex items-center">
-                                Week <span id="currentWeekBannerText">--</span>&nbsp;Bozo: 
+                                Week&nbsp;<span id="currentWeekBannerText">--</span>&nbsp;Bozo: 
                                 <span id="bannerBozoName" class="text-gray-400 font-normal ml-1">To Be Determined (Awaiting Results)</span>
                             </span>
                         </div>
@@ -122,7 +123,7 @@
                                 <button onclick="window.changeWeek(-1)" id="prevWeekBtn" class="p-1.5 sm:p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed">
                                     <i class="ph-bold ph-caret-left"></i>
                                 </button>
-                                <h3 class="text-white font-black text-base sm:text-lg tracking-tight min-w-[120px] sm:min-w-[140px] text-center" id="parlayCardTitle">
+                                <h3 class="text-white font-black text-base sm:text-lg tracking-normal min-w-[120px] sm:min-w-[140px] text-center" id="parlayCardTitle">
                                     Week 1 Main
                                 </h3>
                                 <button onclick="window.changeWeek(1)" id="nextWeekBtn" class="p-1.5 sm:p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed">
@@ -163,7 +164,7 @@
 
                 <div id="viewStandings" class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden hidden flex-col h-full min-h-[400px]">
                     <div class="p-5 border-b border-dkBorder bg-white/[0.01]">
-                        <h3 class="text-white font-black text-lg tracking-tight">2026 Season Win/Loss Records</h3>
+                        <h3 class="text-white font-black text-lg tracking-normal">2026 Season Win/Loss Records</h3>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -193,7 +194,7 @@
                                     <div class="flex items-center space-x-2 mb-1">
                                         <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest shadow-sm">Warning</span>
                                     </div>
-                                    <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">The Ultimate Bozo</h2>
+                                    <h2 class="text-xl md:text-2xl font-black text-white tracking-normal">The Ultimate Bozo</h2>
                                     <p class="text-red-400/80 text-xs md:text-sm max-w-md mt-1 leading-snug">This bettor holds the worst all-time hit rate. Fade heavily.</p>
                                 </div>
                             </div>
@@ -213,7 +214,7 @@
 
                     <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex-col h-full min-h-[400px]">
                         <div class="p-5 border-b border-dkBorder bg-white/[0.01] flex justify-between items-center">
-                            <h3 class="text-white font-black text-lg tracking-tight">Historical Win/Loss Records</h3>
+                            <h3 class="text-white font-black text-lg tracking-normal">Historical Win/Loss Records</h3>
                             <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Since 2024</span>
                         </div>
                         <div class="overflow-x-auto">
@@ -260,11 +261,11 @@
                         <div class="bg-white/5 p-4 rounded-full mb-3 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
                             <i class="ph-fill ph-lock-key text-4xl text-gray-400"></i>
                         </div>
-                        <p class="text-white font-black text-xl tracking-tight" id="overlayLockTitle">Submissions Locked</p>
+                        <p class="text-white font-black text-xl tracking-normal" id="overlayLockTitle">Submissions Locked</p>
                         <p class="text-gray-400 text-sm mt-1" id="overlayLockSubtitle">Cutoff time reached.</p>
                     </div>
 
-                    <h3 class="text-white font-black tracking-tight mb-5 flex items-center text-lg justify-between">
+                    <h3 class="text-white font-black tracking-normal mb-5 flex items-center text-lg justify-between">
                         <span class="flex items-center">
                             <i class="ph-fill ph-ticket text-dkGreen mr-2" id="submitPickIcon"></i> Submit Pick 
                             <span id="submitPickLabel" class="ml-2 text-[10px] font-bold text-dkGreen bg-dkGreen/10 px-2 py-0.5 rounded border border-dkGreen/20 uppercase tracking-wider transition-colors">Main</span>
@@ -304,7 +305,7 @@
                 </div>
 
                 <div id="payoutWidget" class="bg-dkCard glass-card rounded-2xl p-6 border border-dkBorder shadow-2xl relative overflow-hidden transition-all duration-300">
-                    <h3 class="text-white font-black tracking-tight mb-4 flex items-center text-lg">
+                    <h3 class="text-white font-black tracking-normal mb-4 flex items-center text-lg">
                         <i class="ph-fill ph-money text-dkGreen mr-2" id="payoutIcon"></i>
                         Potential Return
                     </h3>
@@ -325,8 +326,8 @@
                 </div>
                 
                 <div id="bozoVoteWidget" class="bg-dkCard glass-card rounded-2xl p-6 border border-dkBorder shadow-2xl relative overflow-hidden transition-all duration-300">
-                    <h3 class="text-white font-black tracking-tight mb-3 flex items-center text-lg">
-                        <i class="ph-fill ph-mask-sad text-red-500 mr-2"></i>
+                    <h3 class="text-white font-black tracking-normal mb-3 flex items-center text-lg">
+                        <span class="text-xl mr-2 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">🤡</span>
                         <span id="bozoVoteTitle">Week -- Bozo</span>
                     </h3>
                     <p class="text-[11px] text-gray-400 mb-4 leading-relaxed font-medium">
@@ -356,7 +357,7 @@
     <div id="settingsModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-dkCard glass-card w-full max-w-md rounded-2xl border border-dkBorder shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden transform scale-95 opacity-0 transition-all duration-200 flex flex-col max-h-[90vh]" id="settingsContent">
             <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-black/40 shrink-0">
-                <h3 class="text-white font-black text-lg tracking-tight flex items-center"><i class="ph-fill ph-gear mr-2 text-gray-400"></i> Settings</h3>
+                <h3 class="text-white font-black text-lg tracking-normal flex items-center"><i class="ph-fill ph-gear mr-2 text-gray-400"></i> Settings</h3>
                 <button onclick="window.toggleSettings()" class="text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors">
                     <i class="ph-fill ph-x"></i>
                 </button>
@@ -430,7 +431,7 @@
                                 </button>
                             </div>
 
-                            <!-- NEW: Admin Activity Log Container -->
+                            <!-- Admin Activity Log Container -->
                             <div class="border-t border-red-900/30 pt-4 mt-4 hidden" id="adminLogSection">
                                 <h4 class="text-red-400 font-bold text-sm mb-2 flex items-center"><i class="ph-fill ph-clock-counter-clockwise mr-2"></i> Admin Activity Log</h4>
                                 <div class="bg-dkDark/50 rounded-xl border border-red-900/30 shadow-inner p-3 max-h-40 overflow-y-auto space-y-3" id="adminLogList">
@@ -448,7 +449,7 @@
     <div id="editPickModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-dkCard glass-card w-full max-w-md rounded-2xl border border-dkBorder shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden">
             <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-black/40">
-                <h3 class="text-white font-black text-lg tracking-tight flex items-center"><i class="ph-fill ph-pencil-simple mr-2 text-dkGreen"></i> Edit Pick (<span id="editBettorName"></span>)</h3>
+                <h3 class="text-white font-black text-lg tracking-normal flex items-center"><i class="ph-fill ph-pencil-simple mr-2 text-dkGreen"></i> Edit Pick (<span id="editBettorName"></span>)</h3>
                 <button onclick="window.closeEditModal()" class="text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors">
                     <i class="ph-fill ph-x"></i>
                 </button>
@@ -575,7 +576,7 @@
             calculateDynamicCutoff();
         }
 
-        // NEW: Core Admin Action Logger
+        // Core Admin Action Logger
         window.logAdminAction = async function(action, details) {
             if(!appState.db) return;
             try {
@@ -612,7 +613,7 @@
                 renderPicks(); 
             });
 
-            // Listen to Admin Logs (New!)
+            // Listen to Admin Logs
             const logsPath = getCollectionPath("admin_logs");
             const logsQuery = query(collection(appState.db, logsPath), orderBy("timestamp", "desc"), limit(50));
             onSnapshot(logsQuery, (snapshot) => {
@@ -724,6 +725,50 @@
             renderPicks();
             renderVotes();
             window.calculateOdds();
+        };
+
+        window.updateBozoBanner = function() {
+            const bannerWeekNum = document.getElementById('currentWeekBannerText');
+            const bannerName = document.getElementById('bannerBozoName');
+            if (!bannerWeekNum || !bannerName) return;
+
+            let targetWeek = appState.viewingWeek - 1;
+            
+            if (targetWeek < 1) {
+                bannerWeekNum.innerText = "1";
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+                return;
+            }
+
+            bannerWeekNum.innerText = targetWeek;
+
+            const prevVotes = appState.votes.filter(v => v.week === targetWeek);
+            const prevPicks = appState.picks.filter(p => p.week === targetWeek);
+            const eligibleVoters = [...new Set(prevPicks.map(p => p.name))];
+            
+            // Subtract manual voters from the required total
+            const manual = appState.manualVoters?.[targetWeek] || [];
+            const requiredVoters = eligibleVoters.filter(name => !manual.includes(name));
+
+            const hasAllVotes = prevVotes.length >= requiredVoters.length;
+            const isNextWeekLocked = (targetWeek < appState.currentWeek - 1) || (targetWeek === appState.currentWeek - 1 && appState.isLocked);
+
+            // If nobody is eligible, or not EVERY required person has voted (and next week hasn't locked), stay TBD!
+            if (eligibleVoters.length === 0 || (!hasAllVotes && !isNextWeekLocked)) {
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+                return;
+            }
+
+            const counts = {};
+            prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            const winner = sorted.length > 0 ? sorted[0][0] : null;
+
+            if (winner) {
+                bannerName.innerHTML = `<span class="text-white font-black ml-1">${winner}</span> <span class="ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>`;
+            } else {
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+            }
         };
 
         function updateWeekUI() {
@@ -955,46 +1000,27 @@
         });
 
         function getPreviousBozo(week) {
-            const prevVotes = appState.votes.filter(v => v.week === week - 1);
-            if (prevVotes.length === 0) return null;
+            const targetWeek = week - 1;
+            if (targetWeek < 1) return null;
+            
+            const prevVotes = appState.votes.filter(v => v.week === targetWeek);
+            const prevPicks = appState.picks.filter(p => p.week === targetWeek);
+            const eligibleVoters = [...new Set(prevPicks.map(p => p.name))];
+            
+            // Subtract manual voters from the required total
+            const manual = appState.manualVoters?.[targetWeek] || [];
+            const requiredVoters = eligibleVoters.filter(name => !manual.includes(name));
+            
+            const hasAllVotes = prevVotes.length >= requiredVoters.length;
+            const isNextWeekLocked = (targetWeek < appState.currentWeek - 1) || (targetWeek === appState.currentWeek - 1 && appState.isLocked);
+
+            if (eligibleVoters.length === 0 || (!hasAllVotes && !isNextWeekLocked)) return null;
+            
             const counts = {};
             prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
             const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
             return sorted.length > 0 ? sorted[0][0] : null;
         }
-        
-        window.updateBozoBanner = function() {
-            const bannerWeekNum = document.getElementById('currentWeekBannerText');
-            const bannerName = document.getElementById('bannerBozoName');
-            if (!bannerWeekNum || !bannerName) return;
-
-            let targetWeek = appState.viewingWeek - 1;
-            
-            if (targetWeek < 1) {
-                bannerWeekNum.innerText = "1";
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
-                return;
-            }
-
-            bannerWeekNum.innerText = targetWeek;
-
-            const prevVotes = appState.votes.filter(v => v.week === targetWeek);
-            if (prevVotes.length === 0) {
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
-                return;
-            }
-
-            const counts = {};
-            prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
-            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-            const winner = sorted.length > 0 ? sorted[0][0] : null;
-
-            if (winner) {
-                bannerName.innerHTML = `<span class="text-white font-black ml-1">${winner}</span> <span class="ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>`;
-            } else {
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
-            }
-        };
 
         function checkConfetti(picksArray) {
             if (picksArray.length === 0) return;
@@ -1167,7 +1193,7 @@
                 resultsContainer.innerHTML += `
                     <div class="relative pt-1">
                         <div class="flex items-center justify-between mb-1">
-                            <div><span class="text-xs font-bold ${isLeader ? 'text-red-400' : 'text-gray-300'}">${name} ${isLeader ? '🤡' : ''}</span></div>
+                            <div><span class="text-xs font-bold ${isLeader ? 'text-red-400' : 'text-gray-300'}">${name}</span></div>
                             <div class="text-right"><span class="text-xs font-bold ${isLeader ? 'text-red-400' : 'text-gray-500'}">${count} vote${count!==1?'s':''}</span></div>
                         </div>
                         <div class="overflow-hidden h-2 text-xs flex rounded bg-white/5 border border-white/5">
@@ -1241,7 +1267,11 @@
             const totalEligible = eligibleVoters.length;
             
             const isPastWeek = voteWeek < (appState.currentWeek - (appState.isLocked ? 0 : 1));
-            const isFullyVoted = totalEligible > 0 && totalVotes >= totalEligible;
+            
+            // Required voters = Everyone who made a pick MINUS anyone the Admin manually excused
+            const requiredVotersCount = totalEligible - manual.length;
+            const isFullyVoted = totalEligible > 0 && totalVotes >= requiredVotersCount;
+            
             const userVoted = weekVotes.find(v => v.voterId === appState.userId);
 
             if (isFullyVoted || userVoted || isPastWeek || eligibleVoters.length === 0) {
@@ -1467,7 +1497,7 @@
             }
         };
 
-        // NEW: Render the fetched Admin Logs into the UI
+        // Render the fetched Admin Logs into the UI
         function renderAdminLogs() {
             const container = document.getElementById('adminLogList');
             if (!container) return;
