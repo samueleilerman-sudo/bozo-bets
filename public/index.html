@@ -237,10 +237,10 @@
                                 <span class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Legacy Spreadsheets</span>
                             </div>
                             <div class="flex space-x-3 w-full sm:w-auto">
-                                <a href="./2024_2025_Bozo_Bets.xlsx" download="2024_2025_Bozo_Bets.xlsx" class="flex-1 sm:flex-none flex justify-center items-center text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2.5 rounded-xl transition-all shadow-sm">
+                                <a href="./2024_2025_Bozo_Bets.xlsx" download class="flex-1 sm:flex-none flex justify-center items-center text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2.5 rounded-xl transition-all shadow-sm">
                                     2024 Season <i class="ph-bold ph-download-simple ml-2 text-gray-400"></i>
                                 </a>
-                                <a href="./2025_2026_Bozo_Bets.xlsx" download="2025_2026_Bozo_Bets.xlsx" class="flex-1 sm:flex-none flex justify-center items-center text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2.5 rounded-xl transition-all shadow-sm">
+                                <a href="./2025_2026_Bozo_Bets.xlsx" download class="flex-1 sm:flex-none flex justify-center items-center text-xs font-bold text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-4 py-2.5 rounded-xl transition-all shadow-sm">
                                     2025 Season <i class="ph-bold ph-download-simple ml-2 text-gray-400"></i>
                                 </a>
                             </div>
@@ -329,16 +329,18 @@
                         <span id="bozoVoteTitle">Week -- Bozo</span>
                     </h3>
                     <p class="text-[11px] text-gray-400 mb-4 leading-relaxed font-medium">
-                        Cast your vote for the worst pick of the week. Limit one vote per person.
-                        <span class="text-red-400 font-bold block mt-1">Voting for the current week closes Monday at 11:59 PM EST.</span>
+                        Cast your vote for the worst pick of the week. 
+                        <span class="text-red-400 font-bold block mt-1">You can only vote if you submitted a pick for this week!</span>
                     </p>
                     
                     <div id="voteResults" class="space-y-3 hidden mb-4 bg-black/30 p-3 rounded-xl border border-dkBorder"></div>
 
                     <form id="voteForm" class="space-y-3">
+                        <select id="voterIdentity" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all appearance-none cursor-pointer shadow-inner">
+                            <option value="" disabled selected>Who are you?</option>
+                        </select>
                         <select id="voteSelect" required class="w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all appearance-none cursor-pointer shadow-inner">
                             <option value="" disabled selected>Select this week's Bozo</option>
-                            <option value="Sam">Sam</option><option value="Josh">Josh</option><option value="Zach">Zach</option><option value="Jide">Jide</option><option value="Rick">Rick</option><option value="Shane">Shane</option><option value="John">John</option><option value="Matt">Matt</option><option value="Ronnie">Ronnie</option><option value="Nate">Nate</option>
                         </select>
                         <button type="submit" class="w-full bg-dkDark hover:bg-red-950 text-red-400 border border-red-900/50 hover:border-red-500/50 font-bold py-3.5 rounded-xl transition-all uppercase tracking-widest text-xs flex items-center justify-center group shadow-[0_0_10px_rgba(239,68,68,0.1)] hover:shadow-[0_0_15px_rgba(239,68,68,0.2)]">
                             <span>Submit Vote</span>
@@ -493,6 +495,14 @@
             "Nate": { wins: 36, losses: 20 }
         };
         
+        // Ensure Bozo vote offsets accurately to previous week if currently open
+        window.getBozoWeek = function() {
+            if (appState.viewingWeek === appState.currentWeek && !appState.isLocked && appState.currentWeek > 1) {
+                return appState.currentWeek - 1;
+            }
+            return appState.viewingWeek;
+        };
+        
         window.formatOdds = function(oddsStr) {
             let cleanStr = String(oddsStr).replace(/[^\d-]/g, ''); 
             let isNegative = cleanStr.startsWith('-');
@@ -568,7 +578,7 @@
                 appState.votes = [];
                 snapshot.forEach((d) => appState.votes.push({ id: d.id, ...d.data() }));
                 renderVotes();
-                renderPicks();
+                renderPicks(); 
             });
 
             let configDoc = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
@@ -674,7 +684,9 @@
             
             const isMain = appState.activeParlay === 'main';
             document.getElementById('parlayCardTitle').innerText = `Week ${appState.viewingWeek} ${isMain ? 'Main' : 'Side'}`;
-            document.getElementById('bozoVoteTitle').innerText = `Week ${appState.viewingWeek} Bozo`;
+            
+            const bozoWeek = window.getBozoWeek();
+            document.getElementById('bozoVoteTitle').innerText = `Week ${bozoWeek} Bozo`;
             
             const isPast = appState.viewingWeek < appState.currentWeek;
             
@@ -693,7 +705,6 @@
                 document.getElementById('pickInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all placeholder-gray-600 shadow-inner ${styleColor}`;
                 document.getElementById('nameInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all appearance-none cursor-pointer shadow-inner ${styleColor}`;
                 
-                // Keep classes flexible for input box structure
                 document.getElementById('totalPayoutContainer').className = `flex items-center text-3xl font-mono font-black drop-shadow-[0_0_10px_rgba(0,0,0,0.3)] transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
                 document.getElementById('payoutIcon').className = `ph-fill ph-money mr-2 transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
                 
@@ -727,8 +738,8 @@
         }
 
         function calculateCurrentWeek() {
-            // Updated to accurately lock the NFL Week calendar loop to Tuesdays at 3:00 AM EDT.
-            const seasonStart = new Date('2026-09-01T03:00:00-04:00').getTime(); 
+            // Set for Tuesday at 3:00 AM EDT explicitly
+            const seasonStart = new Date('2026-09-08T03:00:00-04:00').getTime(); 
             const now = new Date().getTime();
             
             if (now > seasonStart) {
@@ -763,13 +774,12 @@
                 return;
             }
 
-            // Remove visual highlight if not overridden
             document.getElementById('totalOddsDisplay').classList.remove('text-yellow-400');
             document.getElementById('totalPayoutDisplay').classList.remove('text-yellow-400');
 
             if (weekPicks.length === 0) {
                 document.getElementById('totalOddsDisplay').value = "+0";
-                updatePayoutDisplay(0);
+                document.getElementById('totalPayoutDisplay').value = "0.00";
                 return;
             }
 
@@ -788,19 +798,12 @@
             else if (decimalOdds > 1) parlayOdds = Math.round(-100 / (decimalOdds - 1));
 
             document.getElementById('totalOddsDisplay').value = (parlayOdds > 0 ? "+" : "") + parlayOdds;
-            updatePayoutDisplay(parlayOdds);
-        };
-
-        function updatePayoutDisplay(parlayOdds) {
-            if (parlayOdds === 0) { 
-                document.getElementById('totalPayoutDisplay').value = "0.00"; 
-                return; 
-            }
+            
             let dec = parlayOdds > 0 ? (parlayOdds / 100) + 1 : (100 / Math.abs(parlayOdds)) + 1;
             const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0;
             const totalToWin = (wagerAmount * dec) - wagerAmount;
             document.getElementById('totalPayoutDisplay').value = totalToWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
+        };
 
         window.saveOverrides = async function() {
             if (!appState.isAdminMode || !appState.db) return;
@@ -879,12 +882,15 @@
             appState.isLocked = true; 
             document.getElementById('formOverlay').classList.remove('hidden'); 
             updateWeekUI(); 
+            renderVotes();
         }
         function unlockForm() { 
             appState.isLocked = false; 
             if(appState.viewingWeek === appState.currentWeek) {
                 document.getElementById('formOverlay').classList.add('hidden'); 
             }
+            updateWeekUI();
+            renderVotes();
         }
 
         document.getElementById('pickForm').addEventListener('submit', async (e) => {
@@ -968,6 +974,7 @@
             if (weekPicks.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 text-sm font-bold bg-white/[0.01]">No picks logged for this parlay yet.</td></tr>`;
                 window.updateNameDropdown();
+                window.updateVotingUI(); // Refresh vote UI since picks changed
                 return;
             }
 
@@ -1017,6 +1024,7 @@
             window.updateNameDropdown();
             toggleAdminUI();
             checkConfetti(weekPicks);
+            window.updateVotingUI(); 
         }
 
         window.gradePick = async function(id, status) {
@@ -1033,27 +1041,31 @@
         document.getElementById('voteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!appState.db || !appState.userId) { window.showToast("Database not initialized", "error"); return; }
-            if (appState.viewingWeek < appState.currentWeek) { window.showToast("Cannot vote on past weeks.", "error"); return; }
             
-            const voteWeek = appState.viewingWeek;
+            const voteWeek = window.getBozoWeek();
+            if (voteWeek < 1) return;
+
             const currentWeekVotes = appState.votes.filter(v => v.week === voteWeek);
+            const voterName = document.getElementById('voterIdentity').value;
+            const bozoName = document.getElementById('voteSelect').value;
             
-            if (currentWeekVotes.length >= 10) {
-                window.showToast("All votes have already been cast!", "error");
+            if (voterName === bozoName) {
+                window.showToast("You cannot vote for yourself!", "error");
                 return;
             }
 
-            const existingVote = currentWeekVotes.find(v => v.voterId === appState.userId);
+            // Check if UID OR explicitly chosen Name has already voted
+            const existingVote = currentWeekVotes.find(v => v.voterId === appState.userId || v.voterName === voterName);
             if (existingVote) {
                 window.showToast("You have already voted this week! Limit 1 vote per person.", "error");
                 return;
             }
 
-            const bozoName = document.getElementById('voteSelect').value;
             try {
                 const { collection, addDoc, serverTimestamp } = window.firebaseModules;
                 await addDoc(collection(appState.db, getCollectionPath("votes")), {
                     voterId: appState.userId,
+                    voterName: voterName,
                     bozoName: bozoName,
                     week: voteWeek,
                     timestamp: serverTimestamp()
@@ -1065,7 +1077,7 @@
         });
 
         function renderVotes() {
-            const voteWeek = appState.viewingWeek;
+            const voteWeek = window.getBozoWeek();
             const weekVotes = appState.votes.filter(v => v.week === voteWeek);
             const resultsContainer = document.getElementById('voteResults');
             
@@ -1102,36 +1114,105 @@
         }
 
         window.updateVotingUI = function() {
-            const voteWeek = appState.viewingWeek;
+            const voteWeek = window.getBozoWeek();
             const weekVotes = appState.votes.filter(v => v.week === voteWeek);
-            const totalVotes = weekVotes.length;
+            const weekPicks = appState.picks.filter(p => p.week === voteWeek);
             
-            const isPastWeek = appState.viewingWeek < appState.currentWeek;
-            const isLocked = totalVotes >= 10 || isPastWeek;
+            // Get unique list of anyone who made ANY pick this week
+            const eligibleVoters = [...new Set(weekPicks.map(p => p.name))];
+            const votedNames = weekVotes.map(v => v.voterName).filter(Boolean);
             
-            const voteSelect = document.getElementById('voteSelect');
+            const voterSelect = document.getElementById('voterIdentity');
+            const bozoSelect = document.getElementById('voteSelect');
             const submitBtn = document.querySelector('#voteForm button[type="submit"]');
-            const userVoted = weekVotes.find(v => v.voterId === appState.userId);
             
-            if (isLocked || userVoted) {
-                voteSelect.disabled = true;
+            if (!voterSelect || !bozoSelect) return;
+
+            const currentVoterVal = voterSelect.value;
+            const currentBozoVal = bozoSelect.value;
+
+            // Populate "Who are you?" Dropdown
+            voterSelect.innerHTML = '<option value="" disabled selected>Who are you?</option>';
+            if (eligibleVoters.length === 0) {
+                const opt = document.createElement('option');
+                opt.disabled = true;
+                opt.innerText = "Awaiting picks...";
+                voterSelect.appendChild(opt);
+            } else {
+                eligibleVoters.forEach(name => {
+                    // Only show names that haven't voted yet
+                    if (!votedNames.includes(name)) {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.innerText = name;
+                        voterSelect.appendChild(opt);
+                    }
+                });
+            }
+            if (currentVoterVal && !votedNames.includes(currentVoterVal)) {
+                voterSelect.value = currentVoterVal;
+            }
+
+            // Populate Bozo Candidates (Only people who actually picked something)
+            bozoSelect.innerHTML = '<option value="" disabled selected>Select this week\'s Bozo</option>';
+            if (eligibleVoters.length === 0) {
+                const opt = document.createElement('option');
+                opt.disabled = true;
+                opt.innerText = "Awaiting picks...";
+                bozoSelect.appendChild(opt);
+            } else {
+                eligibleVoters.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.innerText = name;
+                    bozoSelect.appendChild(opt);
+                });
+            }
+            if (currentBozoVal && eligibleVoters.includes(currentBozoVal)) {
+                bozoSelect.value = currentBozoVal;
+            }
+
+            // Lock Logic
+            const totalVotes = weekVotes.length;
+            const totalEligible = eligibleVoters.length;
+            
+            // Check if looking at past week (offset by 1 if current week is open)
+            const isPastWeek = voteWeek < (appState.currentWeek - (appState.isLocked ? 0 : 1));
+            
+            // Lock if 100% of bettors have voted
+            const isFullyVoted = totalEligible > 0 && totalVotes >= totalEligible;
+            const userVoted = weekVotes.find(v => v.voterId === appState.userId);
+
+            if (isFullyVoted || userVoted || isPastWeek || eligibleVoters.length === 0) {
+                voterSelect.disabled = true;
+                bozoSelect.disabled = true;
                 submitBtn.disabled = true;
                 submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 
-                if (isPastWeek) {
+                if (eligibleVoters.length === 0) {
+                    submitBtn.innerHTML = `<span>Awaiting Picks</span><i class="ph-fill ph-lock ml-2"></i>`;
+                } else if (isPastWeek) {
                     submitBtn.innerHTML = `<span>Voting Closed (Past)</span><i class="ph-fill ph-lock ml-2"></i>`;
                 } else if (userVoted) {
                     submitBtn.innerHTML = `<span>Vote Locked In</span><i class="ph-fill ph-check-circle ml-2"></i>`;
-                } else if (isLocked) {
+                } else if (isFullyVoted) {
                     submitBtn.innerHTML = `<span>All Votes In</span><i class="ph-fill ph-lock ml-2"></i>`;
                 }
             } else {
-                voteSelect.disabled = false;
+                voterSelect.disabled = false;
+                bozoSelect.disabled = false;
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 submitBtn.innerHTML = `<span>Submit Vote</span><i class="ph-fill ph-gavel ml-2 group-hover:rotate-12 transition-transform"></i>`;
             }
         };
+
+        ['voterIdentity', 'voteSelect'].forEach(id => {
+            document.getElementById(id)?.addEventListener('change', function() {
+                if (this.value) this.classList.add('text-red-400', 'font-bold');
+                else this.classList.remove('text-red-400', 'font-bold');
+            });
+        });
 
         function getPlayerStreak(name) {
             const playerPicks = appState.picks
@@ -1285,7 +1366,7 @@
         window.clearCurrentWeekVotes = async function() {
             if(!appState.db) return;
             
-            const voteWeek = appState.viewingWeek;
+            const voteWeek = window.getBozoWeek();
             const votesToDelete = appState.votes.filter(v => v.week === voteWeek);
             
             if(votesToDelete.length === 0) {
@@ -1384,7 +1465,6 @@
                 else this.classList.remove('text-dkGreen', 'font-bold');
             });
             
-            // Listeners for Manual Admin Overrides
             document.getElementById('totalOddsDisplay').addEventListener('change', window.saveOverrides);
             document.getElementById('totalPayoutDisplay').addEventListener('change', window.saveOverrides);
         });
