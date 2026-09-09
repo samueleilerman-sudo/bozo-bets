@@ -9,7 +9,6 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- 3D Confetti Library for Parlay Hits! -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <!-- Switched from Inter to Roboto to fix word spacing/kerning issues -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Condensed:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     
     <script type="module">
@@ -53,7 +52,6 @@
         .toast-animate { animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Force table text to wrap instead of causing horizontal scroll */
         table { table-layout: fixed; width: 100%; }
         td { word-wrap: break-word; white-space: normal; }
     </style>
@@ -70,9 +68,10 @@
             </div>
             
             <div class="flex items-center">
-                <div class="hidden md:flex flex-col items-end mr-4">
-                    <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Group Bankroll</span>
-                    <span class="text-lg font-mono font-black text-white drop-shadow-md" id="groupBankrollDisplay">TBD</span>
+                <!-- Group Bankroll Clickable UI -->
+                <div class="hidden md:flex flex-col items-end mr-4 cursor-pointer group" onclick="window.toggleBankrollModal()" title="View Group Deposits">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold group-hover:text-white transition-colors flex items-center">Group Bankroll <i class="ph-bold ph-info ml-1"></i></span>
+                    <span class="text-lg font-mono font-black text-white drop-shadow-md group-hover:text-dkGreen transition-colors" id="groupBankrollDisplay">TBD</span>
                 </div>
                 
                 <div class="flex items-center space-x-3 ml-2 pl-3 border-l border-dkBorder">
@@ -106,7 +105,6 @@
                     <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex flex-col">
                         <div class="bg-gradient-to-r from-dkDark to-dkCard border-b border-dkBorder p-4 flex items-center justify-center relative overflow-hidden">
                             <div class="absolute inset-0 bg-dkGreen/5 pointer-events-none"></div>
-                            <span class="text-2xl mr-3 relative z-10 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>
                             <span class="text-white font-bold text-sm relative z-10 flex items-center">
                                 Week&nbsp;<span id="currentWeekBannerText">--</span>&nbsp;Bozo: 
                                 <span id="bannerBozoName" class="text-gray-400 font-normal ml-1">To Be Determined (Awaiting Results)</span>
@@ -185,7 +183,7 @@
                 <div id="viewAllTime" class="space-y-6 hidden h-full">
                     <div id="bozoBanner" class="bg-gradient-to-br from-[#2a0808] to-dkDark border border-red-900/50 rounded-2xl p-6 relative overflow-hidden shadow-2xl transition-all duration-300">
                         <div class="absolute -right-6 -bottom-10 opacity-5 pointer-events-none">
-                            <i class="ph-fill ph-mask-sad text-[180px] text-red-500"></i>
+                            <span class="text-[180px]">🤡</span>
                         </div>
                         <div class="flex flex-col md:flex-row items-center justify-between relative z-10 gap-6">
                             <div class="flex items-center space-x-5 w-full md:w-auto">
@@ -233,7 +231,6 @@
                             </table>
                         </div>
 
-                        <!-- Legacy Data Footer -->
                         <div class="p-5 border-t border-dkBorder bg-black/40 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <div class="flex items-center space-x-2">
                                 <div class="bg-green-500/10 p-1.5 rounded-lg border border-green-500/20">
@@ -320,6 +317,11 @@
                             <div class="flex justify-between items-end">
                                 <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">To Win</p>
                                 <p class="text-3xl font-mono font-black text-dkGreen drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" id="totalPayoutContainer">$<span id="totalPayout">0.00</span></p>
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-t border-dkBorder/50 flex space-x-2 admin-only hidden">
+                                <button onclick="window.deductWager()" class="flex-1 bg-red-900/40 hover:bg-red-800 text-red-400 border border-red-500/30 font-bold py-2 rounded-lg uppercase tracking-widest text-[10px] transition-all flex justify-center items-center"><i class="ph-bold ph-minus mr-1"></i> Deduct Wager</button>
+                                <button onclick="window.creditPayout()" class="flex-1 bg-green-900/40 hover:bg-green-800 text-dkGreen border border-green-500/30 font-bold py-2 rounded-lg uppercase tracking-widest text-[10px] transition-all flex justify-center items-center"><i class="ph-bold ph-plus mr-1"></i> Credit Payout</button>
                             </div>
                         </div>
                     </div>
@@ -425,13 +427,15 @@
                                 </div>
                             </div>
                             
-                            <div class="pt-2">
+                            <div class="pt-2 flex flex-col space-y-2">
                                 <button onclick="window.clearCurrentWeekVotes()" class="w-full bg-red-900/40 hover:bg-red-800 text-red-400 border border-red-500/30 font-bold py-2.5 rounded-lg uppercase tracking-widest text-[10px] transition-all flex items-center justify-center">
                                     <i class="ph-fill ph-trash mr-2"></i> Clear Viewing Week's Votes
                                 </button>
+                                <button onclick="window.clearOddsOverride()" class="w-full bg-red-900/40 hover:bg-red-800 text-red-400 border border-red-500/30 font-bold py-2.5 rounded-lg uppercase tracking-widest text-[10px] transition-all flex items-center justify-center">
+                                    <i class="ph-fill ph-x-circle mr-2"></i> Clear Payout/Odds Override
+                                </button>
                             </div>
 
-                            <!-- Admin Activity Log Container -->
                             <div class="border-t border-red-900/30 pt-4 mt-4 hidden" id="adminLogSection">
                                 <h4 class="text-red-400 font-bold text-sm mb-2 flex items-center"><i class="ph-fill ph-clock-counter-clockwise mr-2"></i> Admin Activity Log</h4>
                                 <div class="bg-dkDark/50 rounded-xl border border-red-900/30 shadow-inner p-3 max-h-40 overflow-y-auto space-y-3" id="adminLogList">
@@ -442,6 +446,30 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bankrollModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-dkCard glass-card w-full max-w-md rounded-2xl border border-dkBorder shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden transform scale-95 opacity-0 transition-all duration-200 flex flex-col max-h-[90vh]" id="bankrollContent">
+            <div class="p-5 border-b border-dkBorder flex justify-between items-center bg-black/40 shrink-0">
+                <h3 class="text-white font-black text-lg tracking-normal flex items-center"><i class="ph-fill ph-bank mr-2 text-dkGreen"></i> Group Bankroll Ledger</h3>
+                <button onclick="window.toggleBankrollModal()" class="text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-colors">
+                    <i class="ph-fill ph-x"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 bg-dkDark flex justify-between items-center border-b border-dkBorder shadow-inner shrink-0">
+                <span class="text-sm text-gray-400 font-bold uppercase tracking-widest">Total Value</span>
+                <span class="text-3xl font-mono font-black text-dkGreen drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" id="modalBankrollTotal">$0.00</span>
+            </div>
+
+            <div class="p-6 overflow-y-auto flex-grow">
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-3">Individual Deposits</p>
+                <div class="space-y-2" id="depositsList">
+                    <!-- Populated by JS -->
+                </div>
+                <p class="text-xs text-gray-500 italic mt-4 admin-only hidden">Edit amounts and hit Enter/Save to update.</p>
             </div>
         </div>
     </div>
@@ -479,7 +507,7 @@
         let appState = {
             picks: [],
             votes: [],
-            adminLogs: [], // New state for admin tracking
+            adminLogs: [],
             currentWeek: 1,
             viewingWeek: 1,
             isClockEnabled: true,
@@ -492,6 +520,7 @@
             wager: null,
             customCutoff: null,
             manualVoters: {},
+            deposits: {}, 
             activeParlay: 'main',
             celebratedWeeks: new Set()
         };
@@ -576,7 +605,6 @@
             calculateDynamicCutoff();
         }
 
-        // Core Admin Action Logger
         window.logAdminAction = async function(action, details) {
             if(!appState.db) return;
             try {
@@ -593,7 +621,6 @@
             if(!appState.db || !appState.userId) return;
             const { collection, onSnapshot, query, doc, orderBy, limit } = window.firebaseModules;
             
-            // Listen to Picks
             const picksPath = getCollectionPath("picks");
             onSnapshot(query(collection(appState.db, picksPath)), (snapshot) => {
                 appState.picks = [];
@@ -604,7 +631,6 @@
                 calculateDynamicCutoff(); 
             });
 
-            // Listen to Votes
             const votesPath = getCollectionPath("votes");
             onSnapshot(query(collection(appState.db, votesPath)), (snapshot) => {
                 appState.votes = [];
@@ -613,7 +639,6 @@
                 renderPicks(); 
             });
 
-            // Listen to Admin Logs
             const logsPath = getCollectionPath("admin_logs");
             const logsQuery = query(collection(appState.db, logsPath), orderBy("timestamp", "desc"), limit(50));
             onSnapshot(logsQuery, (snapshot) => {
@@ -622,7 +647,6 @@
                 renderAdminLogs();
             });
 
-            // Listen to Global Settings
             let configDoc = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
             onSnapshot(configDoc, (docSnap) => {
                 if (docSnap.exists()) {
@@ -631,6 +655,7 @@
                         appState.bankroll = data.bankroll;
                         const displayStr = data.bankroll ? `$${parseFloat(data.bankroll).toFixed(2)}` : 'TBD';
                         document.getElementById('groupBankrollDisplay').innerText = displayStr;
+                        document.getElementById('modalBankrollTotal').innerText = displayStr;
                         if (document.activeElement !== document.getElementById('bankrollSetting')) document.getElementById('bankrollSetting').value = data.bankroll || '';
                     }
                     if (data.wager !== undefined) {
@@ -652,6 +677,10 @@
                             manualInput.value = appState.manualVoters[bozoWeek] ? appState.manualVoters[bozoWeek].join(', ') : '';
                         }
                         window.updateVotingUI();
+                    }
+                    if (data.deposits !== undefined) {
+                        appState.deposits = data.deposits;
+                        window.renderDeposits();
                     }
                     calculateDynamicCutoff(); 
                 }
@@ -727,50 +756,6 @@
             window.calculateOdds();
         };
 
-        window.updateBozoBanner = function() {
-            const bannerWeekNum = document.getElementById('currentWeekBannerText');
-            const bannerName = document.getElementById('bannerBozoName');
-            if (!bannerWeekNum || !bannerName) return;
-
-            let targetWeek = appState.viewingWeek - 1;
-            
-            if (targetWeek < 1) {
-                bannerWeekNum.innerText = "1";
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
-                return;
-            }
-
-            bannerWeekNum.innerText = targetWeek;
-
-            const prevVotes = appState.votes.filter(v => v.week === targetWeek);
-            const prevPicks = appState.picks.filter(p => p.week === targetWeek);
-            const eligibleVoters = [...new Set(prevPicks.map(p => p.name))];
-            
-            // Subtract manual voters from the required total
-            const manual = appState.manualVoters?.[targetWeek] || [];
-            const requiredVoters = eligibleVoters.filter(name => !manual.includes(name));
-
-            const hasAllVotes = prevVotes.length >= requiredVoters.length;
-            const isNextWeekLocked = (targetWeek < appState.currentWeek - 1) || (targetWeek === appState.currentWeek - 1 && appState.isLocked);
-
-            // If nobody is eligible, or not EVERY required person has voted (and next week hasn't locked), stay TBD!
-            if (eligibleVoters.length === 0 || (!hasAllVotes && !isNextWeekLocked)) {
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
-                return;
-            }
-
-            const counts = {};
-            prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
-            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-            const winner = sorted.length > 0 ? sorted[0][0] : null;
-
-            if (winner) {
-                bannerName.innerHTML = `<span class="text-white font-black ml-1">${winner}</span> <span class="ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>`;
-            } else {
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
-            }
-        };
-
         function updateWeekUI() {
             document.getElementById('prevWeekBtn').disabled = appState.viewingWeek <= 1;
             document.getElementById('nextWeekBtn').disabled = appState.viewingWeek >= appState.currentWeek;
@@ -838,7 +823,7 @@
         }
 
         function calculateCurrentWeek() {
-            // Re-aligned NFL calendar baseline: 2026-09-01 at 3:00 AM EDT
+            // Roll over on Tuesdays at 3:00 AM EST
             const seasonStart = new Date('2026-09-01T03:00:00-04:00').getTime(); 
             const now = new Date().getTime();
             
@@ -951,7 +936,7 @@
             appState.isLocked = true; 
             document.getElementById('formOverlay').classList.remove('hidden'); 
             updateWeekUI(); 
-            renderVotes(); // Ensure Bozo week updates if locking
+            renderVotes(); 
         }
         function unlockForm() { 
             appState.isLocked = false; 
@@ -1007,20 +992,62 @@
             const prevPicks = appState.picks.filter(p => p.week === targetWeek);
             const eligibleVoters = [...new Set(prevPicks.map(p => p.name))];
             
-            // Subtract manual voters from the required total
             const manual = appState.manualVoters?.[targetWeek] || [];
             const requiredVoters = eligibleVoters.filter(name => !manual.includes(name));
             
             const hasAllVotes = prevVotes.length >= requiredVoters.length;
-            const isNextWeekLocked = (targetWeek < appState.currentWeek - 1) || (targetWeek === appState.currentWeek - 1 && appState.isLocked);
+            
+            const targetWeekLocked = (targetWeek < appState.currentWeek - 1) || (targetWeek === appState.currentWeek - 1 && appState.isLocked);
 
-            if (eligibleVoters.length === 0 || (!hasAllVotes && !isNextWeekLocked)) return null;
+            if (eligibleVoters.length === 0 || (!hasAllVotes && !targetWeekLocked)) return null;
             
             const counts = {};
             prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
             const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
             return sorted.length > 0 ? sorted[0][0] : null;
         }
+
+        window.updateBozoBanner = function() {
+            const bannerWeekNum = document.getElementById('currentWeekBannerText');
+            const bannerName = document.getElementById('bannerBozoName');
+            if (!bannerWeekNum || !bannerName) return;
+
+            let targetWeek = appState.viewingWeek - 1;
+            
+            if (targetWeek < 1) {
+                bannerWeekNum.innerText = "1";
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+                return;
+            }
+
+            bannerWeekNum.innerText = targetWeek;
+
+            const prevVotes = appState.votes.filter(v => v.week === targetWeek);
+            const prevPicks = appState.picks.filter(p => p.week === targetWeek);
+            const eligibleVoters = [...new Set(prevPicks.map(p => p.name))];
+            
+            const manual = appState.manualVoters?.[targetWeek] || [];
+            const requiredVoters = eligibleVoters.filter(name => !manual.includes(name));
+
+            const hasAllVotes = prevVotes.length >= requiredVoters.length;
+            const isNextWeekLocked = (targetWeek < appState.currentWeek - 1) || (targetWeek === appState.currentWeek - 1 && appState.isLocked);
+
+            if (eligibleVoters.length === 0 || (!hasAllVotes && !isNextWeekLocked)) {
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+                return;
+            }
+
+            const counts = {};
+            prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+            const winner = sorted.length > 0 ? sorted[0][0] : null;
+
+            if (winner) {
+                bannerName.innerHTML = `<span class="text-white font-black ml-1">${winner}</span> <span class="ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>`;
+            } else {
+                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+            }
+        };
 
         function checkConfetti(picksArray) {
             if (picksArray.length === 0) return;
@@ -1116,7 +1143,6 @@
                 await updateDoc(doc(appState.db, getCollectionPath("picks"), id), { status });
                 window.showToast(`Pick marked as ${status.toUpperCase()}!`, "success");
                 
-                // Track in admin log
                 if (pick) window.logAdminAction("Grade Pick", `Marked ${pick.name}'s pick (${pick.bet}) as ${status.toUpperCase()}`);
             } catch(e) {
                 window.showToast("Failed to grade pick.", "error");
@@ -1268,7 +1294,6 @@
             
             const isPastWeek = voteWeek < (appState.currentWeek - (appState.isLocked ? 0 : 1));
             
-            // Required voters = Everyone who made a pick MINUS anyone the Admin manually excused
             const requiredVotersCount = totalEligible - manual.length;
             const isFullyVoted = totalEligible > 0 && totalVotes >= requiredVotersCount;
             
@@ -1398,6 +1423,98 @@
             }
         }
 
+        window.toggleBankrollModal = function() {
+            const modal = document.getElementById('bankrollModal');
+            const content = document.getElementById('bankrollContent');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                window.renderDeposits();
+                setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
+            } else {
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            }
+        };
+
+        window.renderDeposits = function() {
+            const list = document.getElementById('depositsList');
+            if (!list) return;
+            list.innerHTML = '';
+            
+            let totalVal = appState.bankroll ? parseFloat(appState.bankroll) : 0;
+            
+            ALL_BETTORS.forEach(name => {
+                const amount = appState.deposits?.[name] || 0;
+                
+                if (appState.isAdminMode) {
+                    list.innerHTML += `
+                    <div class="flex justify-between items-center bg-black/40 p-3 rounded-lg border border-dkBorder">
+                        <span class="text-white font-bold text-sm">${name}</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-gray-400 text-xs font-mono">$</span>
+                            <input type="number" step="0.01" value="${amount}" onkeydown="if(event.key==='Enter') window.updateDeposit('${name}', this.value)" class="w-20 bg-dkDark border border-dkBorder rounded p-1 text-white text-right text-sm font-mono focus:border-dkGreen focus:outline-none">
+                            <button onclick="window.updateDeposit('${name}', this.previousElementSibling.value)" class="text-dkGreen hover:text-white p-1 transition-colors"><i class="ph-bold ph-check"></i></button>
+                        </div>
+                    </div>`;
+                } else {
+                    list.innerHTML += `
+                    <div class="flex justify-between items-center bg-black/40 p-3 rounded-lg border border-dkBorder">
+                        <span class="text-gray-300 font-bold text-sm">${name}</span>
+                        <span class="text-white font-mono font-bold">$${parseFloat(amount).toFixed(2)}</span>
+                    </div>`;
+                }
+            });
+        };
+
+        window.updateDeposit = async function(name, val) {
+            if (!appState.db) return;
+            const num = parseFloat(val) || 0;
+            
+            const updatedDeposits = { ...appState.deposits, [name]: num };
+            
+            try {
+                const { setDoc, doc } = window.firebaseModules;
+                const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
+                await setDoc(path, { deposits: updatedDeposits }, { merge: true });
+                window.showToast(`${name}'s deposit updated to $${num}`, "success");
+                window.logAdminAction("Update Deposit", `Set ${name}'s deposit to $${num}`);
+            } catch (e) {
+                window.showToast("Failed to update deposit", "error");
+            }
+        };
+
+        window.deductWager = async function() {
+            if (!appState.db || !appState.bankroll || !appState.wager) {
+                window.showToast("Bankroll or Wager not set", "error");
+                return;
+            }
+            const newTotal = parseFloat(appState.bankroll) - parseFloat(appState.wager);
+            try {
+                const { setDoc, doc } = window.firebaseModules;
+                const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
+                await setDoc(path, { bankroll: newTotal }, { merge: true });
+                window.showToast(`Wager ($${appState.wager}) deducted!`, "success");
+                window.logAdminAction("Deduct Wager", `Subtracted $${appState.wager} for Week ${appState.viewingWeek}`);
+            } catch(e) {}
+        };
+
+        window.creditPayout = async function() {
+            if (!appState.db || !appState.bankroll) return;
+            const payoutStr = document.getElementById('totalPayout').innerText.replace(/,/g, '');
+            const payoutNum = parseFloat(payoutStr);
+            if (payoutNum <= 0) return;
+            
+            const newTotal = parseFloat(appState.bankroll) + payoutNum;
+            try {
+                const { setDoc, doc } = window.firebaseModules;
+                const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
+                await setDoc(path, { bankroll: newTotal }, { merge: true });
+                window.showToast(`Payout ($${payoutNum}) added to Bankroll!`, "success");
+                window.logAdminAction("Credit Payout", `Added $${payoutNum} payout for Week ${appState.viewingWeek}`);
+            } catch(e) {}
+        };
+
         window.toggleSettings = function() {
             const modal = document.getElementById('settingsModal');
             const content = document.getElementById('settingsContent');
@@ -1418,7 +1535,6 @@
                 document.getElementById('adminControlsUI').classList.remove('hidden');
                 document.getElementById('adminControlsUI').classList.add('flex');
                 
-                // Show Admin Log section only when unlocked
                 document.getElementById('adminLogSection').classList.remove('hidden');
             } else {
                 window.showToast("Incorrect PIN", "error");
@@ -1496,8 +1612,17 @@
                 window.showToast("Failed to clear votes.", "error");
             }
         };
+        
+        window.clearOddsOverride = function() {
+            const oddsInput = document.getElementById('totalOddsDisplay');
+            if (oddsInput) {
+                oddsInput.value = '';
+                appState.hasManualOdds = false;
+                window.calculateOdds();
+                window.showToast("Overrides cleared!", "success");
+            }
+        };
 
-        // Render the fetched Admin Logs into the UI
         function renderAdminLogs() {
             const container = document.getElementById('adminLogList');
             if (!container) return;
@@ -1522,6 +1647,9 @@
         function toggleAdminUI() {
             const els = document.querySelectorAll('.admin-only');
             els.forEach(el => appState.isAdminMode ? el.classList.remove('hidden') : el.classList.add('hidden'));
+            if (!document.getElementById('bankrollModal').classList.contains('hidden')) {
+                window.renderDeposits();
+            }
         }
 
         window.openEditModal = function(id, name, bet, odds) {
