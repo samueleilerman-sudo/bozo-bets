@@ -318,7 +318,9 @@
                         <div class="flex flex-col">
                             <div class="flex justify-between items-end">
                                 <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1">To Win</p>
-                                <p class="text-3xl font-mono font-black text-dkGreen drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" id="totalPayoutContainer">$<span id="totalPayout">0.00</span></p>
+                                <div class="flex items-center text-3xl font-mono font-black drop-shadow-[0_0_10px_rgba(34,197,94,0.3)] transition-colors text-dkGreen" id="totalPayoutContainer">
+                                    $<input type="text" id="totalPayout" value="0.00" class="bg-transparent text-right w-32 border-b border-transparent hover:border-dkBorder focus:border-dkGreen focus:outline-none transition-colors cursor-text ml-1" title="Click to manually override payout">
+                                </div>
                             </div>
                             
                             <div class="mt-4 pt-3 border-t border-dkBorder/50 flex space-x-2 admin-only hidden">
@@ -518,6 +520,7 @@
             userId: null,
             db: null,
             hasManualOdds: false,
+            hasManualPayout: false,
             bankroll: null,
             wager: null,
             customCutoff: null,
@@ -738,6 +741,7 @@
         window.switchParlayTab = function(type) {
             appState.activeParlay = type;
             appState.hasManualOdds = false; 
+            appState.hasManualPayout = false; 
             updateWeekUI();
             
             const isMain = type === 'main';
@@ -790,7 +794,13 @@
                 document.getElementById('pickInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all placeholder-gray-600 shadow-inner ${styleColor}`;
                 document.getElementById('nameInput').className = `w-full bg-dkDark border border-dkBorder rounded-xl p-3 text-white focus:outline-none focus:ring-1 transition-all appearance-none cursor-pointer shadow-inner ${styleColor}`;
                 
-                document.getElementById('totalPayoutContainer').className = `text-3xl font-mono font-black drop-shadow-[0_0_10px_rgba(0,0,0,0.3)] transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
+                document.getElementById('totalPayoutContainer').className = `flex items-center text-3xl font-mono font-black drop-shadow-[0_0_10px_rgba(0,0,0,0.3)] transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
+                
+                const payoutInput = document.getElementById('totalPayout');
+                if (payoutInput) {
+                    payoutInput.className = `bg-transparent text-right w-32 border-b border-transparent focus:outline-none transition-colors cursor-text ml-1 ${isMain ? 'hover:border-dkBorder focus:border-dkGreen' : 'hover:border-dkBorder focus:border-purple-400'}`;
+                }
+
                 document.getElementById('payoutIcon').className = `ph-fill ph-money mr-2 transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
                 
                 if (isPast) {
@@ -848,7 +858,8 @@
             document.getElementById('pickCount').innerText = weekPicks.length;
             
             if (weekPicks.length === 0) {
-                if(!appState.hasManualOdds) { document.getElementById('totalOddsDisplay').value = "+0"; updatePayoutDisplay(0); }
+                if(!appState.hasManualOdds) { document.getElementById('totalOddsDisplay').value = "+0"; }
+                updatePayoutDisplay(0);
                 return;
             }
 
@@ -873,14 +884,18 @@
         };
 
         function updatePayoutDisplay(parlayOdds) {
+            if (appState.hasManualPayout) return; 
+            const payoutInput = document.getElementById('totalPayout');
+            if (!payoutInput) return;
+
             if (parlayOdds === 0) { 
-                document.getElementById('totalPayout').innerText = "0.00"; 
+                payoutInput.value = "0.00"; 
                 return; 
             }
             let dec = parlayOdds > 0 ? (parlayOdds / 100) + 1 : (100 / Math.abs(parlayOdds)) + 1;
             const wagerAmount = appState.wager ? parseFloat(appState.wager) : 0;
             const totalToWin = (wagerAmount * dec) - wagerAmount;
-            document.getElementById('totalPayout').innerText = totalToWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            payoutInput.value = totalToWin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         document.getElementById('totalOddsDisplay').addEventListener('input', (e) => {
@@ -892,6 +907,16 @@
                 appState.hasManualOdds = true;
                 let numOdds = parseInt(val.replace(/[^0-9\-+]/g, ''), 10);
                 if (!isNaN(numOdds)) updatePayoutDisplay(numOdds);
+            }
+        });
+
+        document.getElementById('totalPayout').addEventListener('input', (e) => {
+            const val = e.target.value;
+            if (val.trim() === '') {
+                appState.hasManualPayout = false;
+                window.calculateOdds();
+            } else {
+                appState.hasManualPayout = true;
             }
         });
 
@@ -1503,9 +1528,11 @@
 
         window.creditPayout = async function() {
             if (!appState.db || !appState.bankroll) return;
-            const payoutStr = document.getElementById('totalPayout').innerText.replace(/,/g, '');
+            const payoutElement = document.getElementById('totalPayout');
+            // Remove commas or dollar signs so parseFloat works cleanly
+            const payoutStr = payoutElement.value.replace(/[\$,]/g, '');
             const payoutNum = parseFloat(payoutStr);
-            if (payoutNum <= 0) return;
+            if (payoutNum <= 0 || isNaN(payoutNum)) return;
             
             const newTotal = parseFloat(appState.bankroll) + payoutNum;
             try {
@@ -1538,6 +1565,15 @@
                 document.getElementById('adminControlsUI').classList.add('flex');
                 
                 document.getElementById('adminLogSection').classList.remove('hidden');
+                
+                const oddsInput = document.getElementById('totalOddsDisplay');
+                const payoutInput = document.getElementById('totalPayout');
+                if (oddsInput) oddsInput.readOnly = false;
+                if (payoutInput) payoutInput.readOnly = false;
+
+                if (!document.getElementById('bankrollModal').classList.contains('hidden')) {
+                    window.renderDeposits();
+                }
             } else {
                 window.showToast("Incorrect PIN", "error");
                 document.getElementById('adminPinInput').value = '';
@@ -1550,7 +1586,9 @@
             const extended = document.getElementById('extendedAdminControls');
             
             const oddsInput = document.getElementById('totalOddsDisplay');
+            const payoutInput = document.getElementById('totalPayout');
             if (oddsInput) oddsInput.readOnly = !appState.isAdminMode;
+            if (payoutInput) payoutInput.readOnly = !appState.isAdminMode;
             
             if (appState.isAdminMode) {
                 extended.classList.remove('hidden');
@@ -1617,12 +1655,13 @@
         
         window.clearOddsOverride = function() {
             const oddsInput = document.getElementById('totalOddsDisplay');
-            if (oddsInput) {
-                oddsInput.value = '';
-                appState.hasManualOdds = false;
-                window.calculateOdds();
-                window.showToast("Overrides cleared!", "success");
-            }
+            const payoutInput = document.getElementById('totalPayout');
+            if (oddsInput) oddsInput.value = '';
+            if (payoutInput) payoutInput.value = '';
+            appState.hasManualOdds = false;
+            appState.hasManualPayout = false;
+            window.calculateOdds();
+            window.showToast("Overrides cleared!", "success");
         };
 
         function renderAdminLogs() {
@@ -1720,7 +1759,9 @@
             });
             
             const oddsInput = document.getElementById('totalOddsDisplay');
+            const payoutInput = document.getElementById('totalPayout');
             if (oddsInput) oddsInput.readOnly = true;
+            if (payoutInput) payoutInput.readOnly = true;
         });
 
     </script>
