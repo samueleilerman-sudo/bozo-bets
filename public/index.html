@@ -7,16 +7,14 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- 3D Confetti Library for Parlay Hits! -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Condensed:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        
-        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc, orderBy, limit, getAuth, signInAnonymously, signInWithCustomToken };
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        window.firebaseModules = { initializeApp, getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, getDocs, deleteDoc, doc, updateDoc, setDoc, orderBy, limit, getAuth, signInAnonymously };
     </script>
 
     <script>
@@ -25,7 +23,7 @@
                 extend: {
                     fontFamily: { 
                         sans: ['Roboto', 'sans-serif'], 
-                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
                         dk: ['"Roboto Condensed"', 'sans-serif'],
                         venmo: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif']
                     },
@@ -44,7 +42,6 @@
 
     <style>
         body { background-color: #050505; color: #fff; background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 20px 20px; }
-        /* GPU Acceleration applied to glass-card to prevent iOS Safari backdrop-filter flashing bug */
         .glass-card { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); transform: translateZ(0); -webkit-transform: translateZ(0); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -52,7 +49,6 @@
         @keyframes bozoSpin { 100% { transform: rotate(360deg); } }
         .toast-animate { animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
         table { table-layout: fixed; width: 100%; }
         td { word-wrap: break-word; white-space: normal; }
     </style>
@@ -69,7 +65,6 @@
             </div>
             
             <div class="flex items-center">
-                <!-- Group Bankroll Clickable UI -->
                 <div class="hidden md:flex flex-col items-end mr-4 cursor-pointer group" onclick="window.toggleBankrollModal()" title="View Group Deposits">
                     <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold group-hover:text-white transition-colors flex items-center">Group Bankroll <i class="ph-bold ph-info ml-1"></i></span>
                     <span class="text-lg font-mono font-black text-white drop-shadow-md group-hover:text-dkGreen transition-colors" id="groupBankrollDisplay">TBD</span>
@@ -106,9 +101,11 @@
                     <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex flex-col">
                         <div class="bg-gradient-to-r from-dkDark to-dkCard border-b border-dkBorder p-4 flex items-center justify-center relative overflow-hidden">
                             <div class="absolute inset-0 bg-dkGreen/5 pointer-events-none"></div>
-                            <span class="text-white font-bold text-sm relative z-10 flex items-center">
-                                Week&nbsp;<span id="currentWeekBannerText">--</span>&nbsp;Bozo: 
-                                <span id="bannerBozoName" class="text-gray-400 font-normal ml-1">To Be Determined (Awaiting Results)</span>
+                            <span class="text-white font-bold text-sm relative z-10 flex items-center w-full justify-center px-2">
+                                <span class="whitespace-nowrap shrink-0">Week&nbsp;<span id="currentWeekBannerText">--</span>&nbsp;Bozo:</span>
+                                <div id="bannerBozoName" class="text-gray-400 font-normal ml-1 flex items-center min-w-0">
+                                    <span class="truncate">To Be Determined (Awaiting Results)</span>
+                                </div>
                             </span>
                         </div>
 
@@ -161,23 +158,47 @@
                     </div>
                 </div>
 
-                <div id="viewStandings" class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden hidden flex-col h-full min-h-[400px]">
-                    <div class="p-5 border-b border-dkBorder bg-white/[0.01]">
-                        <h3 class="text-white font-black text-lg tracking-normal">2026 Season Win/Loss Records</h3>
+                <div id="viewStandings" class="hidden flex-col h-full min-h-[400px] space-y-6">
+                    <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex flex-col">
+                        <div class="p-5 border-b border-dkBorder bg-white/[0.01]">
+                            <h3 class="text-white font-black text-lg tracking-normal">2026 Season Win/Loss Records</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="text-gray-400 text-[10px] uppercase tracking-widest border-b border-dkBorder bg-black/20">
+                                        <th class="p-4 font-bold w-16 text-center">Rank</th>
+                                        <th class="p-4 font-bold">Bettor</th>
+                                        <th class="p-4 font-bold text-center">Record</th>
+                                        <th class="p-4 font-bold text-right">Hit Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="standingsTableBody" class="divide-y divide-dkBorder/50">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="text-gray-400 text-[10px] uppercase tracking-widest border-b border-dkBorder bg-black/20">
-                                    <th class="p-4 font-bold w-16 text-center">Rank</th>
-                                    <th class="p-4 font-bold">Bettor</th>
-                                    <th class="p-4 font-bold text-center">Record</th>
-                                    <th class="p-4 font-bold text-right">Hit Rate</th>
-                                </tr>
-                            </thead>
-                            <tbody id="standingsTableBody" class="divide-y divide-dkBorder/50">
-                            </tbody>
-                        </table>
+                    
+                    <div class="bg-dkCard glass-card rounded-2xl border border-dkBorder shadow-2xl overflow-hidden flex flex-col">
+                        <div class="p-5 border-b border-dkBorder bg-white/[0.01]">
+                            <h3 class="text-white font-black text-lg tracking-normal flex items-center">
+                                <span class="text-xl mr-2 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]">🤡</span>
+                                2026 Season Bozo Tracker
+                            </h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="text-gray-400 text-[10px] uppercase tracking-widest border-b border-dkBorder bg-black/20">
+                                        <th class="p-4 font-bold w-16 text-center">Rank</th>
+                                        <th class="p-4 font-bold">Bettor</th>
+                                        <th class="p-4 font-bold text-right">Bozo Crowns</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="seasonBozoTableBody" class="divide-y divide-dkBorder/50">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -232,7 +253,7 @@
                             </table>
                         </div>
 
-                        <!-- Legacy Data Footer -->
+                        <!-- Legacy Data Footer with Downloads -->
                         <div class="p-5 border-t border-dkBorder bg-black/40 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <div class="flex items-center space-x-2">
                                 <div class="bg-green-500/10 p-1.5 rounded-lg border border-green-500/20">
@@ -799,6 +820,7 @@
                 const payoutInput = document.getElementById('totalPayout');
                 if (payoutInput) {
                     payoutInput.className = `bg-transparent text-right w-32 border-b border-transparent focus:outline-none transition-colors cursor-text ml-1 ${isMain ? 'hover:border-dkBorder focus:border-dkGreen' : 'hover:border-dkBorder focus:border-purple-400'}`;
+                    payoutInput.readOnly = !appState.isAdminMode;
                 }
 
                 document.getElementById('payoutIcon').className = `ph-fill ph-money mr-2 transition-colors ${isMain ? 'text-dkGreen' : 'text-purple-400'}`;
@@ -835,7 +857,6 @@
         }
 
         function calculateCurrentWeek() {
-            // Roll over on Tuesdays at 3:00 AM EST
             const seasonStart = new Date('2026-09-01T03:00:00-04:00').getTime(); 
             const now = new Date().getTime();
             
@@ -1011,8 +1032,7 @@
             btn.disabled = false;
         });
 
-        function getPreviousBozo(week) {
-            const targetWeek = week - 1;
+        window.getBozoForWeek = function(targetWeek) {
             if (targetWeek < 1) return null;
             
             const prevVotes = appState.votes.filter(v => v.week === targetWeek);
@@ -1023,7 +1043,6 @@
             const requiredVoters = eligibleVoters.filter(name => !manual.includes(name));
             
             const hasAllVotes = prevVotes.length >= requiredVoters.length;
-            
             const targetWeekLocked = (targetWeek < appState.currentWeek - 1) || (targetWeek === appState.currentWeek - 1 && appState.isLocked);
 
             if (eligibleVoters.length === 0 || (!hasAllVotes && !targetWeekLocked)) return null;
@@ -1032,7 +1051,11 @@
             prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
             const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
             return sorted.length > 0 ? sorted[0][0] : null;
-        }
+        };
+
+        window.getPreviousBozo = function(week) {
+            return window.getBozoForWeek(week - 1);
+        };
 
         window.updateBozoBanner = function() {
             const bannerWeekNum = document.getElementById('currentWeekBannerText');
@@ -1043,36 +1066,17 @@
             
             if (targetWeek < 1) {
                 bannerWeekNum.innerText = "1";
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+                bannerName.innerHTML = `<span class="text-gray-400 truncate">To Be Determined (Awaiting Results)</span>`;
                 return;
             }
 
             bannerWeekNum.innerText = targetWeek;
-
-            const prevVotes = appState.votes.filter(v => v.week === targetWeek);
-            const prevPicks = appState.picks.filter(p => p.week === targetWeek);
-            const eligibleVoters = [...new Set(prevPicks.map(p => p.name))];
-            
-            const manual = appState.manualVoters?.[targetWeek] || [];
-            const requiredVoters = eligibleVoters.filter(name => !manual.includes(name));
-
-            const hasAllVotes = prevVotes.length >= requiredVoters.length;
-            const isNextWeekLocked = (targetWeek < appState.currentWeek - 1) || (targetWeek === appState.currentWeek - 1 && appState.isLocked);
-
-            if (eligibleVoters.length === 0 || (!hasAllVotes && !isNextWeekLocked)) {
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
-                return;
-            }
-
-            const counts = {};
-            prevVotes.forEach(v => counts[v.bozoName] = (counts[v.bozoName] || 0) + 1);
-            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-            const winner = sorted.length > 0 ? sorted[0][0] : null;
+            const winner = window.getBozoForWeek(targetWeek);
 
             if (winner) {
-                bannerName.innerHTML = `<span class="text-white font-black ml-1">${winner}</span> <span class="ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>`;
+                bannerName.innerHTML = `<span class="text-white font-black truncate">${winner}</span><div class="shrink-0 ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</div>`;
             } else {
-                bannerName.innerHTML = `<span class="text-gray-400">To Be Determined (Awaiting Results)</span>`;
+                bannerName.innerHTML = `<span class="text-gray-400 truncate">To Be Determined (Awaiting Results)</span>`;
             }
         };
 
@@ -1114,11 +1118,11 @@
                 return;
             }
 
-            const prevBozo = getPreviousBozo(appState.viewingWeek);
+            const prevBozo = window.getPreviousBozo(appState.viewingWeek);
 
             weekPicks.forEach(pick => {
                 let displayOdds = window.formatOdds(pick.odds);
-                let bozoIcon = pick.name === prevBozo ? `<span title="Last Week's Bozo" class="ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</span>` : '';
+                let bozoIcon = pick.name === prevBozo ? `<div title="Last Week's Bozo" class="shrink-0 ml-1.5 text-lg drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]">🤡</div>` : '';
 
                 let rowClass = "transition-colors group ";
                 if (pick.status === 'won') rowClass += "bg-green-900/20 hover:bg-green-900/30";
@@ -1130,11 +1134,14 @@
                 tr.className = rowClass;
                 tr.innerHTML = `
                     <td class="p-3 align-top sm:align-middle border-b border-dkBorder/30">
-                        <div class="flex items-center space-x-2 pt-0.5 sm:pt-0">
+                        <div class="flex items-center space-x-2 pt-0.5 sm:pt-0 min-w-0">
                             <div class="h-6 w-6 rounded bg-dkDark flex items-center justify-center text-[10px] font-bold border border-dkBorder text-gray-400 group-hover:text-white group-hover:border-white/20 transition-all shrink-0">
                                 ${pick.name.charAt(0)}
                             </div>
-                            <span class="font-bold text-white text-xs sm:text-sm truncate flex items-center">${pick.name} ${bozoIcon}</span>
+                            <div class="flex items-center min-w-0">
+                                <span class="font-bold text-white text-xs sm:text-sm truncate">${pick.name}</span>
+                                ${bozoIcon}
+                            </div>
                         </div>
                     </td>
                     <td class="p-3 font-medium text-gray-300 text-xs sm:text-sm break-words whitespace-normal leading-snug border-b border-dkBorder/30">
@@ -1229,6 +1236,7 @@
             if (weekVotes.length === 0) { 
                 resultsContainer.classList.add('hidden'); 
                 if (window.updateBozoBanner) window.updateBozoBanner();
+                if (typeof window.updateBozoStandings === 'function') window.updateBozoStandings();
                 return; 
             }
             
@@ -1257,6 +1265,7 @@
             });
             
             if (window.updateBozoBanner) window.updateBozoBanner();
+            if (typeof window.updateBozoStandings === 'function') window.updateBozoStandings();
         }
 
         window.updateVotingUI = function() {
@@ -1393,6 +1402,7 @@
             renderTable('standingsTableBody', currentSeasonData, false, true);
             renderTable('allTimeTableBody', combinedData, true, false);
             updateUltimateBozo(combinedData);
+            if (typeof updateBozoStandings === 'function') updateBozoStandings();
         }
 
         function renderTable(tbodyId, dataObj, isAllTime = false, showStreaks = false) {
@@ -1448,6 +1458,40 @@
                 document.getElementById('ultimateBozoName').innerText = arr[0].name;
                 document.getElementById('ultimateBozoRate').innerText = `${arr[0].rate.toFixed(1)}% Hit Rate`;
             }
+        }
+
+        window.updateBozoStandings = function() {
+            const bozoTally = {};
+            const maxWeek = appState.currentWeek;
+            
+            for (let w = 1; w <= maxWeek; w++) {
+                const winner = window.getBozoForWeek(w);
+                if (winner) bozoTally[winner] = (bozoTally[winner] || 0) + 1;
+            }
+            
+            const tbody = document.getElementById('seasonBozoTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            const arr = Object.entries(bozoTally).sort((a,b) => b[1] - a[1]);
+            
+            if (arr.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-gray-500 text-xs font-bold bg-white/[0.01]">No bozos crowned yet this season.</td></tr>`;
+                return;
+            }
+            
+            arr.forEach(([name, count], index) => {
+                let icon = index === 0 ? '<div class="shrink-0 ml-1.5 text-lg drop-shadow-[0_0_5px_rgba(239,68,68,0.6)]">🤡</div>' : '';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-white/[0.02] transition-colors border-b border-dkBorder/30 last:border-0">
+                        <td class="p-4 text-center font-black text-gray-400">${index + 1}</td>
+                        <td class="p-4 font-bold text-white flex items-center min-w-0">
+                            <span class="truncate">${name}</span> ${icon}
+                        </td>
+                        <td class="p-4 text-right font-mono font-bold text-red-400">${count}</td>
+                    </tr>
+                `;
+            });
         }
 
         window.toggleBankrollModal = function() {
@@ -1529,7 +1573,6 @@
         window.creditPayout = async function() {
             if (!appState.db || !appState.bankroll) return;
             const payoutElement = document.getElementById('totalPayout');
-            // Remove commas or dollar signs so parseFloat works cleanly
             const payoutStr = payoutElement.value.replace(/[\$,]/g, '');
             const payoutNum = parseFloat(payoutStr);
             if (payoutNum <= 0 || isNaN(payoutNum)) return;
