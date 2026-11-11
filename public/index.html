@@ -679,16 +679,18 @@
                     const data = docSnap.data();
                     if (data.bankroll !== undefined) {
                         appState.bankroll = data.bankroll;
-                        const displayStr = data.bankroll ? `$${parseFloat(data.bankroll).toFixed(2)}` : 'TBD';
+                        const isValidNumber = data.bankroll !== null && data.bankroll !== '';
+                        const displayStr = isValidNumber ? `$${parseFloat(data.bankroll).toFixed(2)}` : 'TBD';
                         document.getElementById('groupBankrollDisplay').innerText = displayStr;
                         document.getElementById('modalBankrollTotal').innerText = displayStr;
-                        if (document.activeElement !== document.getElementById('bankrollSetting')) document.getElementById('bankrollSetting').value = data.bankroll || '';
+                        if (document.activeElement !== document.getElementById('bankrollSetting')) document.getElementById('bankrollSetting').value = data.bankroll !== null ? data.bankroll : '';
                     }
                     if (data.wager !== undefined) {
                         appState.wager = data.wager;
-                        const wagerStr = data.wager ? `$${parseFloat(data.wager).toFixed(2)}` : 'TBD';
+                        const isValidNumber = data.wager !== null && data.wager !== '';
+                        const wagerStr = isValidNumber ? `$${parseFloat(data.wager).toFixed(2)}` : 'TBD';
                         document.getElementById('payoutWagerDisplay').innerText = wagerStr;
-                        if (document.activeElement !== document.getElementById('wagerSetting')) document.getElementById('wagerSetting').value = data.wager || '';
+                        if (document.activeElement !== document.getElementById('wagerSetting')) document.getElementById('wagerSetting').value = data.wager !== null ? data.wager : '';
                         window.calculateOdds(); 
                     }
                     if (data.cutoffTime !== undefined) {
@@ -1002,6 +1004,24 @@
             if (!appState.db) { window.showToast("Database not initialized", "error"); return; }
 
             const name = document.getElementById('nameInput').value;
+            
+            const prevWeek = appState.viewingWeek - 1;
+            if (prevWeek >= 1 && !appState.isAdminMode) {
+                const parlayLost = appState.picks.some(p => p.week === prevWeek && (p.parlayType || 'main') === 'main' && p.status === 'lost');
+                const madePickLastWeek = appState.picks.some(p => p.week === prevWeek && p.name === name);
+                
+                if (parlayLost && madePickLastWeek) {
+                    const hasVoted = appState.votes.some(v => v.week === prevWeek && v.voterName === name);
+                    const isExempt = appState.manualVoters?.[prevWeek]?.includes(name);
+                    
+                    if (!hasVoted && !isExempt) {
+                        window.showToast(`You must vote for the Week ${prevWeek} Bozo first! 🤡`, "error");
+                        document.getElementById('bozoVoteWidget').scrollIntoView({ behavior: 'smooth' });
+                        return;
+                    }
+                }
+            }
+
             const bet = document.getElementById('pickInput').value;
             let oddsInputVal = document.getElementById('oddsInput').value.trim();
             
@@ -1556,11 +1576,13 @@
         };
 
         window.deductWager = async function() {
-            if (!appState.db || !appState.bankroll || !appState.wager) {
-                window.showToast("Bankroll or Wager not set", "error");
+            if (!appState.db) return;
+            if (!appState.wager) {
+                window.showToast("Weekly wager amount not set in Admin Overrides", "error");
                 return;
             }
-            const newTotal = parseFloat(appState.bankroll) - parseFloat(appState.wager);
+            const currentBankroll = (appState.bankroll !== null && appState.bankroll !== undefined) ? parseFloat(appState.bankroll) : 0;
+            const newTotal = currentBankroll - parseFloat(appState.wager);
             try {
                 const { setDoc, doc } = window.firebaseModules;
                 const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
@@ -1571,13 +1593,14 @@
         };
 
         window.creditPayout = async function() {
-            if (!appState.db || !appState.bankroll) return;
+            if (!appState.db) return;
             const payoutElement = document.getElementById('totalPayout');
             const payoutStr = payoutElement.value.replace(/[\$,]/g, '');
             const payoutNum = parseFloat(payoutStr);
             if (payoutNum <= 0 || isNaN(payoutNum)) return;
             
-            const newTotal = parseFloat(appState.bankroll) + payoutNum;
+            const currentBankroll = (appState.bankroll !== null && appState.bankroll !== undefined) ? parseFloat(appState.bankroll) : 0;
+            const newTotal = currentBankroll + payoutNum;
             try {
                 const { setDoc, doc } = window.firebaseModules;
                 const path = appId ? doc(appState.db, "artifacts", appId, "public", "data", "settings", "global") : doc(appState.db, "settings", "global");
