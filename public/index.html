@@ -1007,17 +1007,23 @@
             
             const prevWeek = appState.viewingWeek - 1;
             if (prevWeek >= 1 && !appState.isAdminMode) {
-                const parlayLost = appState.picks.some(p => p.week === prevWeek && (p.parlayType || 'main') === 'main' && p.status === 'lost');
-                const madePickLastWeek = appState.picks.some(p => p.week === prevWeek && p.name === name);
-                
-                if (parlayLost && madePickLastWeek) {
-                    const hasVoted = appState.votes.some(v => v.week === prevWeek && v.voterName === name);
-                    const isExempt = appState.manualVoters?.[prevWeek]?.includes(name);
-                    
-                    if (!hasVoted && !isExempt) {
-                        window.showToast(`You must vote for the Week ${prevWeek} Bozo first! 🤡`, "error");
-                        document.getElementById('bozoVoteWidget').scrollIntoView({ behavior: 'smooth' });
-                        return;
+                const prevPicks = appState.picks.filter(p => p.week === prevWeek && (p.parlayType || 'main') === 'main');
+                const hasLoss = prevPicks.some(p => p.status === 'lost');
+                const allGraded = prevPicks.length > 0 && prevPicks.every(p => p.status === 'won' || p.status === 'lost' || p.status === 'push');
+                const prevWeekWon = allGraded && !hasLoss && prevPicks.some(p => p.status === 'won');
+
+                // If the previous week was a winner (like Week 10), skip the Bozo requirement
+                if (!prevWeekWon) {
+                    const madePickLastWeek = prevPicks.some(p => p.name === name);
+                    if (madePickLastWeek) {
+                        const hasVoted = appState.votes.some(v => v.week === prevWeek && v.voterName === name);
+                        const isExempt = appState.manualVoters?.[prevWeek]?.includes(name);
+                        
+                        if (!hasVoted && !isExempt) {
+                            window.showToast(`You must vote for the Week ${prevWeek} Bozo before submitting! 🤡`, "error");
+                            document.getElementById('bozoVoteWidget').scrollIntoView({ behavior: 'smooth' });
+                            return;
+                        }
                     }
                 }
             }
