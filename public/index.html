@@ -58,27 +58,32 @@
     <nav class="bg-dkDark/80 backdrop-blur-xl border-b border-dkBorder sticky top-0 z-40" id="mainNav">
         <div class="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8 py-4">
             <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-br from-dkGreen/20 to-dkGreen/5 p-2 rounded-lg border border-dkGreen/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
+                <div class="hidden sm:block bg-gradient-to-br from-dkGreen/20 to-dkGreen/5 p-2 rounded-lg border border-dkGreen/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
                     <i class="ph-fill ph-bird text-dkGreen text-2xl leading-none"></i>
                 </div>
                 <h1 class="text-xl font-extrabold text-white tracking-widest drop-shadow-md">BOZO<span class="text-dkGreen">BETS</span></h1>
             </div>
             
             <div class="flex items-center">
-                <div class="hidden md:flex flex-col items-end mr-4 cursor-pointer group" onclick="window.toggleBankrollModal()" title="View Group Deposits">
-                    <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold group-hover:text-white transition-colors flex items-center">Group Bankroll <i class="ph-bold ph-info ml-1"></i></span>
-                    <span class="text-lg font-mono font-black text-white drop-shadow-md group-hover:text-dkGreen transition-colors" id="groupBankrollDisplay">TBD</span>
+                <div class="flex flex-col items-end mr-3 sm:mr-4 cursor-pointer group" onclick="window.toggleBankrollModal()" title="View Group Deposits">
+                    <span class="text-[9px] sm:text-[10px] uppercase tracking-widest text-gray-500 font-bold group-hover:text-white transition-colors flex items-center"><span class="hidden sm:inline">Group&nbsp;</span>Bankroll <i class="ph-bold ph-info ml-1"></i></span>
+                    <span class="text-base sm:text-lg font-mono font-black text-white drop-shadow-md group-hover:text-dkGreen transition-colors leading-none sm:leading-normal mt-0.5 sm:mt-0" id="groupBankrollDisplay">TBD</span>
                 </div>
                 
-                <div class="flex items-center space-x-3 ml-2 pl-3 border-l border-dkBorder">
-                    <a href="https://venmo.com/" class="flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Venmo">
+                <div class="flex items-center space-x-2 sm:space-x-3 ml-1 sm:ml-2 pl-3 border-l border-dkBorder">
+                    <a href="https://venmo.com/" class="hidden sm:flex items-center justify-center text-[12px] text-white font-bold bg-venmoBlue hover:bg-[#0073D1] px-3 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(0,140,255,0.3)] hover:shadow-[0_0_20px_rgba(0,140,255,0.5)] font-venmo tracking-wide leading-none" title="Open Venmo">
                         <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 mr-1" fill="currentColor">
                             <path d="M12.924 2.516c-1.059-.219-2.502-.284-4.104-.284-3.985 0-6.621 2.3-6.621 6.38 0 4.408 3.22 9.664 5.83 14.73l4.316-.001c-1.558-5.184-2.298-9.288-2.298-11.458 0-1.784.852-2.529 2.378-2.529 1.94 0 3.153 1.523 4.116 4.786l3.965-1.127C19.986 8.608 17.272 2.898 12.924 2.516z"/>
                         </svg>
                         Venmo
                     </a>
+                    <a href="https://venmo.com/" class="sm:hidden flex items-center justify-center bg-venmoBlue text-white p-2 rounded-lg shadow-[0_0_10px_rgba(0,140,255,0.3)]" title="Open Venmo">
+                        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+                            <path d="M12.924 2.516c-1.059-.219-2.502-.284-4.104-.284-3.985 0-6.621 2.3-6.621 6.38 0 4.408 3.22 9.664 5.83 14.73l4.316-.001c-1.558-5.184-2.298-9.288-2.298-11.458 0-1.784.852-2.529 2.378-2.529 1.94 0 3.153 1.523 4.116 4.786l3.965-1.127C19.986 8.608 17.272 2.898 12.924 2.516z"/>
+                        </svg>
+                    </a>
                     
-                    <button onclick="window.toggleSettings()" class="flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-white h-9 w-9 rounded-lg transition-all" title="Dashboard Settings">
+                    <button onclick="window.toggleSettings()" class="flex items-center justify-center text-sm bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-white h-8 w-8 sm:h-9 sm:w-9 rounded-lg transition-all" title="Dashboard Settings">
                         <i class="ph-fill ph-gear text-lg"></i>
                     </button>
                 </div>
